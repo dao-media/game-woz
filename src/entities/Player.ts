@@ -5,29 +5,61 @@ import type { EntityDef } from '../data/entities';
 import { StateMachine } from '../core/StateMachine';
 import type { Input, MoveVector } from '../platform/Input';
 import { Projection } from '../core/Projection';
+import { Health } from '../combat/Health';
+import {
+  resolveAttack,
+  clampFloorY,
+  type AttackDef,
+  type Damageable,
+} from '../combat/Attack';
+import type { CombatController } from '../combat/CombatController';
+import { flashFill } from '../combat/CombatFeel';
 
-export type PlayerState = 'idle' | 'walk' | 'run' | 'jump' | 'fall';
+export type PlayerState =
+  | 'idle'
+  | 'walk'
+  | 'run'
+  | 'jump'
+  | 'fall'
+  | 'lightAttack'
+  | 'heavyAttack'
+  | 'ultimate';
 
 /**
  * Free ground traveler on the perspective floor plane (floorX / floorY / z).
  * Always scrollFactor 1 — gameplay plane; décor uses depth-track scrollFactors.
  */
-export class Player {
+export class Player implements Damageable {
   readonly characterId: string;
   readonly body: Phaser.GameObjects.Rectangle;
   readonly shadow: Phaser.GameObjects.Ellipse;
   readonly fsm: StateMachine;
+  readonly health: Health;
 
   floorX: number;
   floorY: number;
   z = 0;
   zVel = 0;
 
-  private facing: 1 | -1 = 1;
+  combat: CombatController | null = null;
+
+  private facingDir: 1 | -1 = 1;
   private readonly stats: EntityDef['stats'];
   private xMin: number;
   private xMax: number;
   private scriptedMove: MoveVector | null = null;
+  private readonly scene: Phaser.Scene;
+
+  private attackDef: AttackDef | null = null;
+  private attackElapsedMs = 0;
+  private attackHitSet = new Set<Damageable>();
+  private attackOnComplete: (() => void) | null = null;
+  private comboIndexDuringAttack = 0;
+  private lockElapsedMs = 0;
+  private lockDurationMs = 0;
+  private knockVelX = 0;
+  private knockVelY = 0;
+  private baseFill: number;
 
   constructor(
     scene: Phaser.Scene,
@@ -36,12 +68,21 @@ export class Player {
     bounds: { xMin: number; xMax: number },
     characterId: string,
   ) {
+    this.scene = scene;
     this.characterId = characterId;
     this.stats = def.stats;
     this.floorX = spawn.floorX;
     this.floorY = Phaser.Math.Clamp(spawn.floorY, tuning.depthFar, tuning.depthNear);
     this.xMin = bounds.xMin;
     this.xMax = bounds.xMax;
+    this.baseFill = tuning.colors.player;
+
+    this.health = new Health(tuning.playerMaxHP, {
+      onDamage: () => this.onHitFeel(0),
+      onDeath: () => {
+        /* GameScene watches isDead */
+      },
+    });
 
     this.shadow = scene.add.ellipse(0, 0, 40, 14, tuning.colors.shadow, 0.35);
     this.shadow.setScrollFactor(1);
@@ -50,7 +91,7 @@ export class Player {
       0,
       tuning.playerBodyWidth,
       tuning.playerBodyHeight,
-      tuning.colors.player,
+      this.baseFill,
     );
     this.body.setScrollFactor(1);
     this.body.setOrigin(0.5, 1);
@@ -67,9 +108,16 @@ export class Player {
         },
       })
       .add('fall', {})
+      .add('lightAttack', {})
+      .add('heavyAttack', {})
+      .add('ultimate', {})
       .set('idle');
 
     this.syncVisual();
+  }
+
+  get facing(): 1 | -1 {
+    return this.facingDir;
   }
 
   /** Along-road X (east). */
@@ -81,6 +129,30 @@ export class Player {
     return Projection.floorYToDepth01(this.floorY);
   }
 
+  get comboIndex(): number {
+    return this.combat?.comboIndex ?? 0;
+  }
+
+  get lastHitDamage(): number {
+    return this.combat?.lastHitDamage ?? 0;
+  }
+
+  get heavyCooldownRemainMs(): number {
+    return this.combat?.heavyCooldownRemainMs ?? 0;
+  }
+
+  get ultimateCooldownRemainMs(): number {
+    return this.combat?.ultimateCooldownRemainMs ?? 0;
+  }
+
+  get ultimateCharge(): number {
+    return this.combat?.ultimateCharge ?? 0;
+  }
+
+  get ultimateTargetsAcquired(): number {
+    return this.combat?.ultimateTargetsAcquired ?? 0;
+  }
+
   setScriptedMove(move: MoveVector | null): void {
     this.scriptedMove = move;
   }
@@ -89,43 +161,173 @@ export class Player {
     return (this.fsm.current as PlayerState | null) ?? 'idle';
   }
 
-  update(input: Input, dtMs: number): void {
-    const dt = dtMs / 1000;
-    const move = this.scriptedMove ?? input.getMoveVector();
-    const wantRun = this.scriptedMove ? false : input.isDown('run');
-    const onGround = this.z <= 0 && this.zVel <= 0;
+  canStartAttack(): boolean {
+    if (this.health.isDead) return false;
+    const s = this.state;
+    return s === 'idle' || s === 'walk' || s === 'run';
+  }
 
-    if (!this.scriptedMove && onGround && input.justDown('jump')) {
-      this.fsm.set('jump');
+  startLightAttack(def: AttackDef, comboIndex: number, onComplete: () => void): void {
+    this.attackDef = def;
+    this.attackElapsedMs = 0;
+    this.attackHitSet.clear();
+    this.attackOnComplete = onComplete;
+    this.comboIndexDuringAttack = comboIndex;
+    this.fsm.set('lightAttack');
+  }
+
+  /** Brief FSM lock for heavy / ultimate (movement & other attacks blocked). */
+  startCombatLock(state: 'heavyAttack' | 'ultimate', durationMs: number): void {
+    this.lockElapsedMs = 0;
+    this.lockDurationMs = durationMs;
+    this.fsm.set(state);
+  }
+
+  tickCombatLock(dtMs: number): void {
+    if (this.state !== 'heavyAttack' && this.state !== 'ultimate') return;
+    this.lockElapsedMs += dtMs;
+    if (this.lockElapsedMs >= this.lockDurationMs) {
+      this.endCombatLock();
     }
+  }
 
-    const mul = (move.x !== 0 || move.y !== 0) && wantRun ? this.stats.runSpeedMul : 1;
-    this.floorX += move.x * this.stats.moveSpeedX * mul * dt;
-    this.floorX = Phaser.Math.Clamp(this.floorX, this.xMin, this.xMax);
+  endCombatLock(): void {
+    if (this.state === 'heavyAttack' || this.state === 'ultimate') {
+      this.fsm.set('idle');
+    }
+    this.lockElapsedMs = 0;
+    this.lockDurationMs = 0;
+  }
 
-    // ↑ farther (smaller floorY), ↓ nearer (larger floorY).
-    this.floorY += move.y * this.stats.moveSpeedY * mul * dt;
-    this.floorY = Phaser.Math.Clamp(this.floorY, tuning.depthFar, tuning.depthNear);
+  tickLightAttack(
+    dtMs: number,
+    targets: readonly Damageable[],
+    onHit: (damage: number, floorX: number, floorY: number) => void,
+  ): void {
+    if (!this.attackDef) return;
 
-    if (move.x < -0.01) this.facing = -1;
-    else if (move.x > 0.01) this.facing = 1;
+    this.attackElapsedMs += dtMs;
+    const def = this.attackDef;
 
-    const airborne = this.state === 'jump' || this.state === 'fall' || this.z > 0;
-    if (airborne) {
-      this.zVel -= this.stats.gravityZ * dt;
-      this.z += this.zVel * dt;
-      if (this.z <= 0) {
-        this.z = 0;
-        this.zVel = 0;
+    if (
+      this.attackElapsedMs >= def.activeStartMs &&
+      this.attackElapsedMs <= def.activeEndMs
+    ) {
+      const hits = resolveAttack(
+        def,
+        { floorX: this.floorX, floorY: this.floorY, facing: this.facingDir },
+        targets,
+        this.attackHitSet,
+        { kind: 'player-light', id: def.id },
+      );
+      for (const h of hits) {
+        onHit(h.damage, h.target.floorX, h.target.floorY);
       }
     }
 
-    this.updateFsm(move, wantRun);
-    this.fsm.update(dtMs);
+    if (this.attackElapsedMs >= def.durationMs) {
+      this.attackOnComplete?.();
+      this.attackDef = null;
+      this.attackOnComplete = null;
+      this.fsm.set('idle');
+    }
+
+    void this.comboIndexDuringAttack;
+  }
+
+  applyKnockback(dx: number, dy: number): void {
+    this.knockVelX += dx;
+    this.knockVelY += dy;
+  }
+
+  onHitFeel(_damage: number): void {
+    flashFill(this.scene, this.body, this.baseFill);
+  }
+
+  /**
+   * Full player tick. When attacking, movement is locked (except knockback decay).
+   * Combat controller runs before movement so lightAttack can claim the frame.
+   */
+  update(input: Input, dtMs: number, targets: readonly Damageable[] = []): void {
+    if (this.health.isDead) {
+      this.syncVisual();
+      return;
+    }
+
+    this.combat?.tickPassive?.(this, dtMs);
+    this.combat?.update(this, input, dtMs, targets);
+
+    const dt = dtMs / 1000;
+    const attacking =
+      this.state === 'lightAttack' ||
+      this.state === 'heavyAttack' ||
+      this.state === 'ultimate';
+
+    // Knockback impulse decay in floor space.
+    if (Math.abs(this.knockVelX) > 0.5 || Math.abs(this.knockVelY) > 0.5) {
+      this.floorX += this.knockVelX * dt;
+      this.floorY = clampFloorY(this.floorY + this.knockVelY * dt);
+      this.knockVelX *= Math.max(0, 1 - 8 * dt);
+      this.knockVelY *= Math.max(0, 1 - 8 * dt);
+    } else {
+      this.knockVelX = 0;
+      this.knockVelY = 0;
+    }
+
+    if (!attacking) {
+      const move = this.scriptedMove ?? input.getMoveVector();
+      const wantRun = this.scriptedMove ? false : input.isDown('run');
+      const onGround = this.z <= 0 && this.zVel <= 0;
+
+      if (!this.scriptedMove && onGround && input.justDown('jump')) {
+        this.fsm.set('jump');
+      }
+
+      const mul = (move.x !== 0 || move.y !== 0) && wantRun ? this.stats.runSpeedMul : 1;
+      this.floorX += move.x * this.stats.moveSpeedX * mul * dt;
+      this.floorY += move.y * this.stats.moveSpeedY * mul * dt;
+
+      if (move.x < -0.01) this.facingDir = -1;
+      else if (move.x > 0.01) this.facingDir = 1;
+
+      const airborne = this.state === 'jump' || this.state === 'fall' || this.z > 0;
+      if (airborne) {
+        this.zVel -= this.stats.gravityZ * dt;
+        this.z += this.zVel * dt;
+        if (this.z <= 0) {
+          this.z = 0;
+          this.zVel = 0;
+        }
+      }
+
+      this.updateFsm(move, wantRun);
+      this.fsm.update(dtMs);
+    } else {
+      // Still apply gravity if somehow airborne into attack.
+      if (this.z > 0) {
+        this.zVel -= this.stats.gravityZ * dt;
+        this.z += this.zVel * dt;
+        if (this.z <= 0) {
+          this.z = 0;
+          this.zVel = 0;
+        }
+      }
+      this.fsm.update(dtMs);
+    }
+
+    this.floorX = Phaser.Math.Clamp(this.floorX, this.xMin, this.xMax);
+    this.floorY = clampFloorY(this.floorY);
     this.syncVisual();
   }
 
   private updateFsm(move: MoveVector, wantRun: boolean): void {
+    if (
+      this.state === 'lightAttack' ||
+      this.state === 'heavyAttack' ||
+      this.state === 'ultimate'
+    ) {
+      return;
+    }
     if (this.z > 0) {
       if (this.zVel > 0) this.fsm.set('jump');
       else this.fsm.set('fall');
@@ -142,7 +344,7 @@ export class Player {
     const scale = Projection.depthScale(this.floorY);
 
     this.body.setPosition(screen.x, screen.y);
-    this.body.setScale((this.facing < 0 ? -1 : 1) * scale, scale);
+    this.body.setScale((this.facingDir < 0 ? -1 : 1) * scale, scale);
     applyDepth(this.body, this.floorY, 1);
 
     this.shadow.setPosition(ground.x, ground.y);

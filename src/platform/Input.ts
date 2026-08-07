@@ -8,6 +8,9 @@ export type InputAction =
   | 'moveRight'
   | 'run'
   | 'jump'
+  | 'lightAttack'
+  | 'heavyAttack'
+  | 'ultimate'
   | 'start'
   | 'confirm'
   | 'back'
@@ -30,6 +33,9 @@ const GAMEPLAY_ACTIONS: ReadonlySet<InputAction> = new Set([
   'moveRight',
   'run',
   'jump',
+  'lightAttack',
+  'heavyAttack',
+  'ultimate',
 ]);
 
 /**

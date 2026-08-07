@@ -3,44 +3,26 @@ export const tuning = {
   gameWidth: 960,
   gameHeight: 540,
 
-  /** Vertical compression of floor depth → three-quarter tilt. */
   foreshorten: 0.55,
-  /**
-   * One-point perspective: horizontal scale at the far edge relative to near (1 = no pinch).
-   * Far floor is narrower toward the vanishing point — cross-lines shorten toward far.
-   */
   perspectiveFarScale: 0.58,
 
-  /** Walkable depth band in floor-Y (far = smaller / toward horizon, near = larger). */
   depthFar: 120,
   depthNear: 420,
-  /** Extra floor-Y padding beyond depth band for drawing. */
   worldFloorPad: 40,
 
-  /** Flat vertical backdrop height above the far floor edge (screen px). */
   backdropHeight: 220,
-  /**
-   * Backdrop scroll factor as a fraction of the far-floor track factor.
-   * Lower = wall lags more (stronger parallax behind the road).
-   */
   backdropParallaxScale: 0.55,
 
   floorGridStepX: 80,
   floorGridStepY: 40,
 
-  /** Ground speed along the road (floor-X units / second). */
   moveSpeedX: 180,
-  /** Depth travel speed (floor-Y units / second). */
   moveSpeedY: 140,
   runSpeedMul: 1.65,
 
   jumpVelocityZ: 220,
   gravityZ: 720,
 
-  /**
-   * Munchkinland gate — planted on one perspective ray (constant floorX).
-   * Opening spans mid floor-Y of the road band.
-   */
   gateFloorX: 160,
   gateOpeningFloorY: 270,
   gateOpeningHalfWidth: 45,
@@ -60,6 +42,85 @@ export const tuning = {
 
   playerBodyWidth: 36,
   playerBodyHeight: 56,
+
+  // —— Combat ——
+  playerMaxHP: 100,
+
+  /** Silver Slippers: fraction of incoming damage blocked (0.2 = 20% reduction). */
+  slipperDamageReduction: 0.2,
+  /** Silver Slippers: HP restored per second. */
+  slipperRegenPerSec: 2.5,
+
+  /** Placeholder basic kick (Tin-Man / Lion / Scarecrow). */
+  placeholderKickDamage: 8,
+  placeholderKickRange: 70,
+  placeholderKickHalfAngleDeg: 50,
+  placeholderKickDurationMs: 220,
+  placeholderKickActiveStartMs: 40,
+  placeholderKickActiveEndMs: 160,
+
+  /** Dorothy light combo — kick 1 / 2 / 3. */
+  kick1Damage: 10,
+  kick1Range: 72,
+  kick1HalfAngleDeg: 55,
+  kick1DurationMs: 200,
+  kick1ActiveStartMs: 35,
+  kick1ActiveEndMs: 140,
+
+  kick2Damage: 14,
+  kick2Range: 78,
+  kick2HalfAngleDeg: 58,
+  kick2DurationMs: 220,
+  kick2ActiveStartMs: 35,
+  kick2ActiveEndMs: 150,
+
+  kick3Damage: 22,
+  kick3Range: 88,
+  kick3HalfAngleDeg: 65,
+  kick3DurationMs: 280,
+  kick3ActiveStartMs: 40,
+  kick3ActiveEndMs: 180,
+  kick3Knockback: 95,
+
+  comboWindowMs: 420,
+  /** Buffer next light input this many ms before kick ends. */
+  comboBufferLeadMs: 90,
+
+  /** Dorothy heavy — heel-click red energy bolt. */
+  heavyDamage: 18,
+  heavyFloorRange: 220,
+  heavyMaxTargets: 3,
+  heavyFloorYTolerance: 48,
+  heavyCooldownMs: 900,
+  heavyProjectileSpeed: 420,
+  heavyHitRadius: 28,
+  heavyKnockback: 40,
+  heavyAttackDurationMs: 180,
+  heavyBoltWidth: 18,
+  heavyBoltHeight: 8,
+
+  /** Dorothy ultimate — triple heel-click pulse. */
+  ultimateDamage: 28,
+  ultimateAcquireRange: 260,
+  ultimateMaxTargets: 3,
+  ultimatePulseRadius: 70,
+  ultimateWindupMs: 520,
+  ultimateCooldownMs: 8000,
+  ultimatePulseDurationMs: 380,
+  ultimateKnockback: 55,
+
+  dummyMaxHP: 40,
+  dummyContactDamage: 8,
+  dummyContactCooldownMs: 700,
+  dummyContactRadius: 28,
+  dummyBodyWidth: 32,
+  dummyBodyHeight: 48,
+
+  knockbackStrength: 70,
+  hitFlashMs: 100,
+  hitStopMs: 50,
+  damageNumberRisePx: 36,
+  damageNumberDurationMs: 500,
 
   colors: {
     background: 0x1a1a1e,
@@ -81,6 +142,17 @@ export const tuning = {
     trackMidFar: 0x7a9a7a,
     trackMid: 0x8a9a6a,
     trackNear: 0xaa8a6a,
+    enemy: 0xb05050,
+    enemyFlash: 0xffffff,
+    redEnergy: 0xe03040,
+    redEnergySoft: 0xff6a6a,
+    hpBarBg: 0x2a2a32,
+    hpBarFill: 0xc4a35a,
+    hpBarLow: 0xb05050,
+    cooldownReady: 0xc4a35a,
+    cooldownBusy: 0x5a5a68,
+    ultimateCharge: 0xe03040,
+    damageNumber: 0xffe8a0,
   },
 } as const;
 

@@ -11,17 +11,29 @@ import { Projection } from '../core/Projection';
 import { gameScenery } from '../data/scenery';
 import { createPlayer } from '../entities/createPlayer';
 import { Player } from '../entities/Player';
+import { Enemy } from '../entities/Enemy';
 import { StageProp } from '../entities/StageProp';
 import { createStageLayers, redrawStage, type StageLayers } from '../render/StageView';
 import { DebugOverlay } from '../ui/DebugOverlay';
+import { CombatHUD } from '../ui/CombatHUD';
+
+const DUMMY_SPAWNS: ReadonlyArray<{ floorX: number; floorY: number }> = [
+  { floorX: 420, floorY: 200 },
+  { floorX: 560, floorY: 310 },
+  { floorX: 720, floorY: 250 },
+  { floorX: 900, floorY: 360 },
+];
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
+  private enemies: Enemy[] = [];
   private props: StageProp[] = [];
   private tracks: readonly DepthTrack[] = [];
   private stage!: StageLayers;
   private debug!: DebugOverlay;
+  private hud!: CombatHUD;
   private finished = false;
+  private defeated = false;
   private readonly worldWidth = tuning.continuationRoadLength;
 
   constructor() {
@@ -34,6 +46,7 @@ export class GameScene extends Phaser.Scene {
     input.bind(this);
     input.setEnabled(true);
     this.finished = false;
+    this.defeated = false;
     this.tracks = createDepthTracks();
 
     this.cameras.main.setBackgroundColor(tuning.colors.background);
@@ -59,9 +72,12 @@ export class GameScene extends Phaser.Scene {
       { xMin: 0, xMax: this.worldWidth },
     );
 
+    this.enemies = DUMMY_SPAWNS.map((s) => new Enemy(this, s));
+
+    this.hud = new CombatHUD(this);
     this.debug = new DebugOverlay(this);
     this.add
-      .text(16, tuning.gameHeight - 28, `${path.label} → ${path.destination}  ·  F3 debug`, {
+      .text(16, tuning.gameHeight - 28, `${path.label} → ${path.destination}  ·  J/L/U  ·  F3 debug`, {
         fontFamily: 'monospace',
         fontSize: '13px',
         color: '#c4c4d0',
@@ -73,16 +89,31 @@ export class GameScene extends Phaser.Scene {
   }
 
   update(_t: number, dt: number): void {
-    if (this.finished) return;
+    if (this.finished || this.defeated) return;
 
     const { input, runState } = getServices(this);
     if (input.justDown('debug')) this.debug.toggle();
 
-    this.player.update(input, dt);
+    const liveTargets = this.enemies.filter((e) => e.alive);
+    this.player.update(input, dt, liveTargets);
+
+    for (const enemy of this.enemies) {
+      enemy.update(dt, this.player);
+    }
+
+    this.hud.update(this.player);
     this.syncCameraAndStage();
 
     const path = getSelectedPath(this);
     this.debug.update(this.player, path, runState.selectedCharacter);
+
+    if (this.player.health.isDead) {
+      this.defeated = true;
+      this.time.delayedCall(600, () => {
+        this.scene.start('CharacterSelect');
+      });
+      return;
+    }
 
     if (this.player.floorX >= this.worldWidth - tuning.finishMargin) {
       this.finished = true;
@@ -105,5 +136,6 @@ export class GameScene extends Phaser.Scene {
 
     this.props.forEach((p) => p.syncVisual());
     this.player.syncVisual();
+    this.enemies.forEach((e) => e.syncVisual());
   }
 }
