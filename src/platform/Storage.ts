@@ -35,6 +35,6 @@ export class WebStorage implements Storage {
 }
 
 export const STORAGE_KEYS = {
-  lastPathId: 'oz.lastPathId',
+  runState: 'oz.runState',
   settings: 'oz.settings',
 } as const;

@@ -7,27 +7,14 @@ export const tuning = {
   foreshorten: 0.55,
   /**
    * One-point perspective: horizontal scale at the far edge relative to near (1 = no pinch).
-   * Far floor is narrower toward the vanishing point.
+   * Far floor is narrower toward the vanishing point — cross-lines shorten toward far.
    */
   perspectiveFarScale: 0.58,
 
-  /** Floor-plane walk speed (pixels / second in floor space). */
-  moveSpeed: 180,
-  /** Floor-plane fast-run speed while run action (Shift) is held. */
-  runSpeed: 320,
-
-  hopHeight: 48,
-  /** Upward z-velocity impulse on hop start. */
-  hopImpulse: 280,
-  /** Gravity pulling z back to 0 (units / s²). */
-  zGravity: 900,
-
-  /** Walkable depth band in floor-Y (far = smaller, near = larger). */
+  /** Walkable depth band in floor-Y (far = smaller / toward horizon, near = larger). */
   depthFar: 120,
   depthNear: 420,
-
-  worldWidth: 2400,
-  /** Extra floor-Y padding beyond depth band for world bounds. */
+  /** Extra floor-Y padding beyond depth band for drawing. */
   worldFloorPad: 40,
 
   /** Flat vertical backdrop height above the far floor edge (screen px). */
@@ -38,31 +25,62 @@ export const tuning = {
    */
   backdropParallaxScale: 0.55,
 
-  feetWidth: 28,
-  feetHeight: 14,
+  floorGridStepX: 80,
+  floorGridStepY: 40,
+
+  /** Ground speed along the road (floor-X units / second). */
+  moveSpeedX: 180,
+  /** Depth travel speed (floor-Y units / second). */
+  moveSpeedY: 140,
+  runSpeedMul: 1.65,
+
+  jumpVelocityZ: 220,
+  gravityZ: 720,
+
+  /**
+   * Munchkinland gate — planted on one perspective ray (constant floorX).
+   * Opening spans mid floor-Y of the road band.
+   */
+  gateFloorX: 160,
+  gateOpeningFloorY: 270,
+  gateOpeningHalfWidth: 45,
+  gateSpawnFloorX: 110,
+  gateWalkHandoffFloorX: 220,
+
+  introCameraMoveMs: 1400,
+  introCameraMoveEase: 'Cubic.easeInOut',
+  forkSplitFloorX: 900,
+  munchkinRoadLength: 1400,
+  continuationRoadLength: 2400,
+  finishMargin: 64,
+
+  shadowScaleGround: 1,
+  shadowScaleAir: 0.55,
+  shadowMaxZ: 80,
 
   playerBodyWidth: 36,
   playerBodyHeight: 56,
-
-  obstacleWidth: 48,
-  obstacleHeight: 64,
-
-  floorGridStepX: 80,
-  floorGridStepY: 40,
 
   colors: {
     background: 0x1a1a1e,
     backdropTop: 0x2c3344,
     backdropBottom: 0x1e2430,
     backdropLine: 0x3a4558,
-    floorFar: 0x2a2a32,
-    floorNear: 0x3d3d48,
-    floorLine: 0x5a5a68,
-    horizon: 0xc4a35a,
+    floorFar: 0xa88840,
+    floorNear: 0xd4b86a,
+    floorLine: 0x8a7030,
+    horizon: 0xe8d5a3,
+    road: 0xc4a35a,
+    munchkin: 0x7a5a8a,
+    divider: 0x5a6a7a,
+    forkMarker: 0xe8d5a3,
     player: 0xc4a35a,
-    playerFeet: 0x8a7040,
-    obstacle: 0x6b7c8a,
-    obstacleNear: 0x8a9aaa,
+    shadow: 0x1a1a1e,
+    grass: 0x3a4a32,
+    trackFar: 0x6a8aaa,
+    trackMidFar: 0x7a9a7a,
+    trackMid: 0x8a9a6a,
+    trackNear: 0xaa8a6a,
   },
 } as const;
 

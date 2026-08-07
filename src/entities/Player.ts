@@ -1,155 +1,169 @@
 import Phaser from 'phaser';
 import { tuning } from '../config/tuning';
 import { applyDepth } from '../core/DepthSort';
-import { Projection } from '../core/Projection';
-import { StateMachine } from '../core/StateMachine';
 import type { EntityDef } from '../data/entities';
+import { StateMachine } from '../core/StateMachine';
 import type { Input, MoveVector } from '../platform/Input';
+import { Projection } from '../core/Projection';
 
-export type PlayerState = 'idle' | 'walk' | 'run' | 'hop';
+export type PlayerState = 'idle' | 'walk' | 'run' | 'jump' | 'fall';
 
 /**
- * Greybox player: floor-plane movement, feet box, z-hop, L/R facing only.
- * Arcade body stays in floor space; visual is projected each frame.
+ * Free ground traveler on the perspective floor plane (floorX / floorY / z).
+ * Always scrollFactor 1 — gameplay plane; décor uses depth-track scrollFactors.
  */
 export class Player {
-  readonly feet: Phaser.Physics.Arcade.Image;
-  readonly bodySprite: Phaser.GameObjects.Image;
+  readonly characterId: string;
+  readonly body: Phaser.GameObjects.Rectangle;
+  readonly shadow: Phaser.GameObjects.Ellipse;
   readonly fsm: StateMachine;
 
   floorX: number;
   floorY: number;
   z = 0;
-  private zVel = 0;
+  zVel = 0;
+
   private facing: 1 | -1 = 1;
   private readonly stats: EntityDef['stats'];
-  private readonly depthFar: number;
-  private readonly depthNear: number;
-  private readonly worldWidth: number;
+  private xMin: number;
+  private xMax: number;
+  private scriptedMove: MoveVector | null = null;
 
   constructor(
     scene: Phaser.Scene,
     def: EntityDef,
     spawn: { floorX: number; floorY: number },
-    bounds: { depthFar: number; depthNear: number; worldWidth: number },
+    bounds: { xMin: number; xMax: number },
+    characterId: string,
   ) {
+    this.characterId = characterId;
     this.stats = def.stats;
-    this.depthFar = bounds.depthFar;
-    this.depthNear = bounds.depthNear;
-    this.worldWidth = bounds.worldWidth;
     this.floorX = spawn.floorX;
-    this.floorY = spawn.floorY;
+    this.floorY = Phaser.Math.Clamp(spawn.floorY, tuning.depthFar, tuning.depthNear);
+    this.xMin = bounds.xMin;
+    this.xMax = bounds.xMax;
 
-    const screen = Projection.toScreen(this.floorX, this.floorY, 0);
-
-    this.feet = scene.physics.add.image(this.floorX, this.floorY, 'player-feet');
-    this.feet.setCollideWorldBounds(true);
-    this.feet.body!.setSize(tuning.feetWidth, tuning.feetHeight);
-    this.feet.setVisible(false);
-    this.feet.setImmovable(false);
-
-    this.bodySprite = scene.add.image(screen.x, screen.y, 'player-body');
-    this.bodySprite.setOrigin(0.5, 1);
+    this.shadow = scene.add.ellipse(0, 0, 40, 14, tuning.colors.shadow, 0.35);
+    this.shadow.setScrollFactor(1);
+    this.body = scene.add.rectangle(
+      0,
+      0,
+      tuning.playerBodyWidth,
+      tuning.playerBodyHeight,
+      tuning.colors.player,
+    );
+    this.body.setScrollFactor(1);
+    this.body.setOrigin(0.5, 1);
+    this.shadow.setOrigin(0.5, 0.5);
 
     this.fsm = new StateMachine();
     this.fsm
-      .add('idle', {
-        enter: () => {
-          this.zVel = 0;
-        },
-      })
+      .add('idle', {})
       .add('walk', {})
       .add('run', {})
-      .add('hop', {
+      .add('jump', {
         enter: () => {
-          this.zVel = this.stats.hopImpulse;
-          this.feet.setVelocity(0, 0);
+          this.zVel = this.stats.jumpVelocityZ;
         },
-        update: (dt) => this.updateHop(dt),
-      });
-    this.fsm.set('idle');
+      })
+      .add('fall', {})
+      .set('idle');
+
     this.syncVisual();
   }
 
-  update(input: Input, _dt: number): void {
-    const move = input.getMoveVector();
-    const running = input.isDown('run');
-    const state = this.fsm.current as PlayerState | null;
-
-    if (state === 'hop') {
-      this.fsm.update(_dt);
-      this.syncFromFeet();
-      this.syncVisual();
-      return;
-    }
-
-    if (input.justDown('hop') && this.z <= 0) {
-      this.fsm.set('hop');
-      this.syncVisual();
-      return;
-    }
-
-    const moving = move.x !== 0 || move.y !== 0;
-    this.applyMove(move, running && moving);
-
-    if (!moving) {
-      this.fsm.set('idle');
-    } else if (running) {
-      this.fsm.set('run');
-    } else {
-      this.fsm.set('walk');
-    }
-
-    this.fsm.update(_dt);
-    this.syncFromFeet();
-    this.clampFloor();
-    this.syncVisual();
+  /** Along-road X (east). */
+  get x(): number {
+    return this.floorX;
   }
 
-  private applyMove(move: MoveVector, running: boolean): void {
-    const speed = running ? this.stats.runSpeed : this.stats.moveSpeed;
-    this.feet.setVelocity(move.x * speed, move.y * speed);
+  get depth01(): number {
+    return Projection.floorYToDepth01(this.floorY);
+  }
+
+  setScriptedMove(move: MoveVector | null): void {
+    this.scriptedMove = move;
+  }
+
+  get state(): PlayerState {
+    return (this.fsm.current as PlayerState | null) ?? 'idle';
+  }
+
+  update(input: Input, dtMs: number): void {
+    const dt = dtMs / 1000;
+    const move = this.scriptedMove ?? input.getMoveVector();
+    const wantRun = this.scriptedMove ? false : input.isDown('run');
+    const onGround = this.z <= 0 && this.zVel <= 0;
+
+    if (!this.scriptedMove && onGround && input.justDown('jump')) {
+      this.fsm.set('jump');
+    }
+
+    const mul = (move.x !== 0 || move.y !== 0) && wantRun ? this.stats.runSpeedMul : 1;
+    this.floorX += move.x * this.stats.moveSpeedX * mul * dt;
+    this.floorX = Phaser.Math.Clamp(this.floorX, this.xMin, this.xMax);
+
+    // ↑ farther (smaller floorY), ↓ nearer (larger floorY).
+    this.floorY += move.y * this.stats.moveSpeedY * mul * dt;
+    this.floorY = Phaser.Math.Clamp(this.floorY, tuning.depthFar, tuning.depthNear);
 
     if (move.x < -0.01) this.facing = -1;
     else if (move.x > 0.01) this.facing = 1;
-  }
 
-  private updateHop(dt: number): void {
-    const sec = dt / 1000;
-    this.zVel -= this.stats.zGravity * sec;
-    this.z += this.zVel * sec;
-    if (this.z <= 0) {
-      this.z = 0;
-      this.zVel = 0;
-      this.fsm.set('idle');
+    const airborne = this.state === 'jump' || this.state === 'fall' || this.z > 0;
+    if (airborne) {
+      this.zVel -= this.stats.gravityZ * dt;
+      this.z += this.zVel * dt;
+      if (this.z <= 0) {
+        this.z = 0;
+        this.zVel = 0;
+      }
     }
+
+    this.updateFsm(move, wantRun);
+    this.fsm.update(dtMs);
+    this.syncVisual();
   }
 
-  private syncFromFeet(): void {
-    this.floorX = this.feet.x;
-    this.floorY = this.feet.y;
+  private updateFsm(move: MoveVector, wantRun: boolean): void {
+    if (this.z > 0) {
+      if (this.zVel > 0) this.fsm.set('jump');
+      else this.fsm.set('fall');
+      return;
+    }
+    if (move.x === 0 && move.y === 0) this.fsm.set('idle');
+    else if (wantRun) this.fsm.set('run');
+    else this.fsm.set('walk');
   }
 
-  private clampFloor(): void {
-    this.floorX = Phaser.Math.Clamp(this.floorX, tuning.feetWidth, this.worldWidth - tuning.feetWidth);
-    this.floorY = Phaser.Math.Clamp(this.floorY, this.depthFar, this.depthNear);
-    this.feet.setPosition(this.floorX, this.floorY);
-  }
-
-  private syncVisual(): void {
+  syncVisual(): void {
     const screen = Projection.toScreen(this.floorX, this.floorY, this.z);
-    this.bodySprite.setPosition(screen.x, screen.y);
-    this.bodySprite.setFlipX(this.facing < 0);
-    applyDepth(this.bodySprite, this.floorY);
-  }
+    const ground = Projection.toScreen(this.floorX, this.floorY, 0);
+    const scale = Projection.depthScale(this.floorY);
 
-  /** Projected follow point for the camera. */
-  getFollowPoint(): { x: number; y: number } {
-    return Projection.toScreen(this.floorX, this.floorY, this.z);
+    this.body.setPosition(screen.x, screen.y);
+    this.body.setScale((this.facing < 0 ? -1 : 1) * scale, scale);
+    applyDepth(this.body, this.floorY, 1);
+
+    this.shadow.setPosition(ground.x, ground.y);
+    const t = Phaser.Math.Clamp(this.z / tuning.shadowMaxZ, 0, 1);
+    const shadowMul = Phaser.Math.Linear(
+      tuning.shadowScaleGround,
+      tuning.shadowScaleAir,
+      t,
+    );
+    this.shadow.setScale(scale * shadowMul);
+    applyDepth(this.shadow, this.floorY, 0);
   }
 
   destroy(): void {
-    this.feet.destroy();
-    this.bodySprite.destroy();
+    this.body.destroy();
+    this.shadow.destroy();
+  }
+
+  setHeld(held: boolean): void {
+    this.body.setVisible(!held);
+    this.shadow.setVisible(!held);
+    if (!held) this.syncVisual();
   }
 }

@@ -3,7 +3,8 @@ import { tuning } from './config/tuning';
 import { BootScene } from './scenes/BootScene';
 import { PreloadScene } from './scenes/PreloadScene';
 import { MenuScene } from './scenes/MenuScene';
-import { PathSelectScene } from './scenes/PathSelectScene';
+import { CharacterSelectScene } from './scenes/CharacterSelectScene';
+import { MunchkinlandScene } from './scenes/MunchkinlandScene';
 import { GameScene } from './scenes/GameScene';
 import { WinScene } from './scenes/WinScene';
 
@@ -24,7 +25,15 @@ const config: Phaser.Types.Core.GameConfig = {
       debug: false,
     },
   },
-  scene: [BootScene, PreloadScene, MenuScene, PathSelectScene, GameScene, WinScene],
+  scene: [
+    BootScene,
+    PreloadScene,
+    MenuScene,
+    CharacterSelectScene,
+    MunchkinlandScene,
+    GameScene,
+    WinScene,
+  ],
   input: {
     keyboard: true,
   },

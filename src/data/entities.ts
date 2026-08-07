@@ -1,14 +1,11 @@
 import { tuning } from '../config/tuning';
 
-/**
- * Data-driven entity defs. Systems consume plain data + a behavior key.
- * Only the player exists today; enemies/bosses will share this shape.
- */
 export type EntityStats = {
-  moveSpeed: number;
-  runSpeed: number;
-  hopImpulse: number;
-  zGravity: number;
+  moveSpeedX: number;
+  moveSpeedY: number;
+  runSpeedMul: number;
+  jumpVelocityZ: number;
+  gravityZ: number;
 };
 
 export type EntityDef = {
@@ -23,10 +20,11 @@ export const playerDef: EntityDef = {
   behavior: 'player',
   displayName: 'Traveler',
   stats: {
-    moveSpeed: tuning.moveSpeed,
-    runSpeed: tuning.runSpeed,
-    hopImpulse: tuning.hopImpulse,
-    zGravity: tuning.zGravity,
+    moveSpeedX: tuning.moveSpeedX,
+    moveSpeedY: tuning.moveSpeedY,
+    runSpeedMul: tuning.runSpeedMul,
+    jumpVelocityZ: tuning.jumpVelocityZ,
+    gravityZ: tuning.gravityZ,
   },
 };
 

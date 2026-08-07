@@ -1,11 +1,10 @@
 import type Phaser from 'phaser';
 
-/**
- * Beat-em-up depth: nearer entities (higher floorY) draw on top.
- */
+/** Render order from floor depth — nearer (higher floorY) draws on top. */
 export function applyDepth(
-  gameObject: Phaser.GameObjects.Components.Depth,
+  obj: Phaser.GameObjects.Components.Depth,
   floorY: number,
+  tieBreak = 0,
 ): void {
-  gameObject.setDepth(floorY);
+  obj.setDepth(floorY * 10 + tieBreak);
 }

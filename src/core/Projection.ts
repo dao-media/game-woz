@@ -54,7 +54,6 @@ export const Projection = {
     return Projection.toScreen(point.floorX, point.floorY, point.z ?? 0);
   },
 
-  /** Projected Y of a floor-Y depth (no hop). */
   floorYToScreenY(floorY: number): number {
     return floorY * tuning.foreshorten;
   },
@@ -62,6 +61,18 @@ export const Projection = {
   /** Horizon line — far walkable edge in screen Y. */
   horizonY(): number {
     return Projection.floorYToScreenY(tuning.depthFar);
+  },
+
+  /** Map continuous depth01 (0 near → 1 far) onto the walkable floor-Y band. */
+  depth01ToFloorY(depth01: number): number {
+    const t = clamp(depth01, 0, 1);
+    return tuning.depthNear + (tuning.depthFar - tuning.depthNear) * t;
+  },
+
+  floorYToDepth01(floorY: number): number {
+    const span = tuning.depthNear - tuning.depthFar;
+    if (span <= 0) return 0;
+    return clamp((tuning.depthNear - floorY) / span, 0, 1);
   },
 };
 

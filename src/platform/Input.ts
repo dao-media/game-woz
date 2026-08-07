@@ -7,28 +7,47 @@ export type InputAction =
   | 'moveLeft'
   | 'moveRight'
   | 'run'
-  | 'hop'
+  | 'jump'
   | 'start'
   | 'confirm'
   | 'back'
   | 'menuUp'
-  | 'menuDown';
+  | 'menuDown'
+  | 'debug';
 
+/** Ground-plane move vector (world x/y), normalized. */
 export type MoveVector = { x: number; y: number };
 
 type ActionState = {
   keys: Phaser.Input.Keyboard.Key[];
-  /** Optional external axis contribution (−1…1), for future touch/gamepad. */
   axis: number;
 };
 
+const GAMEPLAY_ACTIONS: ReadonlySet<InputAction> = new Set([
+  'moveUp',
+  'moveDown',
+  'moveLeft',
+  'moveRight',
+  'run',
+  'jump',
+]);
+
 /**
  * Unified action-set input. Game logic reads actions, never raw keys.
- * Keyboard now; touch (virtual stick) and gamepad plug into the same axes later.
+ * When disabled, movement/jump/run report neutral (cutscenes / walk-outs).
  */
 export class Input {
   private readonly actions = new Map<InputAction, ActionState>();
   private bound = false;
+  private _enabled = true;
+
+  get enabled(): boolean {
+    return this._enabled;
+  }
+
+  setEnabled(value: boolean): void {
+    this._enabled = value;
+  }
 
   bind(scene: Phaser.Scene, bindings: Record<InputAction, string[]> = defaultKeybindings): void {
     const keyboard = scene.input.keyboard;
@@ -50,7 +69,6 @@ export class Input {
     this.bound = true;
   }
 
-  /** Inject axis from future virtual joystick / gamepad (−1…1). */
   setAxis(action: InputAction, value: number): void {
     const state = this.actions.get(action);
     if (!state) return;
@@ -58,6 +76,7 @@ export class Input {
   }
 
   isDown(action: InputAction): boolean {
+    if (!this._enabled && GAMEPLAY_ACTIONS.has(action)) return false;
     const state = this.actions.get(action);
     if (!state) return false;
     if (Math.abs(state.axis) > 0.4) return true;
@@ -65,17 +84,14 @@ export class Input {
   }
 
   justDown(action: InputAction): boolean {
+    if (!this._enabled && GAMEPLAY_ACTIONS.has(action)) return false;
     const state = this.actions.get(action);
     if (!state) return false;
     return state.keys.some((k) => Phaser.Input.Keyboard.JustDown(k));
   }
 
-  /**
-   * 8-directional floor-plane move vector, normalized (or zero).
-   * Diagonals stay unit length.
-   */
   getMoveVector(): MoveVector {
-    if (!this.bound) return { x: 0, y: 0 };
+    if (!this.bound || !this._enabled) return { x: 0, y: 0 };
 
     let x = 0;
     let y = 0;
@@ -85,7 +101,6 @@ export class Input {
     if (this.isDown('moveUp')) y -= 1;
     if (this.isDown('moveDown')) y += 1;
 
-    // Future stick axes can accumulate here via setAxis on move* actions.
     const left = this.actions.get('moveLeft');
     const right = this.actions.get('moveRight');
     const up = this.actions.get('moveUp');
@@ -100,9 +115,6 @@ export class Input {
 
     const len = Math.hypot(x, y);
     if (len < 0.01) return { x: 0, y: 0 };
-    // Snap near-cardinal stick input to clean 8-way.
-    const nx = x / len;
-    const ny = y / len;
-    return { x: nx, y: ny };
+    return { x: x / len, y: y / len };
   }
 }

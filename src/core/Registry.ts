@@ -2,18 +2,18 @@ import type Phaser from 'phaser';
 import type { Input } from '../platform/Input';
 import type { Lifecycle } from '../platform/Lifecycle';
 import type { Storage } from '../platform/Storage';
-import type { RoadPath } from '../data/paths';
+import type { RunState } from '../state/RunState';
+import { getBranchById, type ForkBranch } from '../data/branches';
 
-/** Shared handles registered on the Phaser game registry / boot. */
 export type AppServices = {
   storage: Storage;
   input: Input;
   lifecycle: Lifecycle;
+  runState: RunState;
 };
 
 export const REGISTRY = {
   services: 'services',
-  selectedPath: 'selectedPath',
 } as const;
 
 export function getServices(scene: Phaser.Scene): AppServices {
@@ -24,10 +24,19 @@ export function getServices(scene: Phaser.Scene): AppServices {
   return services;
 }
 
-export function getSelectedPath(scene: Phaser.Scene): RoadPath {
-  const path = scene.registry.get(REGISTRY.selectedPath) as RoadPath | undefined;
-  if (!path) {
-    throw new Error('No road path selected');
+export function getSelectedPath(scene: Phaser.Scene): ForkBranch {
+  const { runState } = getServices(scene);
+  const id = runState.selectedPath;
+  if (!id) throw new Error('No road path selected in RunState');
+  const branch = getBranchById(id);
+  if (!branch) throw new Error(`Unknown path id "${id}"`);
+  return branch;
+}
+
+export function getSelectedCharacterId(scene: Phaser.Scene): string {
+  const { runState } = getServices(scene);
+  if (!runState.selectedCharacter) {
+    throw new Error('No character selected in RunState');
   }
-  return path;
+  return runState.selectedCharacter;
 }

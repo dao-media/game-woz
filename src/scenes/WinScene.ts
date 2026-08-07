@@ -2,9 +2,6 @@ import Phaser from 'phaser';
 import { tuning } from '../config/tuning';
 import { getSelectedPath, getServices } from '../core/Registry';
 
-/**
- * End-of-run victory. Destination comes from the selected road path.
- */
 export class WinScene extends Phaser.Scene {
   constructor() {
     super('Win');
@@ -37,7 +34,7 @@ export class WinScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(width / 2, height * 0.55, path.name, {
+      .text(width / 2, height * 0.55, path.label, {
         fontFamily: 'monospace',
         fontSize: '14px',
         color: '#7a7a88',
@@ -45,7 +42,7 @@ export class WinScene extends Phaser.Scene {
       .setOrigin(0.5);
 
     this.add
-      .text(width / 2, height * 0.72, 'ENTER — choose another path\nESC — title', {
+      .text(width / 2, height * 0.72, 'ENTER — play again\nESC — title', {
         fontFamily: 'monospace',
         fontSize: '15px',
         color: '#c4c4d0',
@@ -57,7 +54,7 @@ export class WinScene extends Phaser.Scene {
   update(): void {
     const { input } = getServices(this);
     if (input.justDown('confirm') || input.justDown('start')) {
-      this.scene.start('PathSelect');
+      this.scene.start('CharacterSelect');
     }
     if (input.justDown('back')) {
       this.scene.start('Menu');

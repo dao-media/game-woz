@@ -1,38 +1,38 @@
-# OZ: Down the Yellow Brick Road
+# OZ: Down the Yellow Brick Road (WOZ Game)
 
-Portable Phaser 3 greybox scaffold — three-quarter beat-em-up traversal.
+Portable Phaser 3 greybox — **one-point perspective** side-scroller with discrete depth tracks.
 
 ## Stack
 
-- Phaser 3 (Arcade Physics, top-down)
+- Phaser 3
 - TypeScript (strict)
-- Vite (`base: './'` for file:// / app-scheme builds)
+- Vite (`base: './'`)
 
 ## Commands
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
-npm run build    # output → dist/
-npm run preview  # serve dist with relative paths
+npm run dev
+npm run build
+npm run preview
 ```
+
+## Scene flow
+
+Menu (facade gate) → Character Select → **Gate rotation (facade→feed east)** → walk-through east → fork → Game → Win
 
 ## Controls
 
 | Action | Keys |
 |--------|------|
-| Walk (8-way) | WASD / Arrow keys |
-| Fast run | Shift + move |
-| Hop | Space / K |
-| Menus | ↑↓ select, Enter confirm, Esc back |
+| Walk | A/D or ←/→ |
+| Change track | W/S or ↑/↓ |
+| Run | Shift + move |
+| Jump | Space / K |
+| Debug | F3 |
 
-## Scene flow
+## Stage model
 
-Boot → Preload → Menu → **Path Select** → Game → **Win**
-
-Reach the end of the lane to win. Each road path terminates at a different place in Oz.
-
-## Stage / parallax
-
-- Floor meets a vertical backdrop on a shared horizon (no overlap).
-- Depth tracks (`far` / `mid` / `near` + backdrop) derive scroll factors from perspective depth; prop speed = `cameraScrollSpeed × scrollFactor`.
+- Floor recedes to a vanishing point and meets a vertical back wall at `horizonY`.
+- Depth = discrete tracks (`src/config/tracks.ts`); `depthToStage` → screenY, scale, parallax.
+- Camera scrolls on **x only**; the stage frame stays fixed in screen space.

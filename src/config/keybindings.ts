@@ -7,10 +7,11 @@ export const defaultKeybindings: Record<InputAction, string[]> = {
   moveLeft: ['A', 'LEFT'],
   moveRight: ['D', 'RIGHT'],
   run: ['SHIFT'],
-  hop: ['SPACE', 'K'],
+  jump: ['SPACE', 'K'],
   start: ['ENTER', 'SPACE'],
   confirm: ['ENTER', 'SPACE'],
   back: ['ESC', 'BACKSPACE'],
   menuUp: ['W', 'UP'],
   menuDown: ['S', 'DOWN'],
+  debug: ['F3', 'BACKTICK'],
 };

@@ -8,8 +8,10 @@ import { Projection } from './Projection';
  *
  * scrollFactor 1 → moves with camera scroll (near / gameplay plane)
  * scrollFactor 0 → pinned to the viewport (infinite distance)
+ *
+ * Gameplay (player / obstacles) stays on scroll factor 1.
  */
-export type DepthTrackId = 'backdrop' | 'far' | 'mid' | 'near';
+export type DepthTrackId = 'backdrop' | 'far' | 'midFar' | 'mid' | 'near';
 
 export type DepthTrack = {
   id: DepthTrackId;
@@ -28,11 +30,6 @@ export function trackParallaxSpeed(scrollFactor: number, cameraScrollSpeed: numb
   return cameraScrollSpeed * scrollFactor;
 }
 
-/** How much a track visually lags the camera (world units per camera unit). */
-export function trackLagFactor(scrollFactor: number): number {
-  return 1 - scrollFactor;
-}
-
 function trackFromFloorY(id: DepthTrackId, floorY: number, label: string): DepthTrack {
   return {
     id,
@@ -43,17 +40,17 @@ function trackFromFloorY(id: DepthTrackId, floorY: number, label: string): Depth
 }
 
 /**
- * Build the default track set. Backdrop is slower than the far floor so the
- * wall reads as standing behind the road.
+ * Default track set. Includes an intermediary (midFar) between far and mid.
+ * Backdrop is slower than the far floor so the wall reads behind the road.
  */
 export function createDepthTracks(): readonly DepthTrack[] {
-  const midY = (tuning.depthFar + tuning.depthNear) / 2;
-  const farY = tuning.depthFar + (tuning.depthNear - tuning.depthFar) * 0.18;
-  const nearY = tuning.depthFar + (tuning.depthNear - tuning.depthFar) * 0.82;
+  const span = tuning.depthNear - tuning.depthFar;
+  const at = (t: number) => tuning.depthFar + span * t;
 
-  const far = trackFromFloorY('far', farY, 'Far track');
-  const mid = trackFromFloorY('mid', midY, 'Mid track');
-  const near = trackFromFloorY('near', nearY, 'Near track');
+  const far = trackFromFloorY('far', at(0.12), 'Far track');
+  const midFar = trackFromFloorY('midFar', at(0.35), 'Mid-far track');
+  const mid = trackFromFloorY('mid', at(0.58), 'Mid track');
+  const near = trackFromFloorY('near', at(0.85), 'Near track');
 
   const backdrop: DepthTrack = {
     id: 'backdrop',
@@ -62,7 +59,7 @@ export function createDepthTracks(): readonly DepthTrack[] {
     label: 'Backdrop',
   };
 
-  return [backdrop, far, mid, near];
+  return [backdrop, far, midFar, mid, near];
 }
 
 export function getTrack(

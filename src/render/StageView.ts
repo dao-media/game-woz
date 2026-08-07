@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { tuning } from '../config/tuning';
-import { Projection } from '../core/Projection';
 import type { DepthTrack } from '../core/DepthTracks';
+import { Projection } from '../core/Projection';
 
 export type StageLayers = {
   /** Vertical wall — ends exactly on the horizon. */
@@ -53,7 +53,6 @@ function redrawBackdrop(
   g.clear();
 
   const top = horizon - tuning.backdropHeight;
-  // Fill is world-locked (matches floor seam). Height stops exactly at horizon.
   const steps = 10;
   for (let i = 0; i < steps; i++) {
     const t0 = i / steps;
@@ -71,7 +70,7 @@ function redrawBackdrop(
     g.fillRect(0, y0, worldWidth, Math.max(0, y1 - y0));
   }
 
-  // Panel lines parallax horizontally — lag = scroll * (1 - backdropFactor).
+  // Panel lines parallax — lag = scroll * (1 - backdropFactor).
   const lag = cameraScrollX * (1 - backdropTrack.scrollFactor);
   const step = tuning.floorGridStepX * 2;
   g.lineStyle(1, tuning.colors.backdropLine, 0.4);
@@ -80,7 +79,6 @@ function redrawBackdrop(
     g.lineBetween(x + lag, top, x + lag, horizon);
   }
 
-  // Shared seam — bottom of wall / top of floor. Drawn on both for pixel-clean join.
   g.lineStyle(2, tuning.colors.horizon, 0.7);
   g.lineBetween(0, horizon, worldWidth, horizon);
 }
@@ -94,7 +92,6 @@ function redrawFloor(
 ): void {
   g.clear();
 
-  // Floor starts at the walkable far edge (horizon) — never into the wall.
   const floorTop = tuning.depthFar;
   drawFloorFill(g, worldWidth, floorTop, floorBottom, horizon);
   drawPerspectiveGrid(g, worldWidth, floorTop, floorBottom, horizon);
@@ -148,6 +145,7 @@ function drawPerspectiveGrid(
   floorBottom: number,
   horizon: number,
 ): void {
+  // Cross-lines — shorten toward far via Projection.depthScale / perspectiveFarScale.
   g.lineStyle(1, tuning.colors.floorLine, 0.5);
   for (let fy = floorTop; fy <= tuning.depthNear; fy += tuning.floorGridStepY) {
     const left = Projection.toScreen(0, fy);
@@ -155,6 +153,7 @@ function drawPerspectiveGrid(
     g.lineBetween(left.x, Math.max(left.y, horizon), right.x, Math.max(right.y, horizon));
   }
 
+  // Depth lines — constant floorX rays converging to the vanishing point.
   g.lineStyle(1, tuning.colors.floorLine, 0.4);
   for (let fx = 0; fx <= worldWidth; fx += tuning.floorGridStepX) {
     const near = Projection.toScreen(fx, floorBottom);
