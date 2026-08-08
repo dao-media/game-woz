@@ -2,12 +2,17 @@ import Phaser from 'phaser';
 import { tuning } from '../config/tuning';
 import { getServices } from '../core/Registry';
 import { characters, DEFAULT_CHARACTER_ID, type CharacterId } from '../data/characters';
+import { DEFAULT_DIFFICULTY, type DifficultyId } from '../ai/DifficultyParams';
+
+const DIFFICULTY_OPTIONS: DifficultyId[] = ['easy', 'normal', 'hard'];
 
 /** Four greybox class placeholders — keyboard/gamepad navigable. */
 export class CharacterSelectScene extends Phaser.Scene {
   private index = 0;
+  private diffIndex = 1;
   private labels: Phaser.GameObjects.Text[] = [];
   private boxes: Phaser.GameObjects.Rectangle[] = [];
+  private diffLabel!: Phaser.GameObjects.Text;
 
   constructor() {
     super('CharacterSelect');
@@ -21,6 +26,10 @@ export class CharacterSelectScene extends Phaser.Scene {
     const saved = runState.selectedCharacter;
     const savedIdx = characters.findIndex((c) => c.id === saved);
     this.index = savedIdx >= 0 ? savedIdx : 0;
+
+    const savedDiff = runState.difficulty;
+    const dIdx = DIFFICULTY_OPTIONS.indexOf(savedDiff);
+    this.diffIndex = dIdx >= 0 ? dIdx : DIFFICULTY_OPTIONS.indexOf(DEFAULT_DIFFICULTY);
 
     const { width, height } = this.cameras.main;
     this.cameras.main.setBackgroundColor(tuning.colors.background);
@@ -45,7 +54,7 @@ export class CharacterSelectScene extends Phaser.Scene {
     const gap = 24;
     const totalW = characters.length * slotW + (characters.length - 1) * gap;
     const startX = width / 2 - totalW / 2 + slotW / 2;
-    const slotY = height * 0.48;
+    const slotY = height * 0.42;
 
     this.boxes = [];
     this.labels = [];
@@ -69,6 +78,22 @@ export class CharacterSelectScene extends Phaser.Scene {
       this.labels.push(label);
     });
 
+    this.diffLabel = this.add
+      .text(width / 2, height * 0.68, '', {
+        fontFamily: 'monospace',
+        fontSize: '15px',
+        color: '#c4a35a',
+      })
+      .setOrigin(0.5);
+
+    this.add
+      .text(width / 2, height * 0.68 + 28, '↑ ↓ difficulty  ·  slider seam later', {
+        fontFamily: 'monospace',
+        fontSize: '11px',
+        color: '#666674',
+      })
+      .setOrigin(0.5);
+
     this.add
       .text(width / 2, height - 48, '← → Select   ENTER Confirm   ESC Back', {
         fontFamily: 'monospace',
@@ -91,6 +116,15 @@ export class CharacterSelectScene extends Phaser.Scene {
       this.index = (this.index + 1) % characters.length;
       this.refresh();
     }
+    if (input.justDown('menuUp') || input.justDown('moveUp')) {
+      this.diffIndex =
+        (this.diffIndex - 1 + DIFFICULTY_OPTIONS.length) % DIFFICULTY_OPTIONS.length;
+      this.refresh();
+    }
+    if (input.justDown('menuDown') || input.justDown('moveDown')) {
+      this.diffIndex = (this.diffIndex + 1) % DIFFICULTY_OPTIONS.length;
+      this.refresh();
+    }
     if (input.justDown('confirm') || input.justDown('start')) {
       void this.confirm();
     }
@@ -106,12 +140,16 @@ export class CharacterSelectScene extends Phaser.Scene {
       box.setFillStyle(selected ? 0x3a3a28 : 0x2a2a32);
       this.labels[i]?.setColor(selected ? '#f0e6c8' : '#888898');
     });
+    const diff = DIFFICULTY_OPTIONS[this.diffIndex] ?? DEFAULT_DIFFICULTY;
+    this.diffLabel.setText(`Difficulty: ${diff.toUpperCase()}`);
   }
 
   private async confirm(): Promise<void> {
     const { storage, runState } = getServices(this);
     const id = (characters[this.index]?.id ?? DEFAULT_CHARACTER_ID) as CharacterId;
+    const diff = DIFFICULTY_OPTIONS[this.diffIndex] ?? DEFAULT_DIFFICULTY;
     await runState.setCharacter(id, storage);
+    await runState.setDifficulty(diff, storage);
     await runState.clearPath(storage);
     this.scene.start('Munchkinland');
   }

@@ -57,6 +57,7 @@ export class Player implements Damageable {
   private comboIndexDuringAttack = 0;
   private lockElapsedMs = 0;
   private lockDurationMs = 0;
+  private attackRecoveryMs = 0;
   private knockVelX = 0;
   private knockVelY = 0;
   private baseFill: number;
@@ -153,6 +154,11 @@ export class Player implements Damageable {
     return this.combat?.ultimateTargetsAcquired ?? 0;
   }
 
+  /** Brief window after an attack ends — AI punish cue. */
+  get isInAttackRecovery(): boolean {
+    return this.attackRecoveryMs > 0;
+  }
+
   setScriptedMove(move: MoveVector | null): void {
     this.scriptedMove = move;
   }
@@ -193,6 +199,7 @@ export class Player implements Damageable {
 
   endCombatLock(): void {
     if (this.state === 'heavyAttack' || this.state === 'ultimate') {
+      this.attackRecoveryMs = 320;
       this.fsm.set('idle');
     }
     this.lockElapsedMs = 0;
@@ -229,6 +236,7 @@ export class Player implements Damageable {
       this.attackOnComplete?.();
       this.attackDef = null;
       this.attackOnComplete = null;
+      this.attackRecoveryMs = 280;
       this.fsm.set('idle');
     }
 
@@ -252,6 +260,10 @@ export class Player implements Damageable {
     if (this.health.isDead) {
       this.syncVisual();
       return;
+    }
+
+    if (this.attackRecoveryMs > 0) {
+      this.attackRecoveryMs = Math.max(0, this.attackRecoveryMs - dtMs);
     }
 
     this.combat?.tickPassive?.(this, dtMs);

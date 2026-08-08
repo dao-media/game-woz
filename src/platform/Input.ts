@@ -16,7 +16,8 @@ export type InputAction =
   | 'back'
   | 'menuUp'
   | 'menuDown'
-  | 'debug';
+  | 'debug'
+  | 'spawnEnemy';
 
 /** Ground-plane move vector (world x/y), normalized. */
 export type MoveVector = { x: number; y: number };
@@ -63,13 +64,15 @@ export class Input {
 
     this.actions.clear();
     for (const [action, keyNames] of Object.entries(bindings) as [InputAction, string[]][]) {
-      const keys = keyNames.map((name) => {
+      const keys: Phaser.Input.Keyboard.Key[] = [];
+      for (const name of keyNames) {
         const code = Phaser.Input.Keyboard.KeyCodes[name as keyof typeof Phaser.Input.Keyboard.KeyCodes];
         if (typeof code !== 'number') {
-          throw new Error(`Input: unknown key "${name}"`);
+          console.warn(`Input: unknown key "${name}" for action "${action}" — skipped`);
+          continue;
         }
-        return keyboard.addKey(code);
-      });
+        keys.push(keyboard.addKey(code));
+      }
       this.actions.set(action, { keys, axis: 0 });
     }
     this.bound = true;
