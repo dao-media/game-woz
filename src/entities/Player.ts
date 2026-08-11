@@ -14,7 +14,26 @@ import {
 } from '../combat/Attack';
 import type { CombatController } from '../combat/CombatController';
 import { flashFill } from '../combat/CombatFeel';
-
+import {
+  DOROTHY_DEFAULT_WALK_DIR,
+  DOROTHY_WALK_IDLE_FRAME,
+  applyDorothyAnimTimeScale,
+  applyDorothyFeetOrigin,
+  dorothyAnimExists,
+  dorothyIdleAnimKey,
+  dorothyIdleShouldMirror,
+  dorothyJumpAnimKey,
+  dorothyJumpShouldMirror,
+  dorothyRunAnimKey,
+  dorothySpritesReady,
+  dorothyWalkAnimKey,
+  dorothyWalkAtlasKey,
+  dorothyWalkDirFromMove,
+  dorothyWorldScale,
+  playDorothyAnim,
+  playDorothyJumpAnim,
+  type DorothyWalkDir,
+} from './dorothySprites';
 export type PlayerState =
   | 'idle'
   | 'walk'
@@ -32,6 +51,8 @@ export type PlayerState =
 export class Player implements Damageable {
   readonly characterId: string;
   readonly body: Phaser.GameObjects.Rectangle;
+  /** Dorothy sprite when atlases loaded; otherwise null (greybox body). */
+  readonly visual: Phaser.GameObjects.Sprite | null;
   readonly shadow: Phaser.GameObjects.Ellipse;
   readonly fsm: StateMachine;
   readonly health: Health;
@@ -44,6 +65,10 @@ export class Player implements Damageable {
   combat: CombatController | null = null;
 
   private facingDir: 1 | -1 = 1;
+  private walkDir: DorothyWalkDir = DOROTHY_DEFAULT_WALK_DIR;
+  private idleMirror = false;
+  private jumpMirror = false;
+  private jumpDir: DorothyWalkDir = DOROTHY_DEFAULT_WALK_DIR;
   private readonly stats: EntityDef['stats'];
   private xMin: number;
   private xMax: number;
@@ -98,6 +123,18 @@ export class Player implements Damageable {
     this.body.setOrigin(0.5, 1);
     this.shadow.setOrigin(0.5, 0.5);
 
+    const useSprites = characterId === 'dorothy' && dorothySpritesReady(scene);
+    if (useSprites) {
+      const atlas = dorothyWalkAtlasKey(DOROTHY_DEFAULT_WALK_DIR);
+      this.visual = scene.add.sprite(0, 0, atlas, DOROTHY_WALK_IDLE_FRAME);
+      this.visual.setScrollFactor(1);
+      applyDorothyFeetOrigin(this.visual);
+      applyDorothyAnimTimeScale(this.visual);
+      this.body.setVisible(false);
+    } else {
+      this.visual = null;
+    }
+
     this.fsm = new StateMachine();
     this.fsm
       .add('idle', {})
@@ -106,6 +143,8 @@ export class Player implements Damageable {
       .add('jump', {
         enter: () => {
           this.zVel = this.stats.jumpVelocityZ;
+          this.jumpDir = this.walkDir;
+          this.jumpMirror = dorothyJumpShouldMirror(this.jumpDir);
         },
       })
       .add('fall', {})
@@ -115,6 +154,7 @@ export class Player implements Damageable {
       .set('idle');
 
     this.syncVisual();
+    this.syncLocomotionAnim();
   }
 
   get facing(): 1 | -1 {
@@ -302,6 +342,10 @@ export class Player implements Damageable {
       if (move.x < -0.01) this.facingDir = -1;
       else if (move.x > 0.01) this.facingDir = 1;
 
+      if (move.x !== 0 || move.y !== 0) {
+        this.walkDir = dorothyWalkDirFromMove(move.x, move.y);
+      }
+
       const airborne = this.state === 'jump' || this.state === 'fall' || this.z > 0;
       if (airborne) {
         this.zVel -= this.stats.gravityZ * dt;
@@ -329,6 +373,7 @@ export class Player implements Damageable {
 
     this.floorX = Phaser.Math.Clamp(this.floorX, this.xMin, this.xMax);
     this.floorY = clampFloorY(this.floorY);
+    this.syncLocomotionAnim();
     this.syncVisual();
   }
 
@@ -359,6 +404,22 @@ export class Player implements Damageable {
     this.body.setScale((this.facingDir < 0 ? -1 : 1) * scale, scale);
     applyDepth(this.body, this.floorY, 1);
 
+    if (this.visual) {
+      const atlasKey = this.visual.texture.key;
+      const vs = dorothyWorldScale(atlasKey) * scale;
+      const airborne = this.state === 'jump' || this.state === 'fall';
+      const flip =
+        (this.state === 'idle' && this.idleMirror) ||
+        (airborne && this.jumpMirror)
+          ? -1
+          : 1;
+      this.visual.setPosition(screen.x, screen.y);
+      this.visual.setScale(flip * vs, vs);
+      applyDorothyFeetOrigin(this.visual);
+      applyDepth(this.visual, this.floorY, 1);
+      this.visual.setVisible(this.shadow.visible);
+    }
+
     this.shadow.setPosition(ground.x, ground.y);
     const t = Phaser.Math.Clamp(this.z / tuning.shadowMaxZ, 0, 1);
     const shadowMul = Phaser.Math.Linear(
@@ -370,13 +431,79 @@ export class Player implements Damageable {
     applyDepth(this.shadow, this.floorY, 0);
   }
 
+  /** Idle / walk(8) / run / jump when packs exist. */
+  private syncLocomotionAnim(): void {
+    const sprite = this.visual;
+    if (!sprite) return;
+
+    const attacking =
+      this.state === 'lightAttack' ||
+      this.state === 'heavyAttack' ||
+      this.state === 'ultimate';
+    if (attacking) return;
+
+    const airborne = this.state === 'jump' || this.state === 'fall' || this.z > 0;
+    if (airborne) {
+      const jumpKey = dorothyJumpAnimKey(this.jumpDir);
+      if (dorothyAnimExists(this.scene, jumpKey)) {
+        if (sprite.anims.currentAnim?.key !== jumpKey) {
+          playDorothyJumpAnim(sprite, jumpKey);
+        }
+        return;
+      }
+      // Jump pack missing — hold idle pose in the air.
+      this.idleMirror = dorothyIdleShouldMirror(this.walkDir);
+      const idleKey = dorothyIdleAnimKey(this.walkDir);
+      if (dorothyAnimExists(this.scene, idleKey) && sprite.anims.currentAnim?.key !== idleKey) {
+        playDorothyAnim(sprite, idleKey, true);
+      }
+      return;
+    }
+
+    if (this.state === 'idle' || (this.state !== 'walk' && this.state !== 'run')) {
+      this.idleMirror = dorothyIdleShouldMirror(this.walkDir);
+      const idleKey = dorothyIdleAnimKey(this.walkDir);
+      const idleFallback = dorothyIdleAnimKey(DOROTHY_DEFAULT_WALK_DIR);
+      const key = dorothyAnimExists(this.scene, idleKey)
+        ? idleKey
+        : dorothyAnimExists(this.scene, idleFallback)
+          ? idleFallback
+          : null;
+      if (key && sprite.anims.currentAnim?.key !== key) {
+        playDorothyAnim(sprite, key, true);
+      }
+      return;
+    }
+
+    if (this.state === 'run') {
+      const runKey = dorothyRunAnimKey(this.walkDir);
+      if (dorothyAnimExists(this.scene, runKey)) {
+        if (sprite.anims.currentAnim?.key !== runKey) playDorothyAnim(sprite, runKey, true);
+        return;
+      }
+    }
+
+    const walkKey = dorothyWalkAnimKey(this.walkDir);
+    if (dorothyAnimExists(this.scene, walkKey)) {
+      if (sprite.anims.currentAnim?.key !== walkKey) playDorothyAnim(sprite, walkKey, true);
+      return;
+    }
+
+    const fallback = dorothyWalkAnimKey(DOROTHY_DEFAULT_WALK_DIR);
+    if (dorothyAnimExists(this.scene, fallback) && sprite.anims.currentAnim?.key !== fallback) {
+      playDorothyAnim(sprite, fallback, true);
+    }
+  }
+
   destroy(): void {
+    this.visual?.destroy();
     this.body.destroy();
     this.shadow.destroy();
   }
 
   setHeld(held: boolean): void {
-    this.body.setVisible(!held);
+    this.body.setVisible(!held && !this.visual);
+    this.visual?.setVisible(!held);
     this.shadow.setVisible(!held);
     if (!held) this.syncVisual();
   }

@@ -20,7 +20,8 @@ export const tuning = {
   moveSpeedY: 140,
   runSpeedMul: 1.65,
 
-  jumpVelocityZ: 220,
+  // Peak height ∝ v²/(2g). 170 ≈ 220 × √0.6 → 40% lower apex (anims untouched).
+  jumpVelocityZ: 170,
   gravityZ: 720,
 
   gateFloorX: 160,
@@ -42,6 +43,8 @@ export const tuning = {
 
   playerBodyWidth: 36,
   playerBodyHeight: 56,
+  /** On-screen Dorothy sprite height (px) — shared across walk/run/idle packs. */
+  playerSpriteHeight: 95, // 83 × 1.15
 
   // —— Combat ——
   playerMaxHP: 100,
