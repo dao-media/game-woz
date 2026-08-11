@@ -1,0 +1,31 @@
+---
+description: Never edit masters — copy into masters/, work only on derived copies
+alwaysApply: true
+---
+
+# Master assets are immutable
+
+Never modify original/master source files. Leave the master untouched. Always copy first and make all changes only to the copy.
+
+## Canonical master location (in-repo)
+
+Copy masters into the top-level **`masters/`** folder, mirroring character/asset identity:
+
+- `masters/dorothy/Sprites/NEW/` — original sprite exports
+- `masters/dorothy/meshes/` — master meshes/rigs
+- `masters/<character>/…` — other originals
+
+When new originals arrive (exports, downloads, TM restores), place or copy them under `masters/` first. Do not invent a second “master” tree under `models/` unless it is only a working mirror that stays read-only.
+
+## Also treat as masters (do not write/delete/overwrite)
+
+- Existing `models/**/NEW/`, `models/**/MASTER/`, `models/**/Original/` until migrated into `masters/`
+- Any path the user labels as master/original/source-of-truth
+
+## Copies / derived only
+
+- Game/runtime packs under `models/` (e.g. `Sprites/game/`)
+- Baked/retargeted GLBs, atlases, presentation JSON
+- Working forks and pipeline outputs
+
+Pipelines must **read from `masters/`** (or another labeled master) and **write only to a separate destination**. Never optimize, rename, or “fix” in place inside a master tree.

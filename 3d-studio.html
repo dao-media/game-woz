@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dorothy 3D Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0c0d10;
+        --panel: #14161c;
+        --panel-2: #1a1d26;
+        --border: #2a2e3a;
+        --text: #e8eaef;
+        --muted: #8b93a7;
+        --accent: #6ea8ff;
+        --accent-dim: #3d5f99;
+        --danger: #ff7b7b;
+        --radius: 8px;
+        --font: 'IBM Plex Sans', system-ui, sans-serif;
+        --mono: 'IBM Plex Mono', ui-monospace, monospace;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font: 13px/1.45 var(--font);
+      }
+      body {
+        display: grid;
+        grid-template-columns: 280px 1fr 300px;
+        grid-template-rows: 48px 1fr 28px;
+        grid-template-areas:
+          'top top top'
+          'left stage right'
+          'status status status';
+      }
+      header {
+        grid-area: top;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(180deg, #12141a, #0e1015);
+      }
+      header h1 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      header .sub {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      header .char-pick {
+        margin-left: auto;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      header .char-pick select {
+        min-width: 180px;
+      }
+      .panel {
+        background: var(--panel);
+        border-right: 1px solid var(--border);
+        overflow: auto;
+        padding: 12px;
+      }
+      .panel.right {
+        border-right: none;
+        border-left: 1px solid var(--border);
+      }
+      #viewport {
+        grid-area: stage;
+        position: relative;
+        min-width: 0;
+        min-height: 0;
+        background:
+          radial-gradient(ellipse at 50% 20%, #161922 0%, transparent 55%),
+          var(--bg);
+      }
+      #viewport canvas {
+        display: block;
+        width: 100%;
+        height: 100%;
+      }
+      #hud {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 2;
+        max-width: 280px;
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: rgba(12, 13, 16, 0.82);
+        font-family: var(--mono);
+        font-size: 11px;
+        white-space: pre-wrap;
+        pointer-events: none;
+      }
+      #status {
+        grid-area: status;
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        border-top: 1px solid var(--border);
+        background: #0e1015;
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 11px;
+      }
+      h2 {
+        margin: 0 0 8px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .section {
+        margin-bottom: 18px;
+      }
+      .clip-row {
+        width: 100%;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        margin-bottom: 4px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--panel-2);
+        color: var(--text);
+        font: inherit;
+        cursor: pointer;
+        text-align: left;
+      }
+      .clip-row:hover {
+        border-color: var(--accent-dim);
+      }
+      .muted {
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 10px;
+      }
+      #dropzone {
+        border: 1px dashed var(--border);
+        border-radius: var(--radius);
+        padding: 14px 10px;
+        text-align: center;
+        color: var(--muted);
+        cursor: pointer;
+        margin-bottom: 10px;
+      }
+      #dropzone.over {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-bottom: 10px;
+      }
+      button.btn {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--panel-2);
+        color: var(--text);
+        padding: 6px 10px;
+        font: 500 12px var(--font);
+        cursor: pointer;
+      }
+      button.btn:hover {
+        border-color: var(--accent-dim);
+      }
+      button.btn.primary {
+        background: #1e2a44;
+        border-color: var(--accent-dim);
+        color: #d6e6ff;
+      }
+      .stack-card {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: var(--panel-2);
+        padding: 8px 10px;
+        margin-bottom: 8px;
+      }
+      .stack-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+      }
+      .stack-actions button {
+        border: 1px solid var(--border);
+        background: transparent;
+        color: var(--muted);
+        border-radius: 4px;
+        width: 24px;
+        height: 24px;
+        cursor: pointer;
+      }
+      .field {
+        display: grid;
+        grid-template-columns: 64px 1fr 36px;
+        gap: 6px;
+        align-items: center;
+        margin: 4px 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .field.cam-field {
+        margin: 0 0 10px;
+        grid-template-columns: 72px 1fr 36px;
+      }
+      .field.root-motion {
+        margin: 0 0 10px;
+        grid-template-columns: 72px 1fr;
+        align-items: center;
+      }
+      .toggle-pair {
+        display: flex;
+        gap: 4px;
+      }
+      .btn.toggle {
+        flex: 1;
+        padding: 5px 8px;
+        font-size: 11px;
+      }
+      .btn.toggle.active {
+        background: var(--accent, #5b8def);
+        border-color: transparent;
+        color: #fff;
+      }
+      .field input[type='number'] {
+        grid-column: 2 / 4;
+      }
+      .check {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 12px;
+      }
+      .empty {
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .hint {
+        margin: 0 0 8px;
+        color: var(--muted);
+        font-size: 11px;
+        line-height: 1.35;
+      }
+      .export-grid {
+        display: grid;
+        gap: 8px;
+      }
+      .export-grid label {
+        display: grid;
+        gap: 4px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      input,
+      select {
+        background: #0e1015;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        padding: 6px 8px;
+        font: 12px var(--mono);
+      }
+      #cloth-note {
+        font-size: 11px;
+        color: var(--muted);
+        line-height: 1.4;
+        padding: 8px;
+        border-radius: var(--radius);
+        background: #10131a;
+        border: 1px solid var(--border);
+      }
+      @media (max-width: 960px) {
+        body {
+          grid-template-columns: 1fr;
+          grid-template-rows: 48px 40vh auto auto 28px;
+          grid-template-areas:
+            'top'
+            'stage'
+            'left'
+            'right'
+            'status';
+        }
+        .panel {
+          border: none;
+          border-top: 1px solid var(--border);
+          max-height: 40vh;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>3D Studio</h1>
+      <span class="sub">Dorothy · Mixamo remap · PNG sheet export</span>
+      <label class="char-pick">
+        Character
+        <select id="character-select" aria-label="Character"></select>
+      </label>
+    </header>
+
+    <aside class="panel" style="grid-area: left">
+      <div class="section">
+        <h2>Clip library</h2>
+        <div id="dropzone">Drop FBX / GLB or click to browse</div>
+        <input id="file-input" type="file" accept=".fbx,.glb,.gltf" hidden />
+        <div id="clip-list"></div>
+      </div>
+      <div class="section">
+        <h2>Cloth / hair</h2>
+        <div id="cloth-note">Checking rig…</div>
+      </div>
+    </aside>
+
+    <div id="viewport">
+      <div id="hud">Loading…</div>
+    </div>
+
+    <aside class="panel right" style="grid-area: right">
+      <div class="section">
+        <h2>Stack</h2>
+        <div class="toolbar">
+          <button class="btn primary" id="btn-play" type="button">Play</button>
+          <button class="btn" id="btn-stop" type="button">Stop</button>
+          <button class="btn" id="btn-skeleton" type="button">Skeleton</button>
+        </div>
+        <label class="field cam-field">
+          Cam height
+          <input id="cam-height" type="range" min="0" max="100" step="1" value="50" />
+          <span id="cam-height-val">—</span>
+        </label>
+        <label class="field cam-field" title="Temporal pose damping after Mixamo playback. 0 = raw, 1 = heavy smooth.">
+          Smoothening
+          <input id="pose-smooth" type="range" min="0" max="100" step="1" value="0" />
+          <span id="pose-smooth-val">0%</span>
+        </label>
+        <label class="field cam-field" title="Playback speed for the animation mixer.">
+          Speed
+          <input id="anim-speed" type="range" min="10" max="200" step="5" value="100" />
+          <span id="anim-speed-val">1.00×</span>
+        </label>
+        <label class="field root-motion" title="Lock hips on XZ (in place) or keep Mixamo root travel.">
+          Root motion
+          <span class="toggle-pair">
+            <button type="button" class="btn toggle active" id="btn-inplace" aria-pressed="true">In place</button>
+            <button type="button" class="btn toggle" id="btn-travel" aria-pressed="false">Travel</button>
+          </span>
+        </label>
+        <div id="stack-list"></div>
+      </div>
+      <div class="section">
+        <h2>Lighting</h2>
+        <p class="hint">Applies to viewport and PNG export.</p>
+        <label class="field cam-field" title="Soft sky/ground fill (hemisphere).">
+          Ambient
+          <input id="light-ambient" type="range" min="0" max="300" step="5" value="140" />
+          <span id="light-ambient-val">1.40</span>
+        </label>
+        <label class="field cam-field" title="Main key light intensity.">
+          Key
+          <input id="light-key" type="range" min="0" max="400" step="5" value="200" />
+          <span id="light-key-val">2.00</span>
+        </label>
+        <label class="field cam-field" title="Back/rim light intensity.">
+          Rim
+          <input id="light-rim" type="range" min="0" max="200" step="5" value="55" />
+          <span id="light-rim-val">0.55</span>
+        </label>
+        <label class="field cam-field" title="Renderer exposure (tone mapping).">
+          Exposure
+          <input id="light-exposure" type="range" min="50" max="250" step="5" value="120" />
+          <span id="light-exposure-val">1.20×</span>
+        </label>
+      </div>
+      <div class="section">
+        <h2>Export</h2>
+        <div class="export-grid">
+          <label>Loops <input id="export-loops" type="number" min="1" max="20" value="1" /></label>
+          <label>
+            Resolution
+            <select id="export-size">
+              <option value="512" selected>512²</option>
+              <option value="1080">1080²</option>
+              <option value="1920">1920²</option>
+            </select>
+          </label>
+          <label>Prefix <input id="export-prefix" type="text" value="dorothy" /></label>
+          <label>FPS <input type="text" value="30 (locked)" disabled /></label>
+          <button class="btn primary" id="btn-export" type="button">Export PNG zip</button>
+        </div>
+      </div>
+    </aside>
+
+    <div id="status">Booting…</div>
+    <script type="module" src="/src/dev/studio/main.ts"></script>
+  </body>
+</html>
