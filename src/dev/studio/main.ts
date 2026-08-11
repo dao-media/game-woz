@@ -14,7 +14,7 @@ import {
 } from './clipCatalog';
 import { ClipStack } from './clipStack';
 import { detectRigKind, remapClipToDorothy, applyRootMotionMode, type RootMotionMode } from './remapClip';
-import { exportPngSequence } from './exporter';
+import { applyAlphaOutline, exportPngSequence, timelineToAnimTime } from './exporter';
 
 const TARGET_HEIGHT_M = 1.7;
 const DEFAULT_CHARACTER: StudioCharacterId = 'rigged';
@@ -24,7 +24,20 @@ const MODEL_YAW_CLOCKWISE_RAD = -Math.PI / 2;
 const CAMERA_DOWN_DEG = 28;
 /** Default look-at height above ground (meters). */
 const CAMERA_LOOK_Y_DEFAULT = 1.3;
-const EXPORT_FPS = 30;
+const DEFAULT_EXPORT_FPS = 30;
+/** Cap on each loop-extend pad (seconds). */
+const MAX_TIMELINE_PAD_SEC = 30;
+
+/** Filename-safe segment for export prefix parts. */
+function slugifyPart(s: string): string {
+  return (
+    s
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '_')
+      .replace(/_+/g, '_')
+      .replace(/^_+|_+$/g, '') || 'x'
+  );
+}
 
 const $ = <T extends HTMLElement>(id: string) => document.getElementById(id) as T;
 
@@ -231,6 +244,37 @@ function setCameraCraneHeight(
   controls.target.y += dy;
   camera.position.y += dy;
   controls.update();
+}
+
+/** Eight compass notches for sprite/export orbit (45°). */
+const SCENE_YAW_DIRS = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'] as const;
+const SCENE_YAW_STEP = Math.PI / 4;
+
+function normalizeAngle(rad: number): number {
+  const twoPi = Math.PI * 2;
+  return ((rad % twoPi) + twoPi) % twoPi;
+}
+
+/** Lock orbit azimuth to an 8-way notch (keeps distance + locked polar). */
+function setSceneYawNotch(
+  camera: THREE.PerspectiveCamera,
+  controls: OrbitControls,
+  index: number,
+): void {
+  const i = ((Math.round(index) % 8) + 8) % 8;
+  const offset = new THREE.Vector3().subVectors(camera.position, controls.target);
+  const spherical = new THREE.Spherical().setFromVector3(offset);
+  // +π: label E = camera on the west side looking east (character faces the label).
+  spherical.theta = i * SCENE_YAW_STEP + Math.PI;
+  // Keep polar locked to OrbitControls clamp.
+  spherical.phi = controls.getPolarAngle();
+  offset.setFromSpherical(spherical);
+  camera.position.copy(controls.target).add(offset);
+  controls.update();
+}
+
+function sceneYawIndexFromAzimuth(theta: number): number {
+  return Math.round(normalizeAngle(theta - Math.PI) / SCENE_YAW_STEP) % 8;
 }
 
 function flattenCubicSplineClip(clip: THREE.AnimationClip): THREE.AnimationClip {
@@ -507,6 +551,16 @@ async function main(): Promise<void> {
   renderer.toneMappingExposure = 1.2;
   viewport.appendChild(renderer.domElement);
 
+  /** 2D overlay: same alpha-outline pass as export, composited on studio bg. */
+  const outlinePreview = document.createElement('canvas');
+  outlinePreview.id = 'outline-preview';
+  outlinePreview.setAttribute('aria-hidden', 'true');
+  viewport.appendChild(outlinePreview);
+  const outlinePreviewCtx = outlinePreview.getContext('2d')!;
+  const PREVIEW_BG = '#0c0d10';
+  /** Cap outline work for live preview (export still uses full resolution). */
+  const OUTLINE_PREVIEW_MAX_EDGE = 900;
+
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x0c0d10);
 
@@ -538,6 +592,9 @@ async function main(): Promise<void> {
     camera.aspect = w / Math.max(h, 1);
     camera.updateProjectionMatrix();
     renderer.setSize(w, h, false);
+    const dpr = renderer.getPixelRatio();
+    outlinePreview.width = Math.max(1, Math.floor(w * dpr));
+    outlinePreview.height = Math.max(1, Math.floor(h * dpr));
   }
   resize();
   window.addEventListener('resize', resize);
@@ -620,6 +677,17 @@ async function main(): Promise<void> {
   const stack = new ClipStack(dorothy);
   let skeletonHelper: THREE.SkeletonHelper | null = null;
   let playing = false;
+  /** Wall-clock scrub of the export timeline (Speed slider). Mixer stays 1×. */
+  let previewSpeed = 1;
+  /** Animation-seconds into the current export package (pads + loops × clip). */
+  let previewAnimTime = 0;
+  /** Accumulator for discrete export-FPS frame steps. */
+  let previewFrameAccum = 0;
+  /** Loop-extend pads (seconds) — shared by timeline UI, preview, and export. */
+  let padBeforeSec = 0;
+  let padAfterSec = 0;
+  const smoothedPose = new Map<string, { pos: THREE.Vector3; quat: THREE.Quaternion }>();
+  let smoothAmount = 0;
   (window as unknown as { __studio?: unknown }).__studio = {
     character,
     dorothy,
@@ -633,15 +701,215 @@ async function main(): Promise<void> {
     },
   };
 
-  const refreshStack = () =>
+  const exportPrefixEl = $('export-prefix') as HTMLInputElement;
+  const exportLoopsEl = $('export-loops') as HTMLInputElement;
+  const exportLoopsVal = $('export-loops-val');
+  const tlTrack = $('tl-track');
+  const tlPadBefore = $('tl-pad-before');
+  const tlCore = $('tl-core');
+  const tlPadAfter = $('tl-pad-after');
+  const tlPlayhead = $('tl-playhead');
+  const tlHandleL = $('tl-handle-l');
+  const tlHandleR = $('tl-handle-r');
+  const tlBeforeVal = $('tl-before-val');
+  const tlCoreVal = $('tl-core-val');
+  const tlAfterVal = $('tl-after-val');
+  const tlPadBeforeInput = $('tl-pad-before-input') as HTMLInputElement;
+  const tlPadAfterInput = $('tl-pad-after-input') as HTMLInputElement;
+
+  /** Last auto-generated prefix; if the field still matches, keep syncing character_direction_animation. */
+  let lastAutoExportPrefix = '';
+
+  const buildExportPrefix = (): string => {
+    const charPart = slugifyPart(character.label.split(/\s+/)[0] ?? character.id);
+    const dirIdx = ((Number(($('scene-yaw') as HTMLInputElement).value) % 8) + 8) % 8;
+    const dirPart = slugifyPart(SCENE_YAW_DIRS[dirIdx] ?? 'E');
+    const animLabels = stack.layers.filter((l) => l.enabled).map((l) => l.label);
+    const animPart = slugifyPart(animLabels.length > 0 ? animLabels.join(' ') : 'clip');
+    return `${charPart}_${dirPart}_${animPart}`;
+  };
+
+  const syncExportPrefix = (force = false) => {
+    const next = buildExportPrefix();
+    if (force || !exportPrefixEl.value.trim() || exportPrefixEl.value === lastAutoExportPrefix) {
+      exportPrefixEl.value = next;
+    }
+    lastAutoExportPrefix = next;
+  };
+
+  const clampPad = (sec: number) =>
+    Math.max(0, Math.min(MAX_TIMELINE_PAD_SEC, Math.round(sec * 100) / 100));
+
+  const readLoops = () =>
+    Math.max(1, Math.min(20, Math.round(Number(exportLoopsEl.value) || 1)));
+
+  const readExportPreviewUi = () => {
+    const loops = readLoops();
+    const fpsRaw = Number(($('export-fps') as HTMLSelectElement).value);
+    const fps = Number.isFinite(fpsRaw) && fpsRaw > 0 ? fpsRaw : DEFAULT_EXPORT_FPS;
+    const prefix = (exportPrefixEl.value || lastAutoExportPrefix || 'dorothy_e_clip').replace(
+      /[^\w-]+/g,
+      '_',
+    );
+    return {
+      loops,
+      fps,
+      prefix,
+      padBeforeSec,
+      padAfterSec,
+      outline: {
+        enabled: ($('export-outline') as HTMLInputElement).checked,
+        width: Math.max(
+          1,
+          Math.min(16, Math.round(Number(($('export-outline-width') as HTMLInputElement).value) || 2)),
+        ),
+        color: ($('export-outline-color') as HTMLInputElement).value || '#000000',
+      },
+    };
+  };
+
+  const packageTiming = (fps = DEFAULT_EXPORT_FPS) => {
+    const loops = readLoops();
+    const frameDt = 1 / Math.max(1, fps);
+    const clipDur = Math.max(stack.duration(), frameDt);
+    const coreDur = clipDur * loops;
+    const totalDur = padBeforeSec + coreDur + padAfterSec;
+    const totalFrames = Math.max(1, Math.round(totalDur * fps));
+    return { loops, clipDur, coreDur, totalDur, totalFrames, frameDt };
+  };
+
+  const sampleTimeline = (timelineSec: number, clipDur: number, smoothDt: number) => {
+    const animT = timelineToAnimTime(timelineSec, padBeforeSec, clipDur);
+    stack.scrubTo(animT);
+    applyPoseSmoothening(dorothy, smoothedPose, smoothAmount, smoothDt);
+    dorothy.updateMatrixWorld(true);
+  };
+
+  const paintTimeline = () => {
+    const ui = readExportPreviewUi();
+    const { loops, clipDur, coreDur, totalDur } = packageTiming(ui.fps);
+    const span = Math.max(totalDur, 1e-6);
+    const beforePct = (padBeforeSec / span) * 100;
+    const corePct = (coreDur / span) * 100;
+    const afterPct = (padAfterSec / span) * 100;
+
+    tlPadBefore.style.flexBasis = `${beforePct}%`;
+    tlCore.style.flexBasis = `${corePct}%`;
+    tlPadAfter.style.flexBasis = `${afterPct}%`;
+    tlCore.style.setProperty('--tl-loops', String(loops));
+
+    const leftHandlePct = beforePct;
+    const rightHandlePct = beforePct + corePct;
+    tlHandleL.style.left = `${leftHandlePct}%`;
+    tlHandleR.style.left = `${rightHandlePct}%`;
+
+    exportLoopsEl.value = String(loops);
+    exportLoopsVal.textContent = `×${loops}`;
+    tlBeforeVal.textContent = `−${padBeforeSec.toFixed(2)}s`;
+    tlCoreVal.textContent = `${coreDur.toFixed(2)}s · ${clipDur.toFixed(2)}s × ${loops}`;
+    tlAfterVal.textContent = `+${padAfterSec.toFixed(2)}s`;
+
+    if (document.activeElement !== tlPadBeforeInput) {
+      tlPadBeforeInput.value = String(padBeforeSec);
+    }
+    if (document.activeElement !== tlPadAfterInput) {
+      tlPadAfterInput.value = String(padAfterSec);
+    }
+
+    if (playing && totalDur > 0) {
+      tlPlayhead.hidden = false;
+      tlPlayhead.style.left = `${(previewAnimTime / span) * 100}%`;
+    } else {
+      tlPlayhead.hidden = true;
+    }
+  };
+
+  const setPads = (before: number, after: number) => {
+    padBeforeSec = clampPad(before);
+    padAfterSec = clampPad(after);
+    paintTimeline();
+  };
+
+  const bindPadHandle = (handle: HTMLElement, side: 'before' | 'after') => {
+    handle.addEventListener('pointerdown', (ev) => {
+      ev.preventDefault();
+      handle.setPointerCapture(ev.pointerId);
+      const startX = ev.clientX;
+      const startBefore = padBeforeSec;
+      const startAfter = padAfterSec;
+      const trackW = Math.max(1, tlTrack.getBoundingClientRect().width);
+      const { totalDur } = packageTiming(readExportPreviewUi().fps);
+      const pxPerSec = trackW / Math.max(totalDur, 0.25);
+
+      const onMove = (e: PointerEvent) => {
+        const dx = e.clientX - startX;
+        if (side === 'before') {
+          // Drag left → more pad before; drag right → less.
+          setPads(startBefore - dx / pxPerSec, startAfter);
+        } else {
+          setPads(startBefore, startAfter + dx / pxPerSec);
+        }
+      };
+      const onUp = (e: PointerEvent) => {
+        handle.releasePointerCapture(e.pointerId);
+        handle.removeEventListener('pointermove', onMove);
+        handle.removeEventListener('pointerup', onUp);
+        handle.removeEventListener('pointercancel', onUp);
+      };
+      handle.addEventListener('pointermove', onMove);
+      handle.addEventListener('pointerup', onUp);
+      handle.addEventListener('pointercancel', onUp);
+    });
+  };
+  bindPadHandle(tlHandleL, 'before');
+  bindPadHandle(tlHandleR, 'after');
+
+  tlPadBeforeInput.addEventListener('change', () => {
+    setPads(Number(tlPadBeforeInput.value) || 0, padAfterSec);
+  });
+  tlPadAfterInput.addEventListener('change', () => {
+    setPads(padBeforeSec, Number(tlPadAfterInput.value) || 0);
+  });
+  exportLoopsEl.addEventListener('input', () => {
+    exportLoopsEl.value = String(readLoops());
+    paintTimeline();
+  });
+  exportLoopsEl.addEventListener('change', () => paintTimeline());
+  ($('export-fps') as HTMLSelectElement).addEventListener('change', () => paintTimeline());
+
+  const resetExportPreviewClock = () => {
+    previewAnimTime = 0;
+    previewFrameAccum = 0;
+    stack.mixer.timeScale = 1;
+    stack.mixer.setTime(0);
+  };
+
+  const beginExportPreview = (note?: string) => {
+    if (stack.layers.length === 0) return;
+    smoothedPose.clear();
+    resetExportPreviewClock();
+    stack.playAll();
+    // Scrub mode: actions stay paused; sampleTimeline drives pose.
+    playing = true;
+    const ui = readExportPreviewUi();
+    const { totalFrames, clipDur } = packageTiming(ui.fps);
+    sampleTimeline(0, clipDur, 0);
+    paintTimeline();
+    setStatus(
+      note ??
+        `Preview · ${ui.prefix}_0000 · loop 1/${ui.loops} · ${totalFrames}f @ ${ui.fps}fps`,
+    );
+  };
+
+  const refreshStack = () => {
     renderStack(stack, refreshStack, (label) => {
       const i = stackSources.findIndex((s) => s.label === label);
       if (i >= 0) stackSources.splice(i, 1);
     });
+    syncExportPrefix();
+    paintTimeline();
+  };
   refreshStack();
-
-  const smoothedPose = new Map<string, { pos: THREE.Vector3; quat: THREE.Quaternion }>();
-  let smoothAmount = 0;
 
   let rootMotionMode: RootMotionMode = 'inplace';
   /** Travel-preserving sources so the In place / Travel toggle can re-apply. */
@@ -669,13 +937,10 @@ async function main(): Promise<void> {
       stack.add(flattenCubicSplineClip(clipped), src.label);
     }
     refreshStack();
-    smoothedPose.clear();
     if (stack.layers.length > 0) {
-      stack.playAll();
-      playing = true;
-      setStatus(
+      beginExportPreview(
         note ??
-          `Playing · ${rootMotionMode === 'inplace' ? 'in place' : 'travel'} · ${stack.layers.map((l) => l.label).join(', ')}`,
+          `Preview · ${rootMotionMode === 'inplace' ? 'in place' : 'travel'} · ${stack.layers.map((l) => l.label).join(', ')}`,
       );
     }
   };
@@ -745,19 +1010,18 @@ async function main(): Promise<void> {
       setStatus('Add a clip from the library first');
       return;
     }
-    smoothedPose.clear();
-    stack.playAll();
-    playing = true;
-    setStatus('Playing stack');
+    beginExportPreview();
   });
   $('btn-stop').addEventListener('click', () => {
     stack.stopAll();
     playing = false;
+    resetExportPreviewClock();
     smoothedPose.clear();
     stackSources.length = 0;
     refreshStack();
     resetToRest(skinned, dorothy, boneRest, character.rig);
     normalizeCharacterPose(dorothy);
+    paintTimeline();
     setStatus('Stopped');
   });
   $('btn-skeleton').addEventListener('click', () => {
@@ -774,6 +1038,8 @@ async function main(): Promise<void> {
 
   const camHeight = $('cam-height') as HTMLInputElement;
   const camHeightVal = $('cam-height-val');
+  const sceneYaw = $('scene-yaw') as HTMLInputElement;
+  const sceneYawVal = $('scene-yaw-val');
   const poseSmooth = $('pose-smooth') as HTMLInputElement;
   const poseSmoothVal = $('pose-smooth-val');
   const animSpeed = $('anim-speed') as HTMLInputElement;
@@ -792,9 +1058,9 @@ async function main(): Promise<void> {
   poseSmoothVal.textContent = '0%';
 
   const setAnimSpeed = (pct: number) => {
-    const speed = Math.max(0.1, pct / 100);
-    stack.mixer.timeScale = speed;
-    animSpeedVal.textContent = `${speed.toFixed(2)}×`;
+    previewSpeed = Math.max(0.1, pct / 100);
+    stack.mixer.timeScale = 1;
+    animSpeedVal.textContent = `${previewSpeed.toFixed(2)}×`;
   };
   animSpeed.addEventListener('input', () => setAnimSpeed(Number(animSpeed.value)));
   setAnimSpeed(Number(animSpeed.value));
@@ -825,15 +1091,45 @@ async function main(): Promise<void> {
 
   const updateHudCam = () => {
     const y = controls.target.y;
+    const yawLabel = SCENE_YAW_DIRS[Number(sceneYaw.value) % 8] ?? '—';
     camHeightVal.textContent = `${y.toFixed(2)}m`;
     setHud(
       [
         'Dorothy 3D Studio',
-        `${character.label} · scale×${scale.toFixed(3)} · look ${y.toFixed(2)}m`,
-        'Yaw orbit · pan · zoom · cam height · skeleton',
+        `${character.label} · scale×${scale.toFixed(3)} · look ${y.toFixed(2)}m · ${yawLabel}`,
+        '8-way direction · yaw orbit · pan · zoom · cam height · skeleton',
       ].join('\n'),
     );
   };
+
+  const syncSceneYawUi = (index: number) => {
+    const i = ((Math.round(index) % 8) + 8) % 8;
+    sceneYaw.value = String(i);
+    sceneYawVal.textContent = SCENE_YAW_DIRS[i]!;
+  };
+  const applySceneYawFromSlider = () => {
+    const i = Number(sceneYaw.value);
+    setSceneYawNotch(camera, controls, i);
+    syncSceneYawUi(i);
+    syncExportPrefix();
+    updateHudCam();
+  };
+  {
+    const start = sceneYawIndexFromAzimuth(controls.getAzimuthalAngle());
+    setSceneYawNotch(camera, controls, start);
+    syncSceneYawUi(start);
+    syncExportPrefix(true);
+  }
+  sceneYaw.addEventListener('input', applySceneYawFromSlider);
+  // Free orbit → snap to nearest of 8 directions when interaction ends.
+  controls.addEventListener('end', () => {
+    const snapped = sceneYawIndexFromAzimuth(controls.getAzimuthalAngle());
+    setSceneYawNotch(camera, controls, snapped);
+    syncSceneYawUi(snapped);
+    syncExportPrefix();
+    updateHudCam();
+  });
+
   camHeight.addEventListener('input', () => {
     setCameraCraneHeight(camera, controls, lookYFromSlider(Number(camHeight.value)));
     updateHudCam();
@@ -884,11 +1180,12 @@ async function main(): Promise<void> {
       setStatus('Add a clip before export');
       return;
     }
-    const loops = Math.max(1, Number(($('export-loops') as HTMLInputElement).value) || 1);
+    const ui = readExportPreviewUi();
     const size = Number(($('export-size') as HTMLSelectElement).value) || 512;
-    const prefix = (($('export-prefix') as HTMLInputElement).value || 'dorothy').replace(/[^\w-]+/g, '_');
+    const { clipDur } = packageTiming(ui.fps);
     setStatus('Exporting…');
     smoothedPose.clear();
+    resetExportPreviewClock();
     stack.playAll();
     playing = true;
     // Pause the live viewport loop so it can't re-draw helpers between export frames.
@@ -900,17 +1197,28 @@ async function main(): Promise<void> {
         renderer,
         scene,
         camera,
-        mixer: stack.mixer,
         durationSec: stack.duration(),
-        options: { loops, fps: EXPORT_FPS, size, filePrefix: prefix },
+        options: {
+          loops: ui.loops,
+          fps: ui.fps,
+          size,
+          filePrefix: ui.prefix,
+          padBeforeSec: ui.padBeforeSec,
+          padAfterSec: ui.padAfterSec,
+          outline: {
+            enabled: ui.outline.enabled,
+            width: ui.outline.width,
+            color: ui.outline.color,
+          },
+        },
         hideDuringExport,
-        afterMixerUpdate: (dt) => {
-          applyPoseSmoothening(dorothy, smoothedPose, smoothAmount, dt || 1 / EXPORT_FPS);
-          dorothy.updateMatrixWorld(true);
+        sampleAt: (t) => {
+          sampleTimeline(t, clipDur, 1 / ui.fps);
         },
         onProgress: (frac, label) => setStatus(`Export ${Math.round(frac * 100)}% · ${label}`),
       });
       setStatus('Export complete');
+      beginExportPreview('Export complete · preview resumed');
     } catch (err) {
       setStatus(`Export failed: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
@@ -918,32 +1226,138 @@ async function main(): Promise<void> {
     }
   });
 
+  const outlineToggle = $('export-outline') as HTMLInputElement;
+  const outlineOpts = $('export-outline-opts');
+  const syncOutlineOpts = () => {
+    outlineOpts.hidden = !outlineToggle.checked;
+  };
+  outlineToggle.addEventListener('change', syncOutlineOpts);
+  syncOutlineOpts();
+
+  const paintOutlinePreview = (): void => {
+    const ol = readExportPreviewUi().outline;
+    if (!ol.enabled) {
+      outlinePreview.classList.remove('is-on');
+      renderer.domElement.style.opacity = '1';
+      return;
+    }
+
+    const prevBg = scene.background;
+    const prevClear = renderer.getClearColor(new THREE.Color());
+    const prevAlpha = renderer.getClearAlpha();
+    const envWas = studioEnv.visible;
+    const skelWas = skeletonHelper?.visible ?? false;
+
+    scene.background = null;
+    renderer.setClearColor(0x000000, 0);
+    studioEnv.visible = false;
+    if (skeletonHelper) skeletonHelper.visible = false;
+    renderer.render(scene, camera);
+    studioEnv.visible = envWas;
+    if (skeletonHelper) skeletonHelper.visible = skelWas;
+    scene.background = prevBg;
+    renderer.setClearColor(prevClear, prevAlpha);
+
+    const src = renderer.domElement;
+    const maxEdge = Math.max(src.width, src.height);
+    const scale = Math.min(1, OUTLINE_PREVIEW_MAX_EDGE / Math.max(1, maxEdge));
+    let outlined: HTMLCanvasElement;
+    if (scale < 0.999) {
+      const tmp = document.createElement('canvas');
+      tmp.width = Math.max(1, Math.floor(src.width * scale));
+      tmp.height = Math.max(1, Math.floor(src.height * scale));
+      tmp.getContext('2d')!.drawImage(src, 0, 0, tmp.width, tmp.height);
+      const width = Math.max(1, Math.round(ol.width * scale));
+      outlined = applyAlphaOutline(tmp, { width, color: ol.color });
+    } else {
+      outlined = applyAlphaOutline(src, { width: ol.width, color: ol.color });
+    }
+
+    outlinePreviewCtx.setTransform(1, 0, 0, 1, 0, 0);
+    outlinePreviewCtx.globalCompositeOperation = 'copy';
+    outlinePreviewCtx.fillStyle = PREVIEW_BG;
+    outlinePreviewCtx.fillRect(0, 0, outlinePreview.width, outlinePreview.height);
+    outlinePreviewCtx.globalCompositeOperation = 'source-over';
+    outlinePreviewCtx.drawImage(
+      outlined,
+      0,
+      0,
+      outlinePreview.width,
+      outlinePreview.height,
+    );
+    outlinePreview.classList.add('is-on');
+    // Keep WebGL canvas for OrbitControls hit-testing; hide its pixels.
+    renderer.domElement.style.opacity = '0';
+  };
+
   setStatus(`Ready · ${character.label} · ${builtInClips(character.id).length} clips`);
 
   const clock = new THREE.Clock();
   let statusAcc = 0;
   const tick = () => {
     const dt = Math.min(clock.getDelta(), 0.05);
-    if (playing) {
-      stack.mixer.update(dt);
-      applyPoseSmoothening(dorothy, smoothedPose, smoothAmount, dt);
-      dorothy.updateMatrixWorld(true);
+    if (playing && stack.layers.length > 0) {
+      const ui = readExportPreviewUi();
+      const { loops, clipDur, coreDur, totalDur, totalFrames, frameDt } = packageTiming(ui.fps);
+
+      // Same discrete timeline steps as export; Speed only scrubs wall-clock through that package.
+      previewFrameAccum += dt * previewSpeed;
+      let stepped = false;
+      while (previewFrameAccum >= frameDt) {
+        previewFrameAccum -= frameDt;
+        previewAnimTime += frameDt;
+        stepped = true;
+
+        if (previewAnimTime >= totalDur - 1e-9) {
+          previewAnimTime = 0;
+          previewFrameAccum = 0;
+          smoothedPose.clear();
+          break;
+        }
+      }
+      if (stepped) {
+        sampleTimeline(previewAnimTime, clipDur, frameDt);
+        paintTimeline();
+      }
+
       statusAcc += dt;
       if (statusAcc >= 0.1) {
         statusAcc = 0;
+        const frameIdx = Math.min(
+          totalFrames - 1,
+          Math.max(0, Math.floor(previewAnimTime * ui.fps + 1e-9)),
+        );
+        const coreT = previewAnimTime - padBeforeSec;
+        const loopIdx =
+          coreT < 0 ? 0 : Math.min(loops, Math.floor(coreT / clipDur) + 1);
         const head = stack.playhead();
-        if (head) {
-          const smoothNote = smoothAmount > 0 ? ` · smooth ${Math.round(smoothAmount * 100)}%` : '';
-          const speed = stack.mixer.timeScale;
-          const speedNote = Math.abs(speed - 1) > 0.01 ? ` · ${speed.toFixed(2)}×` : '';
-          setStatus(
-            `Playing · ${head.label} · ${head.time.toFixed(2)}/${head.duration.toFixed(2)}s${speedNote}${smoothNote}`,
-          );
-        }
+        const clipNote = head ? ` · ${head.label}` : '';
+        const smoothNote = smoothAmount > 0 ? ` · smooth ${Math.round(smoothAmount * 100)}%` : '';
+        const speedNote = Math.abs(previewSpeed - 1) > 0.01 ? ` · ${previewSpeed.toFixed(2)}×` : '';
+        const outlineNote = ui.outline.enabled ? ` · outline ${ui.outline.width}px` : '';
+        const padNote =
+          padBeforeSec > 0 || padAfterSec > 0
+            ? ` · pad −${padBeforeSec.toFixed(2)}/+${padAfterSec.toFixed(2)}s`
+            : '';
+        const loopNote =
+          coreT < 0
+            ? ' · pre-roll'
+            : coreT >= coreDur
+              ? ' · post-roll'
+              : ` · loop ${loopIdx}/${loops}`;
+        setStatus(
+          `Preview · ${ui.prefix}_${String(frameIdx).padStart(4, '0')}${clipNote}${loopNote} · ${frameIdx + 1}/${totalFrames}f @ ${ui.fps}fps${padNote}${speedNote}${outlineNote}${smoothNote}`,
+        );
       }
     }
     controls.update();
-    renderer.render(scene, camera);
+    if (readExportPreviewUi().outline.enabled) {
+      paintOutlinePreview();
+    } else {
+      outlinePreview.classList.remove('is-on');
+      renderer.domElement.style.opacity = '1';
+      renderer.render(scene, camera);
+    }
   };
   renderer.setAnimationLoop(tick);
 }

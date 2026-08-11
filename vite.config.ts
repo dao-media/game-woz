@@ -7,7 +7,10 @@ export default defineConfig({
   // for missing .glb/.fbx (GLTFLoader was parsing <!doctype as JSON).
   appType: 'mpa',
   server: {
-    port: 5173,
+    // Dedicated Oz port (avoid clashing with other local apps on 5173).
+    port: 5180,
+    strictPort: true,
+    host: '127.0.0.1',
     open: false,
   },
   build: {

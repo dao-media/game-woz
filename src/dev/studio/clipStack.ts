@@ -87,10 +87,33 @@ export class ClipStack {
     }
   }
 
+  /**
+   * Scrub every enabled layer to an absolute clip time (wrapped).
+   * Used for timeline pad sampling so pre/post roll can loop past clip bounds.
+   */
+  scrubTo(timeSec: number): void {
+    for (const layer of this.layers) {
+      if (!layer.enabled) {
+        layer.action.stop();
+        continue;
+      }
+      const d = Math.max(layer.clip.duration, 1e-6);
+      const t = ((timeSec % d) + d) % d;
+      layer.action.enabled = true;
+      layer.action.paused = true;
+      layer.action.setEffectiveWeight(layer.weight);
+      layer.action.setLoop(THREE.LoopRepeat, Infinity);
+      layer.action.time = t;
+      layer.action.play();
+    }
+    this.mixer.update(0);
+  }
+
   /** Currently playing action time / duration for status HUD. */
   playhead(): { label: string; time: number; duration: number } | null {
     for (const layer of this.layers) {
-      if (!layer.enabled || !layer.action.isRunning()) continue;
+      if (!layer.enabled) continue;
+      if (!layer.action.isRunning() && !layer.action.paused) continue;
       return {
         label: layer.label,
         time: layer.action.time,

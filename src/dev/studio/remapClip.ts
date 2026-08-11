@@ -111,6 +111,211 @@ function sanitizeClip(
 
 const HIP_BONES = new Set(['Hips', 'Pelvis', 'Hip']);
 
+/** Horizontal unit vector from a world-space direction (Y up). */
+function flatForward(v: THREE.Vector3): THREE.Vector3 | null {
+  const flat = new THREE.Vector3(v.x, 0, v.z);
+  if (flat.lengthSq() < 1e-10) return null;
+  return flat.normalize();
+}
+
+/** Signed yaw (rad) from `from` → `to` about world +Y. */
+function signedYawBetween(from: THREE.Vector3, to: THREE.Vector3): number {
+  return Math.atan2(
+    from.x * to.z - from.z * to.x,
+    from.x * to.x + from.z * to.z,
+  );
+}
+
+function findFacingProbeBone(root: THREE.Object3D): THREE.Bone | null {
+  // Prefer spine/hips — Head tracks are stripped on MASTER (locked), so Head local
+  // stays bind while the body yaws underneath; spine tracks the clip facing.
+  return (
+    findBone(root, ['Spine2', 'Spine02', 'mixamorigSpine2', 'mixamorig:Spine2']) ??
+    findBone(root, ['Spine1', 'Spine01', 'mixamorigSpine1', 'mixamorig:Spine1']) ??
+    findBone(root, ['Hips', 'Pelvis', 'Hip', 'mixamorigHips', 'mixamorig:Hips']) ??
+    findBone(root, ['Head', 'mixamorigHead', 'mixamorig:Head'])
+  );
+}
+
+function findSkinnedMeshIn(root: THREE.Object3D): THREE.SkinnedMesh | null {
+  let found: THREE.SkinnedMesh | null = null;
+  root.traverse((obj) => {
+    if (!found && (obj as THREE.SkinnedMesh).isSkinnedMesh) {
+      found = obj as THREE.SkinnedMesh;
+    }
+  });
+  return found;
+}
+
+/**
+ * Sample character forward at bind or after applying a clip.
+ * Mixamo Dorothy: local +X on spine/hips ≈ mesh forward after studio MODEL_YAW.
+ */
+function sampleFlatForward(
+  root: THREE.Object3D,
+  clip: THREE.AnimationClip | null,
+  timeSec = 0,
+): THREE.Vector3 | null {
+  const skinned = findSkinnedMeshIn(root);
+  skinned?.skeleton.pose();
+  root.updateMatrixWorld(true);
+
+  let mixer: THREE.AnimationMixer | null = null;
+  if (clip) {
+    mixer = new THREE.AnimationMixer(root);
+    const action = mixer.clipAction(clip);
+    action.play();
+    mixer.setTime(Math.max(0, Math.min(timeSec, Math.max(clip.duration - 1e-4, 0))));
+    root.updateMatrixWorld(true);
+  }
+
+  const probe = findFacingProbeBone(root);
+  if (!probe) {
+    mixer?.stopAllAction();
+    return null;
+  }
+  const worldX = new THREE.Vector3(1, 0, 0).applyQuaternion(
+    probe.getWorldQuaternion(new THREE.Quaternion()),
+  );
+  const fwd = flatForward(worldX);
+  mixer?.stopAllAction();
+  skinned?.skeleton.pose();
+  root.updateMatrixWorld(true);
+  return fwd;
+}
+
+/** Max horizontal hip travel over the clip (world XZ), for pad/facing heuristics. */
+function sampleHipTravel(
+  root: THREE.Object3D,
+  clip: THREE.AnimationClip,
+  hips: THREE.Bone,
+): THREE.Vector3 {
+  const skinned = findSkinnedMeshIn(root);
+  skinned?.skeleton.pose();
+  const mixer = new THREE.AnimationMixer(root);
+  const action = mixer.clipAction(clip);
+  action.play();
+  let start: THREE.Vector3 | null = null;
+  const max = new THREE.Vector3();
+  const steps = 24;
+  for (let i = 0; i <= steps; i++) {
+    mixer.setTime((clip.duration * i) / steps);
+    root.updateMatrixWorld(true);
+    const p = hips.getWorldPosition(new THREE.Vector3());
+    if (!start) start = p.clone();
+    const d = p.clone().sub(start);
+    d.y = 0;
+    if (d.lengthSq() > max.lengthSq()) max.copy(d);
+  }
+  mixer.stopAllAction();
+  skinned?.skeleton.pose();
+  root.updateMatrixWorld(true);
+  return max;
+}
+
+/**
+ * Some MASTER bakes (Run / Idle / Jump) face ~90° off Walk/rest while hip travel
+ * already matches studio East. Rotate Hips keys about world +Y so facing matches
+ * rest; only rotate hip positions when travel itself is also misaligned.
+ */
+function alignClipFacingToRest(
+  clip: THREE.AnimationClip,
+  targetSkinned: THREE.SkinnedMesh,
+): THREE.AnimationClip {
+  // Studio applies MODEL_YAW on the character root (mixer root), not the skinned mesh.
+  let alignRoot: THREE.Object3D = targetSkinned;
+  for (let cur: THREE.Object3D | null = targetSkinned; cur && cur.type !== 'Scene'; cur = cur.parent) {
+    alignRoot = cur;
+  }
+
+  const hips =
+    findBone(alignRoot, ['Hips', 'Pelvis', 'Hip']) ??
+    findBone(targetSkinned, ['Hips', 'Pelvis', 'Hip']);
+  if (!hips) return clip;
+
+  const restFwd = sampleFlatForward(alignRoot, null);
+  // Prefer t≈0 — mid-clip attack poses are not facing signals.
+  const clipFwd = sampleFlatForward(alignRoot, clip, 0);
+  if (!restFwd || !clipFwd) return clip;
+
+  // Three.js +Y rotation is opposite the (x,z) cross used by signedYawBetween(from,to).
+  const rawDelta = -signedYawBetween(clipFwd, restFwd);
+  if (!Number.isFinite(rawDelta)) return clip;
+
+  // MASTER bake errors are ~±90° (Run/Idle/Jump). Ignore small pose noise / windups.
+  const quarter = Math.PI / 2;
+  const snapped = Math.round(rawDelta / quarter) * quarter;
+  if (Math.abs(snapped) < quarter - 1e-3) return clip;
+  if (Math.abs(rawDelta - snapped) > THREE.MathUtils.degToRad(25)) return clip;
+  const deltaYaw = snapped;
+
+  const travel = sampleHipTravel(alignRoot, clip, hips);
+  const travelLen = travel.length();
+  let rotatePositions = false;
+  if (travelLen > 0.02) {
+    const travelFwd = travel.clone().normalize();
+    const errVsRest = Math.abs(signedYawBetween(travelFwd, restFwd));
+    const errVsClip = Math.abs(signedYawBetween(travelFwd, clipFwd));
+    // Travel already matches rest (Run): fix facing only. Travel matches wrong
+    // facing: rotate positions with the body.
+    rotatePositions = errVsClip + THREE.MathUtils.degToRad(15) < errVsRest;
+  }
+
+  const parent = hips.parent;
+  parent?.updateWorldMatrix(true, false);
+  const parentWorld = parent?.matrixWorld.clone() ?? new THREE.Matrix4();
+  const parentInv = parentWorld.clone().invert();
+  const parentQ = new THREE.Quaternion().setFromRotationMatrix(parentWorld);
+  const parentQInv = parentQ.clone().invert();
+  const qWorld = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), deltaYaw);
+  const qDeltaLocal = parentQInv.clone().multiply(qWorld).multiply(parentQ);
+
+  const tracks = clip.tracks.map((track) => {
+    const dot = track.name.lastIndexOf('.');
+    if (dot < 0) return track.clone();
+    const bone = track.name.slice(0, dot).split('/').pop()?.split('|').pop() ?? '';
+    if (!HIP_BONES.has(bone)) return track.clone();
+
+    if (track instanceof THREE.QuaternionKeyframeTrack && track.name.endsWith('.quaternion')) {
+      const values = track.values.slice();
+      const q = new THREE.Quaternion();
+      for (let i = 0; i < values.length; i += 4) {
+        q.set(values[i]!, values[i + 1]!, values[i + 2]!, values[i + 3]!);
+        q.premultiply(qDeltaLocal);
+        values[i] = q.x;
+        values[i + 1] = q.y;
+        values[i + 2] = q.z;
+        values[i + 3] = q.w;
+      }
+      return new THREE.QuaternionKeyframeTrack(track.name, track.times.slice(), values);
+    }
+
+    if (
+      rotatePositions &&
+      track instanceof THREE.VectorKeyframeTrack &&
+      track.name.endsWith('.position')
+    ) {
+      const values = track.values.slice();
+      const local = new THREE.Vector3();
+      const world = new THREE.Vector3();
+      local.fromArray(values, 0);
+      const pivot = local.clone().applyMatrix4(parentWorld);
+      for (let i = 0; i < values.length; i += 3) {
+        local.fromArray(values, i);
+        world.copy(local).applyMatrix4(parentWorld);
+        world.sub(pivot).applyQuaternion(qWorld).add(pivot);
+        local.copy(world).applyMatrix4(parentInv);
+        local.toArray(values, i);
+      }
+      return new THREE.VectorKeyframeTrack(track.name, track.times.slice(), values);
+    }
+
+    return track.clone();
+  });
+
+  return new THREE.AnimationClip(clip.name, clip.duration, tracks);
+}
+
 export type RootMotionMode = 'inplace' | 'travel';
 
 export type RootMotionOptions = {
@@ -265,22 +470,24 @@ export function remapClipToDorothy(
 ): THREE.AnimationClip {
   const kind = opts.kind ?? detectRigKind(opts.targetSkinned);
 
+  let remapped: THREE.AnimationClip;
   if (!clipLooksMixamo(clip)) {
-    return sanitizeClip(clip, kind, opts.name);
+    remapped = sanitizeClip(clip, kind, opts.name);
+  } else {
+    const sourceRoot = opts.sourceRoot;
+    if (!sourceRoot) {
+      throw new Error('Mixamo remapping requires the source FBX scene graph');
+    }
+    remapped = retargetMixamoRenameOnly(clip, {
+      ...(opts.name !== undefined ? { name: opts.name } : {}),
+      sourceRoot,
+      targetSkinned: opts.targetSkinned,
+      kind,
+      ...(opts.inPlace !== undefined ? { inPlace: opts.inPlace } : {}),
+    });
   }
 
-  const sourceRoot = opts.sourceRoot;
-  if (!sourceRoot) {
-    throw new Error('Mixamo remapping requires the source FBX scene graph');
-  }
-
-  return retargetMixamoRenameOnly(clip, {
-    ...(opts.name !== undefined ? { name: opts.name } : {}),
-    sourceRoot,
-    targetSkinned: opts.targetSkinned,
-    kind,
-    ...(opts.inPlace !== undefined ? { inPlace: opts.inPlace } : {}),
-  });
+  return alignClipFacingToRest(remapped, opts.targetSkinned);
 }
 
 /** @deprecated Use remapClipToDorothy */

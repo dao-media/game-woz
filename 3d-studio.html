@@ -100,6 +100,18 @@
         width: 100%;
         height: 100%;
       }
+      #outline-preview {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1;
+        display: none;
+      }
+      #outline-preview.is-on {
+        display: block;
+      }
       #hud {
         position: absolute;
         top: 12px;
@@ -230,12 +242,137 @@
       }
       .field.cam-field {
         margin: 0 0 10px;
-        grid-template-columns: 72px 1fr 36px;
+        grid-template-columns: 72px 1fr 40px;
+      }
+      .field.yaw-field {
+        align-items: start;
+      }
+      .field.yaw-field .yaw-slider-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
+      .field.yaw-field input[type='range'] {
+        width: 100%;
+      }
+      .yaw-ticks {
+        display: flex;
+        justify-content: space-between;
+        padding: 0 1px;
+        font-family: var(--mono);
+        font-size: 9px;
+        color: var(--muted);
+        letter-spacing: -0.02em;
+        user-select: none;
+      }
+      .yaw-ticks span {
+        width: 1.1em;
+        text-align: center;
       }
       .field.root-motion {
         margin: 0 0 10px;
         grid-template-columns: 72px 1fr;
         align-items: center;
+      }
+      .timeline {
+        margin: 8px 0 6px;
+        user-select: none;
+      }
+      .timeline-track {
+        position: relative;
+        display: flex;
+        height: 28px;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid var(--border);
+        background: #0c1018;
+      }
+      .timeline-pad {
+        flex: 0 0 auto;
+        background: repeating-linear-gradient(
+          -45deg,
+          #1a2438,
+          #1a2438 4px,
+          #141c2c 4px,
+          #141c2c 8px
+        );
+        min-width: 0;
+      }
+      .timeline-core {
+        position: relative;
+        flex: 0 0 auto;
+        background: linear-gradient(180deg, #2a3f66, #1e2a44);
+        min-width: 8px;
+      }
+      .timeline-core::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          90deg,
+          transparent 0,
+          transparent calc(100% - 1px),
+          rgba(255, 255, 255, 0.12) calc(100% - 1px)
+        );
+        background-size: calc(100% / var(--tl-loops, 1)) 100%;
+        pointer-events: none;
+      }
+      .timeline-playhead {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        margin-left: -1px;
+        background: #f0c674;
+        box-shadow: 0 0 4px rgba(240, 198, 116, 0.6);
+        pointer-events: none;
+        z-index: 2;
+      }
+      .timeline-handle {
+        position: absolute;
+        top: -2px;
+        bottom: -2px;
+        width: 10px;
+        margin-left: -5px;
+        border: 1px solid var(--accent-dim, #5b8def);
+        border-radius: 3px;
+        background: #d6e6ff;
+        cursor: ew-resize;
+        z-index: 3;
+        padding: 0;
+      }
+      .timeline-handle:hover,
+      .timeline-handle:focus-visible {
+        background: #fff;
+      }
+      .timeline-meta {
+        display: flex;
+        justify-content: space-between;
+        gap: 6px;
+        margin-top: 6px;
+        font-family: var(--mono);
+        font-size: 10px;
+        color: var(--muted);
+      }
+      .timeline-meta .core {
+        color: var(--text);
+      }
+      .timeline-pads {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 8px;
+      }
+      .timeline-pads label {
+        display: grid;
+        gap: 4px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .timeline-pads input {
+        width: 100%;
+        box-sizing: border-box;
       }
       .toggle-pair {
         display: flex;
@@ -253,6 +390,9 @@
       }
       .field input[type='number'] {
         grid-column: 2 / 4;
+      }
+      .field #export-loops {
+        grid-column: 2;
       }
       .check {
         display: flex;
@@ -279,6 +419,31 @@
         gap: 4px;
         color: var(--muted);
         font-size: 11px;
+      }
+      .export-grid .check-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .export-grid .check-row input[type='checkbox'] {
+        width: 14px;
+        height: 14px;
+        accent-color: var(--accent);
+      }
+      .export-grid .outline-opts {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .export-grid .outline-opts[hidden] {
+        display: none;
+      }
+      .export-grid input[type='color'] {
+        padding: 2px;
+        height: 32px;
+        cursor: pointer;
       }
       input,
       select {
@@ -357,6 +522,38 @@
           <input id="cam-height" type="range" min="0" max="100" step="1" value="50" />
           <span id="cam-height-val">—</span>
         </label>
+        <label
+          class="field cam-field yaw-field"
+          title="Orbit around Dorothy — locks to 8 compass directions (45°)."
+        >
+          Direction
+          <span class="yaw-slider-wrap">
+            <input
+              id="scene-yaw"
+              type="range"
+              min="0"
+              max="7"
+              step="1"
+              value="0"
+              list="scene-yaw-notches"
+              aria-label="Scene direction"
+            />
+            <datalist id="scene-yaw-notches">
+              <option value="0" label="E"></option>
+              <option value="1" label="SE"></option>
+              <option value="2" label="S"></option>
+              <option value="3" label="SW"></option>
+              <option value="4" label="W"></option>
+              <option value="5" label="NW"></option>
+              <option value="6" label="N"></option>
+              <option value="7" label="NE"></option>
+            </datalist>
+            <span class="yaw-ticks" aria-hidden="true">
+              <span>E</span><span>SE</span><span>S</span><span>SW</span><span>W</span><span>NW</span><span>N</span><span>NE</span>
+            </span>
+          </span>
+          <span id="scene-yaw-val">E</span>
+        </label>
         <label class="field cam-field" title="Temporal pose damping after Mixamo playback. 0 = raw, 1 = heavy smooth.">
           Smoothening
           <input id="pose-smooth" type="range" min="0" max="100" step="1" value="0" />
@@ -375,6 +572,42 @@
           </span>
         </label>
         <div id="stack-list"></div>
+      </div>
+      <div class="section">
+        <h2>Timeline</h2>
+        <p class="hint">
+          Core = clip × loops. Drag the ends (or use Before/After) to loop-extend past the clip bounds.
+        </p>
+        <label class="field" title="How many times the clip repeats in the core segment.">
+          Loops
+          <input id="export-loops" type="number" min="1" max="20" value="1" />
+          <span id="export-loops-val">×1</span>
+        </label>
+        <div class="timeline" id="timeline" aria-label="Export timeline">
+          <div class="timeline-track" id="tl-track">
+            <div class="timeline-pad" id="tl-pad-before" title="Loop pad before"></div>
+            <div class="timeline-core" id="tl-core" title="Core (clip × loops)"></div>
+            <div class="timeline-pad" id="tl-pad-after" title="Loop pad after"></div>
+            <div class="timeline-playhead" id="tl-playhead" hidden></div>
+            <button class="timeline-handle" id="tl-handle-l" type="button" aria-label="Extend before"></button>
+            <button class="timeline-handle" id="tl-handle-r" type="button" aria-label="Extend after"></button>
+          </div>
+          <div class="timeline-meta">
+            <span id="tl-before-val">−0.00s</span>
+            <span class="core" id="tl-core-val">0.00s × 1</span>
+            <span id="tl-after-val">+0.00s</span>
+          </div>
+          <div class="timeline-pads">
+            <label>
+              Before (s)
+              <input id="tl-pad-before-input" type="number" min="0" max="30" step="0.05" value="0" />
+            </label>
+            <label>
+              After (s)
+              <input id="tl-pad-after-input" type="number" min="0" max="30" step="0.05" value="0" />
+            </label>
+          </div>
+        </div>
       </div>
       <div class="section">
         <h2>Lighting</h2>
@@ -402,8 +635,11 @@
       </div>
       <div class="section">
         <h2>Export</h2>
+        <p class="hint" title="Viewport Play uses the same timeline as the zip (minus pixel size).">
+          Preview mirrors timeline (loops + pads), FPS, prefix, and outline — not resolution.
+          Prefix defaults to <code>character_direction_animation</code>.
+        </p>
         <div class="export-grid">
-          <label>Loops <input id="export-loops" type="number" min="1" max="20" value="1" /></label>
           <label>
             Resolution
             <select id="export-size">
@@ -412,8 +648,34 @@
               <option value="1920">1920²</option>
             </select>
           </label>
-          <label>Prefix <input id="export-prefix" type="text" value="dorothy" /></label>
-          <label>FPS <input type="text" value="30 (locked)" disabled /></label>
+          <label title="Auto-filled as character_direction_animation. Edit to lock a custom name until you clear the field.">
+            Prefix
+            <input id="export-prefix" type="text" value="" placeholder="dorothy_e_walk" />
+          </label>
+          <label>
+            FPS
+            <select id="export-fps" aria-label="Export frame rate">
+              <option value="24">24</option>
+              <option value="25">25</option>
+              <option value="30" selected>30</option>
+              <option value="42">42</option>
+              <option value="60">60</option>
+            </select>
+          </label>
+          <label class="check-row" title="Silhouette outline from alpha — live preview and PNG export.">
+            <input id="export-outline" type="checkbox" />
+            Alpha outline
+          </label>
+          <div class="outline-opts" id="export-outline-opts" hidden>
+            <label>
+              Width (px)
+              <input id="export-outline-width" type="number" min="1" max="16" value="2" />
+            </label>
+            <label>
+              Color
+              <input id="export-outline-color" type="color" value="#000000" />
+            </label>
+          </div>
           <button class="btn primary" id="btn-export" type="button">Export PNG zip</button>
         </div>
       </div>
