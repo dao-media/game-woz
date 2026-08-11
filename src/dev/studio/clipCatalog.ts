@@ -9,6 +9,8 @@ export type CatalogClip = {
 };
 
 const MIXAMO_BAKED = './models/dorothy/Animations/mixamo_character';
+/** Optimized Walk/Run/Jump/Idle for the clip library (masters untouched). */
+const MIXAMO_STUDIO = './models/dorothy/Animations/studio';
 const TRIPO_BASE = './models/dorothy/Animations';
 
 /**
@@ -18,17 +20,17 @@ const TRIPO_BASE = './models/dorothy/Animations';
 type MixamoCatalogEntry = {
   file: string;
   label: string;
-  /** Defaults to mixamo_character/. Use 'animations' for Dorothy_*_dorothy.glb / raw FBX. */
-  base?: 'mixamo' | 'animations';
+  /** Defaults to mixamo_character/. Use studio/ for optimized locomotion. */
+  base?: 'mixamo' | 'studio' | 'animations';
   kind?: 'fbx' | 'glb';
 };
 
 const MIXAMO_CHAR_FILES: MixamoCatalogEntry[] = [
-  { file: 'Jump.glb', label: 'Jump' },
-  { file: 'Idle.glb', label: 'Idle' },
+  { file: 'Jump.glb', label: 'Jump', base: 'studio' },
+  { file: 'Idle.glb', label: 'Idle', base: 'studio' },
   { file: 'Fighting_stance.glb', label: 'Fighting Stance' },
-  { file: 'Traversal_walk.glb', label: 'Walk' },
-  { file: 'Traversal_run.glb', label: 'Run' },
+  { file: 'Traversal_walk.glb', label: 'Walk', base: 'studio' },
+  { file: 'Traversal_run.glb', label: 'Run', base: 'studio' },
   { file: 'Traversal_turn.glb', label: 'Turn' },
   { file: 'Traversal_idle_to_walk.glb', label: 'Idle → Walk' },
   {
@@ -53,7 +55,7 @@ const MIXAMO_CHAR_FILES: MixamoCatalogEntry[] = [
     base: 'animations',
     kind: 'fbx',
   },
-];
+};
 
 const TRIPO_FILES: { file: string; label: string }[] = [
   { file: 'Traversal_walk_dorothy.glb', label: 'Walk (Tripo)' },
@@ -115,13 +117,17 @@ export const STUDIO_CHARACTERS: StudioCharacter[] = [
 export function builtInClips(characterId: StudioCharacterId = 'rigged'): CatalogClip[] {
   const character = STUDIO_CHARACTERS.find((c) => c.id === characterId) ?? STUDIO_CHARACTERS[0]!;
   if (character.rig === 'mixamo_char') {
-    return MIXAMO_CHAR_FILES.map(({ file, label, base, kind }) => ({
-      id: file,
-      label,
-      url: `${base === 'animations' ? TRIPO_BASE : MIXAMO_BAKED}/${file}`,
-      kind: (kind ?? 'glb') as 'glb' | 'fbx',
-      rig: 'mixamo_char' as const,
-    }));
+    return MIXAMO_CHAR_FILES.map(({ file, label, base, kind }) => {
+      const root =
+        base === 'animations' ? TRIPO_BASE : base === 'studio' ? MIXAMO_STUDIO : MIXAMO_BAKED;
+      return {
+        id: file,
+        label,
+        url: `${root}/${file}`,
+        kind: (kind ?? 'glb') as 'glb' | 'fbx',
+        rig: 'mixamo_char' as const,
+      };
+    });
   }
   return TRIPO_FILES.map(({ file, label }) => ({
     id: file,

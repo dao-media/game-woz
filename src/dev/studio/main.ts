@@ -13,7 +13,13 @@ import {
   type StudioCharacterId,
 } from './clipCatalog';
 import { ClipStack } from './clipStack';
-import { detectRigKind, remapClipToDorothy, applyRootMotionMode, type RootMotionMode } from './remapClip';
+import {
+  detectRigKind,
+  remapClipToDorothy,
+  applyRootMotionMode,
+  mirrorAnimationClip,
+  type RootMotionMode,
+} from './remapClip';
 import { applyAlphaOutline, exportPngSequence, timelineToAnimTime } from './exporter';
 
 const TARGET_HEIGHT_M = 1.7;
@@ -662,6 +668,21 @@ async function main(): Promise<void> {
   const scale = normalizeCharacterPose(dorothy);
   // Capture locals AFTER normalize (root scale) but BEFORE any skeleton.pose().
   const boneRest = captureBoneLocals(dorothy);
+  /** Root transform after first normalize — restore on Stop (never re-infer tip). */
+  const rootRest = {
+    position: dorothy.position.clone(),
+    quaternion: dorothy.quaternion.clone(),
+    scale: dorothy.scale.clone(),
+  };
+
+  const restoreStudioRest = () => {
+    stack.stopAll();
+    resetToRest(skinned, dorothy, boneRest, character.rig);
+    dorothy.position.copy(rootRest.position);
+    dorothy.quaternion.copy(rootRest.quaternion);
+    dorothy.scale.copy(rootRest.scale);
+    dorothy.updateMatrixWorld(true);
+  };
   const camBounds = fitCamera(camera, controls, dorothy);
   const defaultLookY = Math.min(
     Math.max(camBounds.groundY + CAMERA_LOOK_Y_DEFAULT, camBounds.groundY),
@@ -688,6 +709,10 @@ async function main(): Promise<void> {
   let padAfterSec = 0;
   const smoothedPose = new Map<string, { pos: THREE.Vector3; quat: THREE.Quaternion }>();
   let smoothAmount = 0;
+  let rootMotionMode: RootMotionMode = 'inplace';
+  let mirrorEnabled = false;
+  /** Travel-preserving sources so In place / Travel / Mirror can re-apply. */
+  const stackSources: { label: string; travelClip: THREE.AnimationClip }[] = [];
   (window as unknown as { __studio?: unknown }).__studio = {
     character,
     dorothy,
@@ -698,6 +723,12 @@ async function main(): Promise<void> {
     controls,
     get playing() {
       return playing;
+    },
+    get mirror() {
+      return mirrorEnabled;
+    },
+    get rootMotion() {
+      return rootMotionMode;
     },
   };
 
@@ -908,20 +939,31 @@ async function main(): Promise<void> {
     });
     syncExportPrefix();
     paintTimeline();
+    // Removing the last clip must return to the captured upright rest — do not
+    // re-run normalizeCharacterPose (that re-tips Mixamo bind into the floor).
+    if (stack.layers.length === 0) {
+      playing = false;
+      smoothedPose.clear();
+      restoreStudioRest();
+    }
   };
   refreshStack();
 
-  let rootMotionMode: RootMotionMode = 'inplace';
-  /** Travel-preserving sources so the In place / Travel toggle can re-apply. */
-  const stackSources: { label: string; travelClip: THREE.AnimationClip }[] = [];
-
   const btnInPlace = $('btn-inplace');
   const btnTravel = $('btn-travel');
+  const btnMirrorOff = $('btn-mirror-off');
+  const btnMirrorOn = $('btn-mirror-on');
   const syncRootMotionButtons = () => {
     btnInPlace.classList.toggle('active', rootMotionMode === 'inplace');
     btnTravel.classList.toggle('active', rootMotionMode === 'travel');
     btnInPlace.setAttribute('aria-pressed', rootMotionMode === 'inplace' ? 'true' : 'false');
     btnTravel.setAttribute('aria-pressed', rootMotionMode === 'travel' ? 'true' : 'false');
+  };
+  const syncMirrorButtons = () => {
+    btnMirrorOff.classList.toggle('active', !mirrorEnabled);
+    btnMirrorOn.classList.toggle('active', mirrorEnabled);
+    btnMirrorOff.setAttribute('aria-pressed', mirrorEnabled ? 'false' : 'true');
+    btnMirrorOn.setAttribute('aria-pressed', mirrorEnabled ? 'true' : 'false');
   };
 
   const rebuildStackFromSources = (note?: string) => {
@@ -933,14 +975,16 @@ async function main(): Promise<void> {
       getBone(dorothy, 'mixamorigHips') ??
       getBone(dorothy, 'mixamorig:Hips');
     for (const src of stackSources) {
-      const clipped = applyRootMotionMode(src.travelClip, rootMotionMode, { hips });
+      const mirrored = mirrorEnabled ? mirrorAnimationClip(src.travelClip) : src.travelClip;
+      const clipped = applyRootMotionMode(mirrored, rootMotionMode, { hips });
       stack.add(flattenCubicSplineClip(clipped), src.label);
     }
     refreshStack();
     if (stack.layers.length > 0) {
+      const motion = rootMotionMode === 'inplace' ? 'in place' : 'travel';
+      const mirror = mirrorEnabled ? ' · mirrored' : '';
       beginExportPreview(
-        note ??
-          `Preview · ${rootMotionMode === 'inplace' ? 'in place' : 'travel'} · ${stack.layers.map((l) => l.label).join(', ')}`,
+        note ?? `Preview · ${motion}${mirror} · ${stack.layers.map((l) => l.label).join(', ')}`,
       );
     }
   };
@@ -952,9 +996,19 @@ async function main(): Promise<void> {
     if (stackSources.length > 0) rebuildStackFromSources();
     else setStatus(mode === 'inplace' ? 'Root motion: in place' : 'Root motion: travel');
   };
+  const setMirrorEnabled = (on: boolean) => {
+    if (on === mirrorEnabled) return;
+    mirrorEnabled = on;
+    syncMirrorButtons();
+    if (stackSources.length > 0) rebuildStackFromSources();
+    else setStatus(on ? 'Mirror: on' : 'Mirror: off');
+  };
   btnInPlace.addEventListener('click', () => setRootMotionMode('inplace'));
   btnTravel.addEventListener('click', () => setRootMotionMode('travel'));
+  btnMirrorOff.addEventListener('click', () => setMirrorEnabled(false));
+  btnMirrorOn.addEventListener('click', () => setMirrorEnabled(true));
   syncRootMotionButtons();
+  syncMirrorButtons();
 
   const addAndPlay = (clip: THREE.AnimationClip, label: string, note: string) => {
     // Library picks replace the stack so clips don't blend into a walk mush.
@@ -1013,14 +1067,15 @@ async function main(): Promise<void> {
     beginExportPreview();
   });
   $('btn-stop').addEventListener('click', () => {
-    stack.stopAll();
     playing = false;
     resetExportPreviewClock();
     smoothedPose.clear();
     stackSources.length = 0;
+    while (stack.layers.length > 0) {
+      stack.remove(stack.layers[0]!.id);
+    }
     refreshStack();
-    resetToRest(skinned, dorothy, boneRest, character.rig);
-    normalizeCharacterPose(dorothy);
+    restoreStudioRest();
     paintTimeline();
     setStatus('Stopped');
   });
@@ -1182,12 +1237,14 @@ async function main(): Promise<void> {
     }
     const ui = readExportPreviewUi();
     const size = Number(($('export-size') as HTMLSelectElement).value) || 512;
-    const { clipDur } = packageTiming(ui.fps);
-    setStatus('Exporting…');
+    // Export runs the configured package exactly once (loops × clip + pads) — never
+    // resumes infinite preview playback afterward.
+    const loops = Math.max(1, ui.loops);
+    const { clipDur, totalFrames, totalDur } = packageTiming(ui.fps);
+    setStatus(`Exporting · ${loops} loop${loops === 1 ? '' : 's'} · ${totalFrames}f…`);
     smoothedPose.clear();
     resetExportPreviewClock();
-    stack.playAll();
-    playing = true;
+    playing = false;
     // Pause the live viewport loop so it can't re-draw helpers between export frames.
     renderer.setAnimationLoop(null);
     try {
@@ -1199,7 +1256,7 @@ async function main(): Promise<void> {
         camera,
         durationSec: stack.duration(),
         options: {
-          loops: ui.loops,
+          loops,
           fps: ui.fps,
           size,
           filePrefix: ui.prefix,
@@ -1215,11 +1272,21 @@ async function main(): Promise<void> {
         sampleAt: (t) => {
           sampleTimeline(t, clipDur, 1 / ui.fps);
         },
-        onProgress: (frac, label) => setStatus(`Export ${Math.round(frac * 100)}% · ${label}`),
+        onProgress: (frac, label) =>
+          setStatus(
+            `Export ${Math.round(frac * 100)}% · ${loops} loop${loops === 1 ? '' : 's'} · ${label}`,
+          ),
       });
-      setStatus('Export complete');
-      beginExportPreview('Export complete · preview resumed');
+      // Hold the last exported frame; do not restart looping preview.
+      playing = false;
+      previewAnimTime = Math.max(0, totalDur - 1 / ui.fps);
+      sampleTimeline(previewAnimTime, clipDur, 0);
+      paintTimeline();
+      setStatus(
+        `Export complete · ${totalFrames} frames · ${loops} loop${loops === 1 ? '' : 's'} @ ${ui.fps}fps (preview stopped)`,
+      );
     } catch (err) {
+      playing = false;
       setStatus(`Export failed: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
       renderer.setAnimationLoop(tick);

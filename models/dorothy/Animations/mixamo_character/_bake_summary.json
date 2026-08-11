@@ -1,0 +1,50 @@
+[
+  {
+    "id": "Attack_light2",
+    "ok": true,
+    "path": "models/dorothy/Animations/mixamo_character/Attack_light2.glb",
+    "bytes": 4232596
+  },
+  {
+    "id": "Attack_light3",
+    "ok": true,
+    "path": "models/dorothy/Animations/mixamo_character/Attack_light3.glb",
+    "bytes": 4242164
+  },
+  {
+    "id": "Attack_light4_spinkick",
+    "ok": true,
+    "path": "models/dorothy/Animations/mixamo_character/Attack_light4_spinkick.glb",
+    "bytes": 4231128
+  },
+  {
+    "id": "Attack_heavy1",
+    "ok": true,
+    "path": "models/dorothy/Animations/mixamo_character/Attack_heavy1.glb",
+    "bytes": 4241268
+  },
+  {
+    "id": "Attack_heavy2",
+    "ok": true,
+    "path": "models/dorothy/Animations/mixamo_character/Attack_heavy2.glb",
+    "bytes": 4240164
+  },
+  {
+    "id": "Attack_heavy3",
+    "ok": true,
+    "path": "models/dorothy/Animations/mixamo_character/Attack_heavy3.glb",
+    "bytes": 4247956
+  },
+  {
+    "id": "Attack_ultimate",
+    "ok": true,
+    "path": "models/dorothy/Animations/mixamo_character/Attack_ultimate.glb",
+    "bytes": 4258404
+  },
+  {
+    "id": "Pose_braced_for_attack",
+    "ok": true,
+    "path": "models/dorothy/Animations/mixamo_character/Pose_braced_for_attack.glb",
+    "bytes": 4240692
+  }
+]

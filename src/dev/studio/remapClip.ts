@@ -137,92 +137,81 @@ function findFacingProbeBone(root: THREE.Object3D): THREE.Bone | null {
   );
 }
 
-function findSkinnedMeshIn(root: THREE.Object3D): THREE.SkinnedMesh | null {
-  let found: THREE.SkinnedMesh | null = null;
+/** Snapshot / restore bone locals — never call skeleton.pose() on the live studio rig. */
+function captureLocalsForAlign(
+  root: THREE.Object3D,
+): Map<string, { p: THREE.Vector3; q: THREE.Quaternion; s: THREE.Vector3 }> {
+  const map = new Map<string, { p: THREE.Vector3; q: THREE.Quaternion; s: THREE.Vector3 }>();
   root.traverse((obj) => {
-    if (!found && (obj as THREE.SkinnedMesh).isSkinnedMesh) {
-      found = obj as THREE.SkinnedMesh;
-    }
+    if (!(obj as THREE.Bone).isBone) return;
+    map.set(obj.name, {
+      p: obj.position.clone(),
+      q: obj.quaternion.clone(),
+      s: obj.scale.clone(),
+    });
   });
-  return found;
+  return map;
+}
+
+function restoreLocalsForAlign(
+  root: THREE.Object3D,
+  map: Map<string, { p: THREE.Vector3; q: THREE.Quaternion; s: THREE.Vector3 }>,
+): void {
+  root.traverse((obj) => {
+    if (!(obj as THREE.Bone).isBone) return;
+    const r = map.get(obj.name);
+    if (!r) return;
+    obj.position.copy(r.p);
+    obj.quaternion.copy(r.q);
+    obj.scale.copy(r.s);
+  });
+  root.updateMatrixWorld(true);
 }
 
 /**
- * Sample character forward at bind or after applying a clip.
- * Mixamo Dorothy: local +X on spine/hips ≈ mesh forward after studio MODEL_YAW.
+ * Sample character forward at the current pose or after applying a clip.
+ * Always restores the incoming bone locals afterward (no skeleton.pose()).
  */
 function sampleFlatForward(
   root: THREE.Object3D,
   clip: THREE.AnimationClip | null,
   timeSec = 0,
 ): THREE.Vector3 | null {
-  const skinned = findSkinnedMeshIn(root);
-  skinned?.skeleton.pose();
-  root.updateMatrixWorld(true);
-
+  const saved = captureLocalsForAlign(root);
   let mixer: THREE.AnimationMixer | null = null;
-  if (clip) {
-    mixer = new THREE.AnimationMixer(root);
-    const action = mixer.clipAction(clip);
-    action.play();
-    mixer.setTime(Math.max(0, Math.min(timeSec, Math.max(clip.duration - 1e-4, 0))));
-    root.updateMatrixWorld(true);
-  }
+  try {
+    if (clip) {
+      mixer = new THREE.AnimationMixer(root);
+      const action = mixer.clipAction(clip);
+      action.play();
+      mixer.setTime(Math.max(0, Math.min(timeSec, Math.max(clip.duration - 1e-4, 0))));
+      root.updateMatrixWorld(true);
+    } else {
+      root.updateMatrixWorld(true);
+    }
 
-  const probe = findFacingProbeBone(root);
-  if (!probe) {
+    const probe = findFacingProbeBone(root);
+    if (!probe) return null;
+    const worldX = new THREE.Vector3(1, 0, 0).applyQuaternion(
+      probe.getWorldQuaternion(new THREE.Quaternion()),
+    );
+    return flatForward(worldX);
+  } finally {
     mixer?.stopAllAction();
-    return null;
+    restoreLocalsForAlign(root, saved);
   }
-  const worldX = new THREE.Vector3(1, 0, 0).applyQuaternion(
-    probe.getWorldQuaternion(new THREE.Quaternion()),
-  );
-  const fwd = flatForward(worldX);
-  mixer?.stopAllAction();
-  skinned?.skeleton.pose();
-  root.updateMatrixWorld(true);
-  return fwd;
-}
-
-/** Max horizontal hip travel over the clip (world XZ), for pad/facing heuristics. */
-function sampleHipTravel(
-  root: THREE.Object3D,
-  clip: THREE.AnimationClip,
-  hips: THREE.Bone,
-): THREE.Vector3 {
-  const skinned = findSkinnedMeshIn(root);
-  skinned?.skeleton.pose();
-  const mixer = new THREE.AnimationMixer(root);
-  const action = mixer.clipAction(clip);
-  action.play();
-  let start: THREE.Vector3 | null = null;
-  const max = new THREE.Vector3();
-  const steps = 24;
-  for (let i = 0; i <= steps; i++) {
-    mixer.setTime((clip.duration * i) / steps);
-    root.updateMatrixWorld(true);
-    const p = hips.getWorldPosition(new THREE.Vector3());
-    if (!start) start = p.clone();
-    const d = p.clone().sub(start);
-    d.y = 0;
-    if (d.lengthSq() > max.lengthSq()) max.copy(d);
-  }
-  mixer.stopAllAction();
-  skinned?.skeleton.pose();
-  root.updateMatrixWorld(true);
-  return max;
 }
 
 /**
  * Some MASTER bakes (Run / Idle / Jump) face ~90° off Walk/rest while hip travel
- * already matches studio East. Rotate Hips keys about world +Y so facing matches
- * rest; only rotate hip positions when travel itself is also misaligned.
+ * already matches studio East. Apply a yaw-only world correction to Hips keys.
+ *
+ * Never call skeleton.pose() on the live rig — Mixamo bind is flat + Hips.scale=0.01.
  */
 function alignClipFacingToRest(
   clip: THREE.AnimationClip,
   targetSkinned: THREE.SkinnedMesh,
 ): THREE.AnimationClip {
-  // Studio applies MODEL_YAW on the character root (mixer root), not the skinned mesh.
   let alignRoot: THREE.Object3D = targetSkinned;
   for (let cur: THREE.Object3D | null = targetSkinned; cur && cur.type !== 'Scene'; cur = cur.parent) {
     alignRoot = cur;
@@ -234,41 +223,37 @@ function alignClipFacingToRest(
   if (!hips) return clip;
 
   const restFwd = sampleFlatForward(alignRoot, null);
-  // Prefer t≈0 — mid-clip attack poses are not facing signals.
   const clipFwd = sampleFlatForward(alignRoot, clip, 0);
   if (!restFwd || !clipFwd) return clip;
 
-  // Three.js +Y rotation is opposite the (x,z) cross used by signedYawBetween(from,to).
-  const rawDelta = -signedYawBetween(clipFwd, restFwd);
-  if (!Number.isFinite(rawDelta)) return clip;
+  // Rotate clip facing → rest facing about world +Y (sign matches Three.js Yaw).
+  const rawYaw = -signedYawBetween(clipFwd, restFwd);
+  if (!Number.isFinite(rawYaw)) return clip;
 
-  // MASTER bake errors are ~±90° (Run/Idle/Jump). Ignore small pose noise / windups.
+  // Only correct near ±90°/±180° bake errors — keep the measured angle (don't
+  // snap to exactly 90° or a ~13° residual stays in the run).
   const quarter = Math.PI / 2;
-  const snapped = Math.round(rawDelta / quarter) * quarter;
-  if (Math.abs(snapped) < quarter - 1e-3) return clip;
-  if (Math.abs(rawDelta - snapped) > THREE.MathUtils.degToRad(25)) return clip;
-  const deltaYaw = snapped;
+  const nearest = Math.round(rawYaw / quarter) * quarter;
+  if (Math.abs(nearest) < quarter - 1e-3) return clip;
+  if (Math.abs(rawYaw - nearest) > THREE.MathUtils.degToRad(40)) return clip;
+  const deltaYaw = rawYaw;
 
-  const travel = sampleHipTravel(alignRoot, clip, hips);
-  const travelLen = travel.length();
-  let rotatePositions = false;
-  if (travelLen > 0.02) {
-    const travelFwd = travel.clone().normalize();
-    const errVsRest = Math.abs(signedYawBetween(travelFwd, restFwd));
-    const errVsClip = Math.abs(signedYawBetween(travelFwd, clipFwd));
-    // Travel already matches rest (Run): fix facing only. Travel matches wrong
-    // facing: rotate positions with the body.
-    rotatePositions = errVsClip + THREE.MathUtils.degToRad(15) < errVsRest;
-  }
-
+  // Travel already matches studio East on Run — only yaw the hips orientation.
+  // (Rotating positions when travel is already correct re-introduces crabbing.)
   const parent = hips.parent;
   parent?.updateWorldMatrix(true, false);
-  const parentWorld = parent?.matrixWorld.clone() ?? new THREE.Matrix4();
-  const parentInv = parentWorld.clone().invert();
-  const parentQ = new THREE.Quaternion().setFromRotationMatrix(parentWorld);
-  const parentQInv = parentQ.clone().invert();
-  const qWorld = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), deltaYaw);
-  const qDeltaLocal = parentQInv.clone().multiply(qWorld).multiply(parentQ);
+  // IMPORTANT: do NOT setFromRotationMatrix(matrixWorld) — studio roots are
+  // uniformly scaled (~×2), and that pollutes the extracted rotation into a
+  // tipped "up" axis (wall-run). Use world quaternion (scale-free).
+  const parentQ = new THREE.Quaternion();
+  if (parent) parent.getWorldQuaternion(parentQ);
+  const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(parentQ.clone().invert()).normalize();
+  if (localUp.lengthSq() < 1e-8) return clip;
+  // Guard: world +Y in parent space must be near a horizontal local axis
+  // (glTF Armature +90°X → ±Z). A dominant local Y means parent orientation
+  // wasn't resolved — yawing about it tips the character onto the wall.
+  if (Math.abs(localUp.y) > 0.5) return clip;
+  const qDeltaLocal = new THREE.Quaternion().setFromAxisAngle(localUp, deltaYaw);
 
   const tracks = clip.tracks.map((track) => {
     const dot = track.name.lastIndexOf('.');
@@ -290,30 +275,50 @@ function alignClipFacingToRest(
       return new THREE.QuaternionKeyframeTrack(track.name, track.times.slice(), values);
     }
 
-    if (
-      rotatePositions &&
-      track instanceof THREE.VectorKeyframeTrack &&
-      track.name.endsWith('.position')
-    ) {
-      const values = track.values.slice();
-      const local = new THREE.Vector3();
-      const world = new THREE.Vector3();
-      local.fromArray(values, 0);
-      const pivot = local.clone().applyMatrix4(parentWorld);
-      for (let i = 0; i < values.length; i += 3) {
-        local.fromArray(values, i);
-        world.copy(local).applyMatrix4(parentWorld);
-        world.sub(pivot).applyQuaternion(qWorld).add(pivot);
-        local.copy(world).applyMatrix4(parentInv);
-        local.toArray(values, i);
-      }
-      return new THREE.VectorKeyframeTrack(track.name, track.times.slice(), values);
-    }
-
+    // Leave hip position tracks untouched — preserves upright travel that already
+    // matches studio East on the mis-faced Run bake.
     return track.clone();
   });
 
-  return new THREE.AnimationClip(clip.name, clip.duration, tracks);
+  const aligned = new THREE.AnimationClip(clip.name, clip.duration, tracks);
+
+  // Safety rail: if the correction tips her (head–foot upY collapses), keep original.
+  const beforeUp = sampleHeadFootUpY(alignRoot, clip, 0.05);
+  const afterUp = sampleHeadFootUpY(alignRoot, aligned, 0.05);
+  if (beforeUp != null && afterUp != null && afterUp < beforeUp * 0.9) {
+    return clip;
+  }
+  return aligned;
+}
+
+function sampleHeadFootUpY(
+  root: THREE.Object3D,
+  clip: THREE.AnimationClip,
+  timeSec: number,
+): number | null {
+  const saved = captureLocalsForAlign(root);
+  let mixer: THREE.AnimationMixer | null = null;
+  try {
+    mixer = new THREE.AnimationMixer(root);
+    const action = mixer.clipAction(clip);
+    action.play();
+    mixer.setTime(Math.max(0, Math.min(timeSec, Math.max(clip.duration - 1e-4, 0))));
+    root.updateMatrixWorld(true);
+    const head = findBone(root, ['Head', 'mixamorigHead', 'mixamorig:Head']);
+    const foot =
+      findBone(root, ['LeftFoot', 'mixamorigLeftFoot', 'mixamorig:LeftFoot']) ??
+      findBone(root, ['RightFoot', 'mixamorigRightFoot', 'mixamorig:RightFoot']);
+    if (!head || !foot) return null;
+    const up = head
+      .getWorldPosition(new THREE.Vector3())
+      .sub(foot.getWorldPosition(new THREE.Vector3()));
+    const len = up.length();
+    if (len < 1e-6) return null;
+    return Math.abs(up.y) / len;
+  } finally {
+    mixer?.stopAllAction();
+    restoreLocalsForAlign(root, saved);
+  }
 }
 
 export type RootMotionMode = 'inplace' | 'travel';
@@ -378,6 +383,74 @@ export function applyRootMotionMode(
     return new THREE.VectorKeyframeTrack(track.name, track.times.slice(), values);
   });
   return new THREE.AnimationClip(clip.name, clip.duration, tracks);
+}
+
+/**
+ * Left↔right mirror of a remapped clip (sagittal / YZ plane).
+ * Swaps L/R bone tracks and reflects local position + quaternion keys.
+ */
+export function mirrorAnimationClip(clip: THREE.AnimationClip): THREE.AnimationClip {
+  const tracks: THREE.KeyframeTrack[] = [];
+
+  for (const track of clip.tracks) {
+    const dot = track.name.lastIndexOf('.');
+    if (dot < 0) {
+      tracks.push(track.clone());
+      continue;
+    }
+    const bonePath = track.name.slice(0, dot);
+    const prop = track.name.slice(dot + 1);
+    const leaf = bonePath.split('/').pop()?.split('|').pop() ?? bonePath;
+    const mirroredBone = mirrorBoneName(leaf);
+    const name = `${mirroredBone}.${prop}`;
+
+    if (prop === 'position' && track instanceof THREE.VectorKeyframeTrack) {
+      const values = track.values.slice();
+      for (let i = 0; i < values.length; i += 3) {
+        values[i] = -(values[i] ?? 0); // reflect lateral X
+      }
+      tracks.push(new THREE.VectorKeyframeTrack(name, track.times.slice(), values));
+      continue;
+    }
+
+    if (prop === 'quaternion' && track instanceof THREE.QuaternionKeyframeTrack) {
+      // Unity/Mixamo humanoid mirror across YZ: (x, -y, -z, w)
+      const values = track.values.slice();
+      for (let i = 0; i < values.length; i += 4) {
+        values[i + 1] = -(values[i + 1] ?? 0);
+        values[i + 2] = -(values[i + 2] ?? 0);
+      }
+      tracks.push(new THREE.QuaternionKeyframeTrack(name, track.times.slice(), values));
+      continue;
+    }
+
+    // Scale / other channels: swap side, keep values.
+    const cloned = track.clone();
+    cloned.name = name;
+    tracks.push(cloned);
+  }
+
+  const out = new THREE.AnimationClip(`${clip.name}_mirrored`, clip.duration, tracks);
+  out.resetDuration();
+  return out;
+}
+
+/** Swap Left/Right or L_/R_ in a bone leaf name; midline bones unchanged. */
+export function mirrorBoneName(bone: string): string {
+  if (/^Left/.test(bone)) return `Right${bone.slice(4)}`;
+  if (/^Right/.test(bone)) return `Left${bone.slice(5)}`;
+  if (/^L_/.test(bone)) return `R_${bone.slice(2)}`;
+  if (/^R_/.test(bone)) return `L_${bone.slice(2)}`;
+  // mixamorig:LeftArm / mixamorigLeftArm
+  const mixamo = bone.match(/^(mixamorig:?|)(Left|Right)(.+)$/i);
+  if (mixamo) {
+    const prefix = mixamo[1] ?? '';
+    const side = mixamo[2]!;
+    const rest = mixamo[3]!;
+    const flip = /^left$/i.test(side) ? 'Right' : 'Left';
+    return `${prefix}${flip}${rest}`;
+  }
+  return bone;
 }
 
 /**

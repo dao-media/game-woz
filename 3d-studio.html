@@ -571,6 +571,13 @@
             <button type="button" class="btn toggle" id="btn-travel" aria-pressed="false">Travel</button>
           </span>
         </label>
+        <label class="field root-motion" title="Mirror the clip left↔right (swap limbs + reflect axes).">
+          Mirror
+          <span class="toggle-pair">
+            <button type="button" class="btn toggle active" id="btn-mirror-off" aria-pressed="true">Normal</button>
+            <button type="button" class="btn toggle" id="btn-mirror-on" aria-pressed="false">Mirrored</button>
+          </span>
+        </label>
         <div id="stack-list"></div>
       </div>
       <div class="section">
@@ -638,6 +645,7 @@
         <p class="hint" title="Viewport Play uses the same timeline as the zip (minus pixel size).">
           Preview mirrors timeline (loops + pads), FPS, prefix, and outline — not resolution.
           Prefix defaults to <code>character_direction_animation</code>.
+          Export writes the configured loops once, then stops (does not keep looping).
         </p>
         <div class="export-grid">
           <label>
