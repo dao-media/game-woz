@@ -158,14 +158,18 @@ Greybox combat dummies **retired**. `]` debug-spawns live AI enemies.
 - [x] Input: unknown key codes warn + skip (fixes black screen from invalid `BRACKETRIGHT`; correct key is `CLOSED_BRACKET`)
 - [x] Debug overlay: player combat + **per-enemy intent / top scores / executor state** + encounter phase / wave / arena lock / difficulty
 
-### 5. Art assets — on disk, not wired
+### 5. Art assets
 
-| Folder | Contents | Wired? |
-|--------|----------|--------|
-| `models/` | ~35 FBX — Dorothy, Tin-Man, Scarecrow, Cowardly Lion, Toto, Winged Monkey + animations | **No** (not in Preload) |
-| `photos/characters/` | ~50 reference photos / PSDs (turnarounds) | **No** |
+| Path | Contents | In git? | Wired? |
+|------|----------|---------|--------|
+| `masters/dorothy/Sprites/` | Original Dorothy sprite exports (`NEW/`, direction packs, atlases) | **Yes** (Git LFS) | Source only — do not edit |
+| `models/dorothy/Sprites/` | Optimized / game packs (`game/`, derived atlases) | **Yes** (Git LFS) | **Yes** — Preload / `dorothySprites.ts` |
+| `models/` (FBX / GLB / other characters) | Dorothy + companions meshes & animations | Partially / local | Studio + some gameplay paths |
+| `photos/characters/` | Reference photos / PSDs | Local | **No** |
 
-`createPlayer` / `createEnemy` are the intended drop-in seams for atlases later.
+**Sprites:** originals live under `masters/dorothy/Sprites/`; runtime packs under `models/dorothy/Sprites/` (especially `game/`). PNGs use **Git LFS** (see `.gitattributes`). After clone: `git lfs pull`. When you add or re-export packs, commit both trees so the remote stays current — never overwrite masters in place; copy → derive into `models/`.
+
+`createPlayer` / `createEnemy` remain the seams for other characters’ atlases.
 
 ---
 
@@ -246,10 +250,10 @@ src/
 
 - Mini-bosses / bosses (reuse utility + executor + arena lock)
 - Real kits for Tin-Man / Lion / Scarecrow
-- Sprites, Mixamo/FBX animation pipeline, VFX polish
+- Mixamo/FBX animation pipeline polish, VFX
 - Settings UI sliders → `DifficultyParams` (`custom` slot ready)
 - Ultimate charge earned from dealing/taking damage (seam exists; CD auto-refill is temporary)
-- Wire `models/` + `photos/` through Preload into `createPlayer` / `createEnemy`
+- Wire remaining `models/` + `photos/` for non-Dorothy characters through Preload
 
 ---
 
