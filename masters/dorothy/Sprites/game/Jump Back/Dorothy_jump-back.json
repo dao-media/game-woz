@@ -1,0 +1,1892 @@
+{
+  "textures": [
+    {
+      "image": "Dorothy_jump-back-0.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 539,
+        "h": 539
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0030.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 125,
+            "y": 109,
+            "w": 292,
+            "h": 302
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 291,
+            "h": 302
+          }
+        },
+        {
+          "filename": "dorothy_0034.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 136,
+            "y": 196,
+            "w": 255,
+            "h": 238
+          },
+          "frame": {
+            "x": 0,
+            "y": 301,
+            "w": 255,
+            "h": 238
+          }
+        },
+        {
+          "filename": "dorothy_0035.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 140,
+            "y": 207,
+            "w": 228,
+            "h": 227
+          },
+          "frame": {
+            "x": 254,
+            "y": 306,
+            "w": 229,
+            "h": 228
+          }
+        },
+        {
+          "filename": "dorothy_0076.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 128,
+            "y": 50,
+            "w": 249,
+            "h": 306
+          },
+          "frame": {
+            "x": 291,
+            "y": 0,
+            "w": 248,
+            "h": 306
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-1.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 541,
+        "h": 545
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0009.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 162,
+            "y": 184,
+            "w": 186,
+            "h": 250
+          },
+          "frame": {
+            "x": 282,
+            "y": 296,
+            "w": 185,
+            "h": 249
+          }
+        },
+        {
+          "filename": "dorothy_0022.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 122,
+            "y": 46,
+            "w": 258,
+            "h": 297
+          },
+          "frame": {
+            "x": 282,
+            "y": 0,
+            "w": 259,
+            "h": 296
+          }
+        },
+        {
+          "filename": "dorothy_0029.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 125,
+            "y": 84,
+            "w": 283,
+            "h": 307
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 283,
+            "h": 307
+          }
+        },
+        {
+          "filename": "dorothy_0036.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 142,
+            "y": 213,
+            "w": 204,
+            "h": 221
+          },
+          "frame": {
+            "x": 0,
+            "y": 306,
+            "w": 203,
+            "h": 221
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-2.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 535,
+        "h": 538
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0021.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 136,
+            "y": 56,
+            "w": 238,
+            "h": 315
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 238,
+            "h": 316
+          }
+        },
+        {
+          "filename": "dorothy_0031.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 126,
+            "y": 137,
+            "w": 297,
+            "h": 286
+          },
+          "frame": {
+            "x": 238,
+            "y": 0,
+            "w": 297,
+            "h": 287
+          }
+        },
+        {
+          "filename": "dorothy_0033.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 131,
+            "y": 180,
+            "w": 278,
+            "h": 252
+          },
+          "frame": {
+            "x": 238,
+            "y": 286,
+            "w": 278,
+            "h": 252
+          }
+        },
+        {
+          "filename": "dorothy_0037.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 145,
+            "y": 215,
+            "w": 197,
+            "h": 219
+          },
+          "frame": {
+            "x": 0,
+            "y": 315,
+            "w": 197,
+            "h": 220
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-3.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 546,
+        "h": 542
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0028.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 122,
+            "y": 65,
+            "w": 280,
+            "h": 300
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 279,
+            "h": 300
+          }
+        },
+        {
+          "filename": "dorothy_0063.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 165,
+            "y": 177,
+            "w": 181,
+            "h": 258
+          },
+          "frame": {
+            "x": 279,
+            "y": 284,
+            "w": 181,
+            "h": 258
+          }
+        },
+        {
+          "filename": "dorothy_0064.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 161,
+            "y": 190,
+            "w": 187,
+            "h": 243
+          },
+          "frame": {
+            "x": 0,
+            "y": 300,
+            "w": 187,
+            "h": 242
+          }
+        },
+        {
+          "filename": "dorothy_0077.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 117,
+            "y": 44,
+            "w": 267,
+            "h": 285
+          },
+          "frame": {
+            "x": 279,
+            "y": 0,
+            "w": 267,
+            "h": 285
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-4.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 510,
+        "h": 543
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0027.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 119,
+            "y": 52,
+            "w": 280,
+            "h": 287
+          },
+          "frame": {
+            "x": 230,
+            "y": 0,
+            "w": 280,
+            "h": 286
+          }
+        },
+        {
+          "filename": "dorothy_0038.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 150,
+            "y": 213,
+            "w": 191,
+            "h": 221
+          },
+          "frame": {
+            "x": 0,
+            "y": 322,
+            "w": 191,
+            "h": 221
+          }
+        },
+        {
+          "filename": "dorothy_0041.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 160,
+            "y": 185,
+            "w": 178,
+            "h": 252
+          },
+          "frame": {
+            "x": 230,
+            "y": 286,
+            "w": 178,
+            "h": 252
+          }
+        },
+        {
+          "filename": "dorothy_0075.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 142,
+            "y": 62,
+            "w": 231,
+            "h": 322
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 231,
+            "h": 322
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-5.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 515,
+        "h": 539
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0020.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 148,
+            "y": 71,
+            "w": 224,
+            "h": 326
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 224,
+            "h": 326
+          }
+        },
+        {
+          "filename": "dorothy_0026.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 117,
+            "y": 45,
+            "w": 281,
+            "h": 272
+          },
+          "frame": {
+            "x": 224,
+            "y": 268,
+            "w": 281,
+            "h": 271
+          }
+        },
+        {
+          "filename": "dorothy_0032.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 128,
+            "y": 161,
+            "w": 292,
+            "h": 268
+          },
+          "frame": {
+            "x": 224,
+            "y": 0,
+            "w": 291,
+            "h": 268
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-6.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 450,
+        "h": 545
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0016.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 162,
+            "w": 176,
+            "h": 278
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 176,
+            "h": 278
+          }
+        },
+        {
+          "filename": "dorothy_0023.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 113,
+            "y": 43,
+            "w": 273,
+            "h": 275
+          },
+          "frame": {
+            "x": 175,
+            "y": 0,
+            "w": 273,
+            "h": 275
+          }
+        },
+        {
+          "filename": "dorothy_0042.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 162,
+            "y": 171,
+            "w": 174,
+            "h": 268
+          },
+          "frame": {
+            "x": 276,
+            "y": 275,
+            "w": 174,
+            "h": 267
+          }
+        },
+        {
+          "filename": "dorothy_0078.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 112,
+            "y": 42,
+            "w": 276,
+            "h": 268
+          },
+          "frame": {
+            "x": 0,
+            "y": 278,
+            "w": 276,
+            "h": 267
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-7.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 499,
+        "h": 525
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0024.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 112,
+            "y": 42,
+            "w": 278,
+            "h": 263
+          },
+          "frame": {
+            "x": 219,
+            "y": 262,
+            "w": 279,
+            "h": 263
+          }
+        },
+        {
+          "filename": "dorothy_0025.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 115,
+            "y": 43,
+            "w": 280,
+            "h": 262
+          },
+          "frame": {
+            "x": 219,
+            "y": 0,
+            "w": 280,
+            "h": 262
+          }
+        },
+        {
+          "filename": "dorothy_0074.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 151,
+            "y": 80,
+            "w": 220,
+            "h": 327
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 220,
+            "h": 326
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-8.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 429,
+        "h": 546
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0019.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 154,
+            "y": 92,
+            "w": 216,
+            "h": 323
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 216,
+            "h": 324
+          }
+        },
+        {
+          "filename": "dorothy_0066.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 161,
+            "y": 207,
+            "w": 186,
+            "h": 226
+          },
+          "frame": {
+            "x": 216,
+            "y": 320,
+            "w": 186,
+            "h": 226
+          }
+        },
+        {
+          "filename": "dorothy_0073.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 156,
+            "y": 102,
+            "w": 213,
+            "h": 321
+          },
+          "frame": {
+            "x": 216,
+            "y": 0,
+            "w": 213,
+            "h": 321
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-9.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 535,
+        "h": 546
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0000.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 116,
+            "w": 160,
+            "h": 340
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 159,
+            "h": 340
+          }
+        },
+        {
+          "filename": "dorothy_0011.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 160,
+            "y": 204,
+            "w": 188,
+            "h": 228
+          },
+          "frame": {
+            "x": 347,
+            "y": 314,
+            "w": 188,
+            "h": 228
+          }
+        },
+        {
+          "filename": "dorothy_0018.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 159,
+            "y": 115,
+            "w": 208,
+            "h": 315
+          },
+          "frame": {
+            "x": 159,
+            "y": 0,
+            "w": 208,
+            "h": 315
+          }
+        },
+        {
+          "filename": "dorothy_0045.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 168,
+            "y": 134,
+            "w": 165,
+            "h": 311
+          },
+          "frame": {
+            "x": 367,
+            "y": 0,
+            "w": 164,
+            "h": 311
+          }
+        },
+        {
+          "filename": "dorothy_0065.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 160,
+            "y": 201,
+            "w": 188,
+            "h": 231
+          },
+          "frame": {
+            "x": 159,
+            "y": 314,
+            "w": 188,
+            "h": 232
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-10.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 528,
+        "h": 545
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0001.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 116,
+            "w": 160,
+            "h": 340
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 159,
+            "h": 339
+          }
+        },
+        {
+          "filename": "dorothy_0006.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 176,
+            "y": 142,
+            "w": 160,
+            "h": 302
+          },
+          "frame": {
+            "x": 361,
+            "y": 0,
+            "w": 159,
+            "h": 302
+          }
+        },
+        {
+          "filename": "dorothy_0010.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 160,
+            "y": 196,
+            "w": 188,
+            "h": 236
+          },
+          "frame": {
+            "x": 340,
+            "y": 308,
+            "w": 188,
+            "h": 236
+          }
+        },
+        {
+          "filename": "dorothy_0040.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 158,
+            "y": 198,
+            "w": 181,
+            "h": 238
+          },
+          "frame": {
+            "x": 159,
+            "y": 308,
+            "w": 181,
+            "h": 237
+          }
+        },
+        {
+          "filename": "dorothy_0072.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 162,
+            "y": 127,
+            "w": 203,
+            "h": 308
+          },
+          "frame": {
+            "x": 159,
+            "y": 0,
+            "w": 202,
+            "h": 308
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-11.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 525,
+        "h": 527
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0002.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 118,
+            "w": 161,
+            "h": 337
+          },
+          "frame": {
+            "x": 365,
+            "y": 0,
+            "w": 160,
+            "h": 336
+          }
+        },
+        {
+          "filename": "dorothy_0012.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 164,
+            "y": 208,
+            "w": 180,
+            "h": 225
+          },
+          "frame": {
+            "x": 185,
+            "y": 299,
+            "w": 180,
+            "h": 225
+          }
+        },
+        {
+          "filename": "dorothy_0017.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 166,
+            "y": 139,
+            "w": 195,
+            "h": 300
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 194,
+            "h": 300
+          }
+        },
+        {
+          "filename": "dorothy_0039.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 154,
+            "y": 207,
+            "w": 186,
+            "h": 228
+          },
+          "frame": {
+            "x": 0,
+            "y": 299,
+            "w": 186,
+            "h": 228
+          }
+        },
+        {
+          "filename": "dorothy_0044.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 165,
+            "y": 144,
+            "w": 168,
+            "h": 299
+          },
+          "frame": {
+            "x": 194,
+            "y": 0,
+            "w": 168,
+            "h": 299
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-12.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 528,
+        "h": 530
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0008.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 170,
+            "y": 170,
+            "w": 173,
+            "h": 266
+          },
+          "frame": {
+            "x": 356,
+            "y": 0,
+            "w": 172,
+            "h": 266
+          }
+        },
+        {
+          "filename": "dorothy_0015.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 176,
+            "y": 182,
+            "w": 163,
+            "h": 256
+          },
+          "frame": {
+            "x": 356,
+            "y": 266,
+            "w": 163,
+            "h": 256
+          }
+        },
+        {
+          "filename": "dorothy_0043.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 163,
+            "y": 157,
+            "w": 171,
+            "h": 284
+          },
+          "frame": {
+            "x": 185,
+            "y": 0,
+            "w": 171,
+            "h": 283
+          }
+        },
+        {
+          "filename": "dorothy_0067.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 169,
+            "y": 207,
+            "w": 170,
+            "h": 227
+          },
+          "frame": {
+            "x": 0,
+            "y": 290,
+            "w": 170,
+            "h": 226
+          }
+        },
+        {
+          "filename": "dorothy_0069.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 176,
+            "y": 189,
+            "w": 159,
+            "h": 247
+          },
+          "frame": {
+            "x": 185,
+            "y": 283,
+            "w": 159,
+            "h": 247
+          }
+        },
+        {
+          "filename": "dorothy_0071.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 170,
+            "y": 150,
+            "w": 186,
+            "h": 290
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 186,
+            "h": 290
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-13.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 477,
+        "h": 338
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0054.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 117,
+            "w": 160,
+            "h": 337
+          },
+          "frame": {
+            "x": 159,
+            "y": 0,
+            "w": 159,
+            "h": 337
+          }
+        },
+        {
+          "filename": "dorothy_0055.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 117,
+            "w": 160,
+            "h": 338
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 159,
+            "h": 338
+          }
+        },
+        {
+          "filename": "dorothy_0056.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 118,
+            "w": 160,
+            "h": 337
+          },
+          "frame": {
+            "x": 318,
+            "y": 0,
+            "w": 159,
+            "h": 337
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-14.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 480,
+        "h": 336
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0003.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 121,
+            "w": 161,
+            "h": 333
+          },
+          "frame": {
+            "x": 319,
+            "y": 0,
+            "w": 161,
+            "h": 332
+          }
+        },
+        {
+          "filename": "dorothy_0053.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 117,
+            "w": 160,
+            "h": 337
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 159,
+            "h": 336
+          }
+        },
+        {
+          "filename": "dorothy_0057.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 120,
+            "w": 161,
+            "h": 334
+          },
+          "frame": {
+            "x": 159,
+            "y": 0,
+            "w": 160,
+            "h": 334
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-15.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 478,
+        "h": 335
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0051.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 117,
+            "w": 159,
+            "h": 335
+          },
+          "frame": {
+            "x": 158,
+            "y": 0,
+            "w": 159,
+            "h": 335
+          }
+        },
+        {
+          "filename": "dorothy_0052.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 117,
+            "w": 159,
+            "h": 336
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 159,
+            "h": 335
+          }
+        },
+        {
+          "filename": "dorothy_0058.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 124,
+            "w": 161,
+            "h": 328
+          },
+          "frame": {
+            "x": 317,
+            "y": 0,
+            "w": 161,
+            "h": 328
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-16.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 477,
+        "h": 333
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0004.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 175,
+            "y": 125,
+            "w": 161,
+            "h": 326
+          },
+          "frame": {
+            "x": 316,
+            "y": 0,
+            "w": 161,
+            "h": 326
+          }
+        },
+        {
+          "filename": "dorothy_0049.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 119,
+            "w": 159,
+            "h": 331
+          },
+          "frame": {
+            "x": 158,
+            "y": 0,
+            "w": 158,
+            "h": 331
+          }
+        },
+        {
+          "filename": "dorothy_0050.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 118,
+            "w": 159,
+            "h": 333
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 158,
+            "h": 333
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-17.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 477,
+        "h": 329
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0047.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 122,
+            "w": 159,
+            "h": 326
+          },
+          "frame": {
+            "x": 158,
+            "y": 0,
+            "w": 159,
+            "h": 326
+          }
+        },
+        {
+          "filename": "dorothy_0048.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 120,
+            "w": 159,
+            "h": 329
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 158,
+            "h": 329
+          }
+        },
+        {
+          "filename": "dorothy_0059.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 175,
+            "y": 129,
+            "w": 161,
+            "h": 320
+          },
+          "frame": {
+            "x": 316,
+            "y": 0,
+            "w": 161,
+            "h": 320
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-18.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 479,
+        "h": 545
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0005.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 176,
+            "y": 132,
+            "w": 160,
+            "h": 316
+          },
+          "frame": {
+            "x": 159,
+            "y": 0,
+            "w": 161,
+            "h": 316
+          }
+        },
+        {
+          "filename": "dorothy_0013.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 205,
+            "w": 162,
+            "h": 229
+          },
+          "frame": {
+            "x": 159,
+            "y": 316,
+            "w": 163,
+            "h": 229
+          }
+        },
+        {
+          "filename": "dorothy_0046.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 173,
+            "y": 126,
+            "w": 160,
+            "h": 321
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 160,
+            "h": 320
+          }
+        },
+        {
+          "filename": "dorothy_0060.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 176,
+            "y": 137,
+            "w": 160,
+            "h": 309
+          },
+          "frame": {
+            "x": 319,
+            "y": 0,
+            "w": 160,
+            "h": 309
+          }
+        },
+        {
+          "filename": "dorothy_0068.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 177,
+            "y": 201,
+            "w": 158,
+            "h": 234
+          },
+          "frame": {
+            "x": 321,
+            "y": 308,
+            "w": 158,
+            "h": 234
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_jump-back-19.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 487,
+        "h": 541
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0007.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 177,
+            "y": 155,
+            "w": 159,
+            "h": 285
+          },
+          "frame": {
+            "x": 328,
+            "y": 0,
+            "w": 159,
+            "h": 284
+          }
+        },
+        {
+          "filename": "dorothy_0014.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 177,
+            "y": 196,
+            "w": 157,
+            "h": 239
+          },
+          "frame": {
+            "x": 0,
+            "y": 292,
+            "w": 157,
+            "h": 240
+          }
+        },
+        {
+          "filename": "dorothy_0061.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 177,
+            "y": 149,
+            "w": 159,
+            "h": 293
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 159,
+            "h": 293
+          }
+        },
+        {
+          "filename": "dorothy_0062.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 174,
+            "y": 163,
+            "w": 166,
+            "h": 275
+          },
+          "frame": {
+            "x": 159,
+            "y": 266,
+            "w": 166,
+            "h": 275
+          }
+        },
+        {
+          "filename": "dorothy_0070.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 175,
+            "y": 172,
+            "w": 169,
+            "h": 267
+          },
+          "frame": {
+            "x": 159,
+            "y": 0,
+            "w": 169,
+            "h": 267
+          }
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "3.0",
+    "smartupdate": "$TexturePacker:SmartUpdate:60177bb2c96b519dc47b921caa945e93:23e573214e2e19dcf09c22e4debadd65:7fa850fdd9a62b2b21f2c1cac1e1fac4$",
+    "optimizedFrom": "Jump Back/Dorothy_jump-back.json",
+    "sourceEdge": 1920,
+    "targetSource": 512,
+    "scale": 0.26666666666666666
+  }
+}

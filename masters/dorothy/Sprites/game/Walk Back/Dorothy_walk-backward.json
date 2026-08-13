@@ -1,0 +1,752 @@
+{
+  "textures": [
+    {
+      "image": "Dorothy_walk-backward-0.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 511,
+        "h": 278
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0000.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 194,
+            "y": 140,
+            "w": 129,
+            "h": 279
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 128,
+            "h": 278
+          }
+        },
+        {
+          "filename": "dorothy_0014.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 198,
+            "y": 137,
+            "w": 128,
+            "h": 279
+          },
+          "frame": {
+            "x": 128,
+            "y": 0,
+            "w": 128,
+            "h": 278
+          }
+        },
+        {
+          "filename": "dorothy_0015.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 198,
+            "y": 137,
+            "w": 128,
+            "h": 274
+          },
+          "frame": {
+            "x": 383,
+            "y": 0,
+            "w": 128,
+            "h": 274
+          }
+        },
+        {
+          "filename": "dorothy_0030.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 195,
+            "y": 139,
+            "w": 128,
+            "h": 276
+          },
+          "frame": {
+            "x": 256,
+            "y": 0,
+            "w": 127,
+            "h": 276
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_walk-backward-1.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 509,
+        "h": 283
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0001.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 194,
+            "y": 140,
+            "w": 129,
+            "h": 280
+          },
+          "frame": {
+            "x": 254,
+            "y": 0,
+            "w": 128,
+            "h": 280
+          }
+        },
+        {
+          "filename": "dorothy_0002.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 195,
+            "y": 140,
+            "w": 128,
+            "h": 284
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 128,
+            "h": 283
+          }
+        },
+        {
+          "filename": "dorothy_0016.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 198,
+            "y": 138,
+            "w": 127,
+            "h": 279
+          },
+          "frame": {
+            "x": 382,
+            "y": 0,
+            "w": 127,
+            "h": 279
+          }
+        },
+        {
+          "filename": "dorothy_0029.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 196,
+            "y": 138,
+            "w": 127,
+            "h": 283
+          },
+          "frame": {
+            "x": 128,
+            "y": 0,
+            "w": 127,
+            "h": 283
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_walk-backward-2.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 507,
+        "h": 289
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0003.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 196,
+            "y": 140,
+            "w": 127,
+            "h": 288
+          },
+          "frame": {
+            "x": 125,
+            "y": 0,
+            "w": 128,
+            "h": 288
+          }
+        },
+        {
+          "filename": "dorothy_0013.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 197,
+            "y": 137,
+            "w": 129,
+            "h": 286
+          },
+          "frame": {
+            "x": 252,
+            "y": 0,
+            "w": 129,
+            "h": 286
+          }
+        },
+        {
+          "filename": "dorothy_0017.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 198,
+            "y": 138,
+            "w": 126,
+            "h": 284
+          },
+          "frame": {
+            "x": 381,
+            "y": 0,
+            "w": 126,
+            "h": 284
+          }
+        },
+        {
+          "filename": "dorothy_0018.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 197,
+            "y": 138,
+            "w": 126,
+            "h": 289
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 126,
+            "h": 289
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_walk-backward-3.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 506,
+        "h": 293
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0004.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 197,
+            "y": 140,
+            "w": 127,
+            "h": 292
+          },
+          "frame": {
+            "x": 253,
+            "y": 0,
+            "w": 127,
+            "h": 292
+          }
+        },
+        {
+          "filename": "dorothy_0012.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 197,
+            "y": 138,
+            "w": 129,
+            "h": 294
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 128,
+            "h": 293
+          }
+        },
+        {
+          "filename": "dorothy_0019.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 197,
+            "y": 138,
+            "w": 125,
+            "h": 293
+          },
+          "frame": {
+            "x": 128,
+            "y": 0,
+            "w": 126,
+            "h": 292
+          }
+        },
+        {
+          "filename": "dorothy_0028.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 196,
+            "y": 138,
+            "w": 127,
+            "h": 290
+          },
+          "frame": {
+            "x": 380,
+            "y": 0,
+            "w": 126,
+            "h": 290
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_walk-backward-4.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 503,
+        "h": 298
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0005.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 198,
+            "y": 140,
+            "w": 127,
+            "h": 295
+          },
+          "frame": {
+            "x": 252,
+            "y": 0,
+            "w": 127,
+            "h": 296
+          }
+        },
+        {
+          "filename": "dorothy_0006.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 198,
+            "y": 140,
+            "w": 128,
+            "h": 298
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 127,
+            "h": 298
+          }
+        },
+        {
+          "filename": "dorothy_0020.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 196,
+            "y": 139,
+            "w": 125,
+            "h": 296
+          },
+          "frame": {
+            "x": 379,
+            "y": 0,
+            "w": 124,
+            "h": 296
+          }
+        },
+        {
+          "filename": "dorothy_0027.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 197,
+            "y": 138,
+            "w": 126,
+            "h": 297
+          },
+          "frame": {
+            "x": 127,
+            "y": 0,
+            "w": 125,
+            "h": 297
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_walk-backward-5.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 507,
+        "h": 301
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0007.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 199,
+            "y": 139,
+            "w": 127,
+            "h": 301
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 127,
+            "h": 301
+          }
+        },
+        {
+          "filename": "dorothy_0008.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 199,
+            "y": 139,
+            "w": 127,
+            "h": 300
+          },
+          "frame": {
+            "x": 127,
+            "y": 0,
+            "w": 127,
+            "h": 300
+          }
+        },
+        {
+          "filename": "dorothy_0011.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 197,
+            "y": 138,
+            "w": 129,
+            "h": 300
+          },
+          "frame": {
+            "x": 254,
+            "y": 0,
+            "w": 129,
+            "h": 300
+          }
+        },
+        {
+          "filename": "dorothy_0021.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 196,
+            "y": 139,
+            "w": 125,
+            "h": 300
+          },
+          "frame": {
+            "x": 382,
+            "y": 0,
+            "w": 125,
+            "h": 300
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_walk-backward-6.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 504,
+        "h": 302
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0009.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 198,
+            "y": 138,
+            "w": 128,
+            "h": 302
+          },
+          "frame": {
+            "x": 252,
+            "y": 0,
+            "w": 128,
+            "h": 301
+          }
+        },
+        {
+          "filename": "dorothy_0010.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 197,
+            "y": 138,
+            "w": 129,
+            "h": 302
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 128,
+            "h": 302
+          }
+        },
+        {
+          "filename": "dorothy_0024.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 196,
+            "y": 138,
+            "w": 125,
+            "h": 302
+          },
+          "frame": {
+            "x": 128,
+            "y": 0,
+            "w": 124,
+            "h": 302
+          }
+        },
+        {
+          "filename": "dorothy_0026.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 197,
+            "y": 138,
+            "w": 125,
+            "h": 301
+          },
+          "frame": {
+            "x": 379,
+            "y": 0,
+            "w": 125,
+            "h": 301
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_walk-backward-7.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 375,
+        "h": 303
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0022.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 195,
+            "y": 139,
+            "w": 126,
+            "h": 303
+          },
+          "frame": {
+            "x": 125,
+            "y": 0,
+            "w": 126,
+            "h": 303
+          }
+        },
+        {
+          "filename": "dorothy_0023.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 195,
+            "y": 138,
+            "w": 126,
+            "h": 304
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 126,
+            "h": 303
+          }
+        },
+        {
+          "filename": "dorothy_0025.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 197,
+            "y": 137,
+            "w": 124,
+            "h": 303
+          },
+          "frame": {
+            "x": 251,
+            "y": 0,
+            "w": 124,
+            "h": 303
+          }
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "3.0",
+    "smartupdate": "$TexturePacker:SmartUpdate:6fbb5c800287ffbcad7a8155cd38819f:daa27bfbe2b5e7f1e65d93928340c6f3:f984c34a9344632d7686711b70cb5cf6$",
+    "optimizedFrom": "Walk Back/Dorothy_walk-backward.json",
+    "sourceEdge": 1920,
+    "targetSource": 512,
+    "scale": 0.26666666666666666
+  }
+}

@@ -1,0 +1,437 @@
+{
+  "textures": [
+    {
+      "image": "Dorothy_run-left-0.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 536,
+        "h": 279
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0004.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 150,
+            "y": 147,
+            "w": 260,
+            "h": 276
+          },
+          "frame": {
+            "x": 276,
+            "y": 0,
+            "w": 260,
+            "h": 276
+          }
+        },
+        {
+          "filename": "dorothy_0012.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 122,
+            "y": 146,
+            "w": 277,
+            "h": 280
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 277,
+            "h": 279
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_run-left-1.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 532,
+        "h": 285
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0005.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 156,
+            "y": 146,
+            "w": 265,
+            "h": 283
+          },
+          "frame": {
+            "x": 267,
+            "y": 0,
+            "w": 265,
+            "h": 283
+          }
+        },
+        {
+          "filename": "dorothy_0011.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 117,
+            "y": 147,
+            "w": 267,
+            "h": 285
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 267,
+            "h": 285
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_run-left-2.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 529,
+        "h": 293
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0003.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 141,
+            "y": 145,
+            "w": 254,
+            "h": 286
+          },
+          "frame": {
+            "x": 275,
+            "y": 0,
+            "w": 254,
+            "h": 285
+          }
+        },
+        {
+          "filename": "dorothy_0013.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 129,
+            "y": 144,
+            "w": 276,
+            "h": 293
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 275,
+            "h": 293
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_run-left-3.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 486,
+        "h": 294
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0006.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 161,
+            "y": 146,
+            "w": 241,
+            "h": 294
+          },
+          "frame": {
+            "x": 245,
+            "y": 0,
+            "w": 241,
+            "h": 294
+          }
+        },
+        {
+          "filename": "dorothy_0010.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 115,
+            "y": 146,
+            "w": 245,
+            "h": 295
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 245,
+            "h": 294
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_run-left-4.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 436,
+        "h": 296
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0002.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 138,
+            "y": 144,
+            "w": 233,
+            "h": 296
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 232,
+            "h": 296
+          }
+        },
+        {
+          "filename": "dorothy_0009.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 123,
+            "y": 146,
+            "w": 205,
+            "h": 296
+          },
+          "frame": {
+            "x": 232,
+            "y": 0,
+            "w": 204,
+            "h": 296
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_run-left-5.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 383,
+        "h": 298
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0007.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 161,
+            "y": 145,
+            "w": 207,
+            "h": 298
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 206,
+            "h": 298
+          }
+        },
+        {
+          "filename": "dorothy_0008.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 155,
+            "y": 145,
+            "w": 177,
+            "h": 298
+          },
+          "frame": {
+            "x": 206,
+            "y": 0,
+            "w": 177,
+            "h": 298
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_run-left-6.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 401,
+        "h": 300
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0000.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 144,
+            "y": 142,
+            "w": 197,
+            "h": 300
+          },
+          "frame": {
+            "x": 205,
+            "y": 0,
+            "w": 196,
+            "h": 299
+          }
+        },
+        {
+          "filename": "dorothy_0001.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 142,
+            "y": 142,
+            "w": 205,
+            "h": 301
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 205,
+            "h": 300
+          }
+        }
+      ]
+    },
+    {
+      "image": "Dorothy_run-left-7.png",
+      "format": "RGBA8888",
+      "size": {
+        "w": 437,
+        "h": 302
+      },
+      "scale": 1,
+      "frames": [
+        {
+          "filename": "dorothy_0014.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 154,
+            "y": 143,
+            "w": 236,
+            "h": 302
+          },
+          "frame": {
+            "x": 200,
+            "y": 0,
+            "w": 237,
+            "h": 302
+          }
+        },
+        {
+          "filename": "dorothy_0015.png",
+          "rotated": false,
+          "trimmed": true,
+          "sourceSize": {
+            "w": 512,
+            "h": 512
+          },
+          "spriteSourceSize": {
+            "x": 161,
+            "y": 141,
+            "w": 201,
+            "h": 303
+          },
+          "frame": {
+            "x": 0,
+            "y": 0,
+            "w": 201,
+            "h": 302
+          }
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "app": "https://www.codeandweb.com/texturepacker",
+    "version": "3.0",
+    "smartupdate": "$TexturePacker:SmartUpdate:bb9ab938dcf5d6abd6d7f979b037b4ac:636c87d8f3de5f62309fc82d86c9e66f:5c035ad47145663a14a596374f1f312f$",
+    "optimizedFrom": "Run Left/Dorothy_run-left.json",
+    "sourceEdge": 1920,
+    "targetSource": 512,
+    "scale": 0.26666666666666666
+  }
+}

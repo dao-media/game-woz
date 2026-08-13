@@ -1,0 +1,1890 @@
+{
+	"textures": [
+		{
+			"image": "Dorothy_turn-right-to-left-0.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1960,
+				"h": 1238
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0049.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 568,
+						"y": 374,
+						"w": 660,
+						"h": 1235
+					},
+					"frame": {
+						"x": 676,
+						"y": 1,
+						"w": 660,
+						"h": 1235
+					}
+				},
+				{
+					"filename": "dorothy_0050.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 593,
+						"y": 375,
+						"w": 673,
+						"h": 1236
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 673,
+						"h": 1236
+					}
+				},
+				{
+					"filename": "dorothy_0076.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 645,
+						"y": 396,
+						"w": 621,
+						"h": 1235
+					},
+					"frame": {
+						"x": 1338,
+						"y": 1,
+						"w": 621,
+						"h": 1235
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-1.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1942,
+				"h": 1239
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0018.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 663,
+						"y": 394,
+						"w": 613,
+						"h": 1237
+					},
+					"frame": {
+						"x": 1328,
+						"y": 1,
+						"w": 613,
+						"h": 1237
+					}
+				},
+				{
+					"filename": "dorothy_0019.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 635,
+						"y": 395,
+						"w": 626,
+						"h": 1237
+					},
+					"frame": {
+						"x": 700,
+						"y": 1,
+						"w": 626,
+						"h": 1237
+					}
+				},
+				{
+					"filename": "dorothy_0051.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 605,
+						"y": 378,
+						"w": 697,
+						"h": 1237
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 697,
+						"h": 1237
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-2.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1850,
+				"h": 1243
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0042.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 655,
+						"y": 366,
+						"w": 519,
+						"h": 1241
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 519,
+						"h": 1241
+					}
+				},
+				{
+					"filename": "dorothy_0052.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 608,
+						"y": 379,
+						"w": 719,
+						"h": 1240
+					},
+					"frame": {
+						"x": 522,
+						"y": 1,
+						"w": 719,
+						"h": 1240
+					}
+				},
+				{
+					"filename": "dorothy_0075.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 676,
+						"y": 392,
+						"w": 606,
+						"h": 1239
+					},
+					"frame": {
+						"x": 1243,
+						"y": 1,
+						"w": 606,
+						"h": 1239
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-3.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1932,
+				"h": 1244
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0020.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 608,
+						"y": 391,
+						"w": 639,
+						"h": 1242
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 639,
+						"h": 1242
+					}
+				},
+				{
+					"filename": "dorothy_0041.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 652,
+						"y": 366,
+						"w": 572,
+						"h": 1242
+					},
+					"frame": {
+						"x": 1359,
+						"y": 1,
+						"w": 572,
+						"h": 1242
+					}
+				},
+				{
+					"filename": "dorothy_0053.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 614,
+						"y": 379,
+						"w": 715,
+						"h": 1241
+					},
+					"frame": {
+						"x": 642,
+						"y": 1,
+						"w": 715,
+						"h": 1241
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-4.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1812,
+				"h": 1245
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0043.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 650,
+						"y": 367,
+						"w": 485,
+						"h": 1242
+					},
+					"frame": {
+						"x": 1326,
+						"y": 1,
+						"w": 485,
+						"h": 1242
+					}
+				},
+				{
+					"filename": "dorothy_0048.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 564,
+						"y": 373,
+						"w": 633,
+						"h": 1243
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 633,
+						"h": 1243
+					}
+				},
+				{
+					"filename": "dorothy_0054.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 621,
+						"y": 379,
+						"w": 688,
+						"h": 1242
+					},
+					"frame": {
+						"x": 636,
+						"y": 1,
+						"w": 688,
+						"h": 1242
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-5.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1899,
+				"h": 1248
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0017.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 690,
+						"y": 390,
+						"w": 599,
+						"h": 1245
+					},
+					"frame": {
+						"x": 1299,
+						"y": 1,
+						"w": 599,
+						"h": 1245
+					}
+				},
+				{
+					"filename": "dorothy_0021.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 587,
+						"y": 388,
+						"w": 650,
+						"h": 1246
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 650,
+						"h": 1246
+					}
+				},
+				{
+					"filename": "dorothy_0055.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 629,
+						"y": 379,
+						"w": 644,
+						"h": 1244
+					},
+					"frame": {
+						"x": 653,
+						"y": 1,
+						"w": 644,
+						"h": 1244
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-6.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1755,
+				"h": 1250
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0022.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 584,
+						"y": 386,
+						"w": 643,
+						"h": 1248
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 643,
+						"h": 1248
+					}
+				},
+				{
+					"filename": "dorothy_0040.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 650,
+						"y": 366,
+						"w": 608,
+						"h": 1247
+					},
+					"frame": {
+						"x": 646,
+						"y": 1,
+						"w": 608,
+						"h": 1247
+					}
+				},
+				{
+					"filename": "dorothy_0044.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 634,
+						"y": 368,
+						"w": 498,
+						"h": 1246
+					},
+					"frame": {
+						"x": 1256,
+						"y": 1,
+						"w": 498,
+						"h": 1246
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-7.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1659,
+				"h": 1251
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0045.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 625,
+						"y": 370,
+						"w": 515,
+						"h": 1249
+					},
+					"frame": {
+						"x": 1143,
+						"y": 1,
+						"w": 515,
+						"h": 1249
+					}
+				},
+				{
+					"filename": "dorothy_0047.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 610,
+						"y": 373,
+						"w": 565,
+						"h": 1249
+					},
+					"frame": {
+						"x": 576,
+						"y": 1,
+						"w": 565,
+						"h": 1249
+					}
+				},
+				{
+					"filename": "dorothy_0056.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 641,
+						"y": 378,
+						"w": 573,
+						"h": 1249
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 573,
+						"h": 1249
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-8.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1851,
+				"h": 1253
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0023.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 586,
+						"y": 384,
+						"w": 631,
+						"h": 1250
+					},
+					"frame": {
+						"x": 620,
+						"y": 1,
+						"w": 631,
+						"h": 1250
+					}
+				},
+				{
+					"filename": "dorothy_0024.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 592,
+						"y": 384,
+						"w": 617,
+						"h": 1251
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 617,
+						"h": 1251
+					}
+				},
+				{
+					"filename": "dorothy_0074.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 695,
+						"y": 388,
+						"w": 597,
+						"h": 1250
+					},
+					"frame": {
+						"x": 1253,
+						"y": 1,
+						"w": 597,
+						"h": 1250
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-9.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1769,
+				"h": 1257
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0025.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 598,
+						"y": 383,
+						"w": 604,
+						"h": 1255
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 604,
+						"h": 1255
+					}
+				},
+				{
+					"filename": "dorothy_0039.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 647,
+						"y": 366,
+						"w": 621,
+						"h": 1251
+					},
+					"frame": {
+						"x": 607,
+						"y": 1,
+						"w": 621,
+						"h": 1251
+					}
+				},
+				{
+					"filename": "dorothy_0046.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 621,
+						"y": 372,
+						"w": 538,
+						"h": 1251
+					},
+					"frame": {
+						"x": 1230,
+						"y": 1,
+						"w": 538,
+						"h": 1251
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-10.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1807,
+				"h": 1260
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0026.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 599,
+						"y": 383,
+						"w": 595,
+						"h": 1256
+					},
+					"frame": {
+						"x": 596,
+						"y": 1,
+						"w": 595,
+						"h": 1256
+					}
+				},
+				{
+					"filename": "dorothy_0037.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 634,
+						"y": 366,
+						"w": 593,
+						"h": 1258
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 593,
+						"h": 1258
+					}
+				},
+				{
+					"filename": "dorothy_0038.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 641,
+						"y": 366,
+						"w": 613,
+						"h": 1255
+					},
+					"frame": {
+						"x": 1193,
+						"y": 1,
+						"w": 613,
+						"h": 1255
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-11.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1760,
+				"h": 1263
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0016.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 697,
+						"y": 386,
+						"w": 596,
+						"h": 1260
+					},
+					"frame": {
+						"x": 582,
+						"y": 1,
+						"w": 596,
+						"h": 1260
+					}
+				},
+				{
+					"filename": "dorothy_0027.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 607,
+						"y": 381,
+						"w": 579,
+						"h": 1260
+					},
+					"frame": {
+						"x": 1180,
+						"y": 1,
+						"w": 579,
+						"h": 1260
+					}
+				},
+				{
+					"filename": "dorothy_0036.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 626,
+						"y": 367,
+						"w": 579,
+						"h": 1261
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 579,
+						"h": 1261
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-12.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1667,
+				"h": 1266
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0028.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 601,
+						"y": 379,
+						"w": 575,
+						"h": 1264
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 575,
+						"h": 1264
+					}
+				},
+				{
+					"filename": "dorothy_0035.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 618,
+						"y": 368,
+						"w": 574,
+						"h": 1263
+					},
+					"frame": {
+						"x": 1092,
+						"y": 1,
+						"w": 574,
+						"h": 1263
+					}
+				},
+				{
+					"filename": "dorothy_0057.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 634,
+						"y": 376,
+						"w": 512,
+						"h": 1264
+					},
+					"frame": {
+						"x": 578,
+						"y": 1,
+						"w": 512,
+						"h": 1264
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-13.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1708,
+				"h": 1269
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0029.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 598,
+						"y": 377,
+						"w": 569,
+						"h": 1267
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 569,
+						"h": 1267
+					}
+				},
+				{
+					"filename": "dorothy_0033.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 606,
+						"y": 371,
+						"w": 565,
+						"h": 1266
+					},
+					"frame": {
+						"x": 1142,
+						"y": 1,
+						"w": 565,
+						"h": 1266
+					}
+				},
+				{
+					"filename": "dorothy_0034.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 611,
+						"y": 369,
+						"w": 568,
+						"h": 1266
+					},
+					"frame": {
+						"x": 572,
+						"y": 1,
+						"w": 568,
+						"h": 1266
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-14.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1698,
+				"h": 1270
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0030.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 597,
+						"y": 376,
+						"w": 566,
+						"h": 1267
+					},
+					"frame": {
+						"x": 566,
+						"y": 1,
+						"w": 566,
+						"h": 1267
+					}
+				},
+				{
+					"filename": "dorothy_0031.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 599,
+						"y": 374,
+						"w": 563,
+						"h": 1267
+					},
+					"frame": {
+						"x": 1134,
+						"y": 1,
+						"w": 563,
+						"h": 1267
+					}
+				},
+				{
+					"filename": "dorothy_0032.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 603,
+						"y": 372,
+						"w": 563,
+						"h": 1268
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 563,
+						"h": 1268
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-15.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1766,
+				"h": 1290
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0015.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 701,
+						"y": 382,
+						"w": 587,
+						"h": 1280
+					},
+					"frame": {
+						"x": 582,
+						"y": 1,
+						"w": 587,
+						"h": 1280
+					}
+				},
+				{
+					"filename": "dorothy_0072.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 704,
+						"y": 381,
+						"w": 579,
+						"h": 1288
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 579,
+						"h": 1288
+					}
+				},
+				{
+					"filename": "dorothy_0073.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 698,
+						"y": 384,
+						"w": 594,
+						"h": 1268
+					},
+					"frame": {
+						"x": 1171,
+						"y": 1,
+						"w": 594,
+						"h": 1268
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-16.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1872,
+				"h": 1297
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0000.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 736,
+						"y": 368,
+						"w": 466,
+						"h": 1294
+					},
+					"frame": {
+						"x": 469,
+						"y": 1,
+						"w": 466,
+						"h": 1294
+					}
+				},
+				{
+					"filename": "dorothy_0001.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 736,
+						"y": 368,
+						"w": 466,
+						"h": 1294
+					},
+					"frame": {
+						"x": 937,
+						"y": 1,
+						"w": 466,
+						"h": 1294
+					}
+				},
+				{
+					"filename": "dorothy_0058.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 736,
+						"y": 368,
+						"w": 466,
+						"h": 1294
+					},
+					"frame": {
+						"x": 1405,
+						"y": 1,
+						"w": 466,
+						"h": 1294
+					}
+				},
+				{
+					"filename": "dorothy_0059.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 736,
+						"y": 368,
+						"w": 466,
+						"h": 1295
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 466,
+						"h": 1295
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-17.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1972,
+				"h": 1303
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0002.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 736,
+						"y": 368,
+						"w": 466,
+						"h": 1296
+					},
+					"frame": {
+						"x": 1505,
+						"y": 1,
+						"w": 466,
+						"h": 1296
+					}
+				},
+				{
+					"filename": "dorothy_0003.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 736,
+						"y": 368,
+						"w": 467,
+						"h": 1301
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 467,
+						"h": 1301
+					}
+				},
+				{
+					"filename": "dorothy_0014.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 708,
+						"y": 380,
+						"w": 564,
+						"h": 1296
+					},
+					"frame": {
+						"x": 939,
+						"y": 1,
+						"w": 564,
+						"h": 1296
+					}
+				},
+				{
+					"filename": "dorothy_0060.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 736,
+						"y": 368,
+						"w": 467,
+						"h": 1299
+					},
+					"frame": {
+						"x": 470,
+						"y": 1,
+						"w": 467,
+						"h": 1299
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-18.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 2034,
+				"h": 1309
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0004.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 735,
+						"y": 368,
+						"w": 468,
+						"h": 1307
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 468,
+						"h": 1307
+					}
+				},
+				{
+					"filename": "dorothy_0013.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 716,
+						"y": 378,
+						"w": 539,
+						"h": 1304
+					},
+					"frame": {
+						"x": 471,
+						"y": 1,
+						"w": 539,
+						"h": 1304
+					}
+				},
+				{
+					"filename": "dorothy_0061.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 736,
+						"y": 368,
+						"w": 467,
+						"h": 1304
+					},
+					"frame": {
+						"x": 1566,
+						"y": 1,
+						"w": 467,
+						"h": 1304
+					}
+				},
+				{
+					"filename": "dorothy_0071.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 711,
+						"y": 379,
+						"w": 552,
+						"h": 1301
+					},
+					"frame": {
+						"x": 1012,
+						"y": 1,
+						"w": 552,
+						"h": 1301
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-19.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 2006,
+				"h": 1315
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0005.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 733,
+						"y": 369,
+						"w": 470,
+						"h": 1313
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 470,
+						"h": 1313
+					}
+				},
+				{
+					"filename": "dorothy_0012.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 720,
+						"y": 376,
+						"w": 525,
+						"h": 1310
+					},
+					"frame": {
+						"x": 473,
+						"y": 1,
+						"w": 525,
+						"h": 1310
+					}
+				},
+				{
+					"filename": "dorothy_0062.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 734,
+						"y": 369,
+						"w": 469,
+						"h": 1310
+					},
+					"frame": {
+						"x": 1536,
+						"y": 1,
+						"w": 469,
+						"h": 1310
+					}
+				},
+				{
+					"filename": "dorothy_0070.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 718,
+						"y": 377,
+						"w": 534,
+						"h": 1305
+					},
+					"frame": {
+						"x": 1000,
+						"y": 1,
+						"w": 534,
+						"h": 1305
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-20.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 2020,
+				"h": 1319
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0010.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 723,
+						"y": 374,
+						"w": 510,
+						"h": 1316
+					},
+					"frame": {
+						"x": 474,
+						"y": 1,
+						"w": 510,
+						"h": 1316
+					}
+				},
+				{
+					"filename": "dorothy_0011.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 722,
+						"y": 375,
+						"w": 511,
+						"h": 1315
+					},
+					"frame": {
+						"x": 1508,
+						"y": 1,
+						"w": 511,
+						"h": 1315
+					}
+				},
+				{
+					"filename": "dorothy_0063.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 731,
+						"y": 369,
+						"w": 471,
+						"h": 1317
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 471,
+						"h": 1317
+					}
+				},
+				{
+					"filename": "dorothy_0069.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 720,
+						"y": 375,
+						"w": 520,
+						"h": 1313
+					},
+					"frame": {
+						"x": 986,
+						"y": 1,
+						"w": 520,
+						"h": 1313
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-21.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 2002,
+				"h": 1321
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0006.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 730,
+						"y": 369,
+						"w": 472,
+						"h": 1319
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 472,
+						"h": 1319
+					}
+				},
+				{
+					"filename": "dorothy_0009.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 724,
+						"y": 373,
+						"w": 504,
+						"h": 1318
+					},
+					"frame": {
+						"x": 1497,
+						"y": 1,
+						"w": 504,
+						"h": 1318
+					}
+				},
+				{
+					"filename": "dorothy_0067.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 723,
+						"y": 373,
+						"w": 509,
+						"h": 1318
+					},
+					"frame": {
+						"x": 475,
+						"y": 1,
+						"w": 509,
+						"h": 1318
+					}
+				},
+				{
+					"filename": "dorothy_0068.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 722,
+						"y": 374,
+						"w": 509,
+						"h": 1316
+					},
+					"frame": {
+						"x": 986,
+						"y": 1,
+						"w": 509,
+						"h": 1316
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-22.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1949,
+				"h": 1325
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0007.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 727,
+						"y": 370,
+						"w": 478,
+						"h": 1323
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 478,
+						"h": 1323
+					}
+				},
+				{
+					"filename": "dorothy_0008.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 725,
+						"y": 372,
+						"w": 489,
+						"h": 1322
+					},
+					"frame": {
+						"x": 481,
+						"y": 1,
+						"w": 489,
+						"h": 1322
+					}
+				},
+				{
+					"filename": "dorothy_0064.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 728,
+						"y": 370,
+						"w": 475,
+						"h": 1322
+					},
+					"frame": {
+						"x": 1473,
+						"y": 1,
+						"w": 475,
+						"h": 1322
+					}
+				},
+				{
+					"filename": "dorothy_0066.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 724,
+						"y": 372,
+						"w": 499,
+						"h": 1320
+					},
+					"frame": {
+						"x": 972,
+						"y": 1,
+						"w": 499,
+						"h": 1320
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_turn-right-to-left-23.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 483,
+				"h": 1325
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0065.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 726,
+						"y": 371,
+						"w": 481,
+						"h": 1323
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 481,
+						"h": 1323
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:a5d9dfbb0346daacfdf16e6583ab89d9:4b88ca7e54a36302a29226fcf5d43c54:6b95163c238e34142361a506c3d3dd7b$"
+	}
+}

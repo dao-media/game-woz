@@ -1,0 +1,433 @@
+{
+	"textures": [
+		{
+			"image": "Dorothy_run-right-0.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1991,
+				"h": 1011
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0004.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 396,
+						"y": 551,
+						"w": 981,
+						"h": 1009
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 981,
+						"h": 1009
+					}
+				},
+				{
+					"filename": "dorothy_0012.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 425,
+						"y": 568,
+						"w": 1006,
+						"h": 1008
+					},
+					"frame": {
+						"x": 984,
+						"y": 1,
+						"w": 1006,
+						"h": 1008
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_run-right-1.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1977,
+				"h": 1043
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0003.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 450,
+						"y": 557,
+						"w": 957,
+						"h": 1041
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 957,
+						"h": 1041
+					}
+				},
+				{
+					"filename": "dorothy_0013.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 402,
+						"y": 568,
+						"w": 1016,
+						"h": 1038
+					},
+					"frame": {
+						"x": 960,
+						"y": 1,
+						"w": 1016,
+						"h": 1038
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_run-right-2.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1855,
+				"h": 1071
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0002.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 541,
+						"y": 560,
+						"w": 881,
+						"h": 1069
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 881,
+						"h": 1069
+					}
+				},
+				{
+					"filename": "dorothy_0011.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 472,
+						"y": 564,
+						"w": 970,
+						"h": 1047
+					},
+					"frame": {
+						"x": 884,
+						"y": 1,
+						"w": 970,
+						"h": 1047
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_run-right-3.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1857,
+				"h": 1078
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0005.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 355,
+						"y": 539,
+						"w": 984,
+						"h": 1075
+					},
+					"frame": {
+						"x": 872,
+						"y": 1,
+						"w": 984,
+						"h": 1075
+					}
+				},
+				{
+					"filename": "dorothy_0014.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 457,
+						"y": 565,
+						"w": 869,
+						"h": 1076
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 869,
+						"h": 1076
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_run-right-4.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1537,
+				"h": 1080
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0000.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 650,
+						"y": 564,
+						"w": 751,
+						"h": 1077
+					},
+					"frame": {
+						"x": 785,
+						"y": 1,
+						"w": 751,
+						"h": 1077
+					}
+				},
+				{
+					"filename": "dorothy_0001.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 627,
+						"y": 563,
+						"w": 782,
+						"h": 1078
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 782,
+						"h": 1078
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_run-right-5.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1643,
+				"h": 1095
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0010.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 561,
+						"y": 553,
+						"w": 893,
+						"h": 1093
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 893,
+						"h": 1093
+					}
+				},
+				{
+					"filename": "dorothy_0015.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 572,
+						"y": 561,
+						"w": 746,
+						"h": 1086
+					},
+					"frame": {
+						"x": 896,
+						"y": 1,
+						"w": 746,
+						"h": 1086
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_run-right-6.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1632,
+				"h": 1118
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0006.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 425,
+						"y": 536,
+						"w": 893,
+						"h": 1110
+					},
+					"frame": {
+						"x": 738,
+						"y": 1,
+						"w": 893,
+						"h": 1110
+					}
+				},
+				{
+					"filename": "dorothy_0009.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 686,
+						"y": 548,
+						"w": 735,
+						"h": 1116
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 735,
+						"h": 1116
+					}
+				}
+			]
+		},
+		{
+			"image": "Dorothy_run-right-7.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 1423,
+				"h": 1128
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_0007.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 544,
+						"y": 538,
+						"w": 771,
+						"h": 1126
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 771,
+						"h": 1126
+					}
+				},
+				{
+					"filename": "dorothy_0008.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 1920,
+						"h": 1920
+					},
+					"spriteSourceSize": {
+						"x": 671,
+						"y": 542,
+						"w": 648,
+						"h": 1123
+					},
+					"frame": {
+						"x": 774,
+						"y": 1,
+						"w": 648,
+						"h": 1123
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:9557cfbf00f1f9adff814b77e6eae129:cbe9a48ef8d5fbfa5e55cf733776690f:4d3fb0c05b396be9fb92b14a252e91cd$"
+	}
+}

@@ -1,0 +1,33 @@
+{
+  "sourceEdge": 512,
+  "bodyHeightPx": 288,
+  "feetYPx": 422,
+  "atlasBodyHeightPx": {
+    "dorothy-walk-e": 288,
+    "dorothy-walk-se": 295,
+    "dorothy-walk-s": 298,
+    "dorothy-walk-sw": 294,
+    "dorothy-walk-w": 279,
+    "dorothy-walk-nw": 288,
+    "dorothy-walk-n": 292,
+    "dorothy-walk-ne": 289,
+    "dorothy-run-right": 287,
+    "dorothy-run-left": 293,
+    "dorothy-idle-right": 333,
+    "dorothy-jump-s": 288,
+    "dorothy-jump-se": 288,
+    "dorothy-jump-sw": 308,
+    "dorothy-jump-w": 305,
+    "dorothy-jump-nw": 290,
+    "dorothy-jump-n": 286,
+    "dorothy-jump-ne": 291,
+    "dorothy-turn-left-to-right": 345,
+    "dorothy-turn-right-to-left": 340,
+    "dorothy-turn-front-to-back": 352,
+    "dorothy-turn-front-left-to-back-right": 350,
+    "dorothy-turn-front-right-to-back-left": 325,
+    "dorothy-turn-back-left-to-front-right": 353,
+    "dorothy-turn-back-right-to-front-left": 348
+  },
+  "note": "Per-atlas mean trim \u2192 dorothyWorldScale so every clip shares playerSpriteHeight. Sync DOROTHY_ATLAS_BODY_HEIGHT_PX in dorothySprites.ts after re-optimize."
+}
