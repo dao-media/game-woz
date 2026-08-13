@@ -45,6 +45,15 @@ export const tuning = {
   playerBodyHeight: 56,
   /** On-screen Dorothy sprite height (px) — shared across walk/run/idle packs. */
   playerSpriteHeight: 95, // 83 × 1.15
+  /**
+   * How strongly character sprites shrink/grow with floor depth (0 = flat, 1 = full
+   * perspectiveFarScale). Sole permitted scale modifier besides baseScale.
+   */
+  playerDepthScaleStrength: 1,
+
+  /** Dev harness: plant Blender test sprites on the floor (see SpriteCompositeTest). */
+  devSpriteTest: false,
+  devSpriteTestCubeFloorXOffset: 80,
 
   // —— Combat ——
   playerMaxHP: 100,

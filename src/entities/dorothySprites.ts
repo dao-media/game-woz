@@ -2,42 +2,38 @@ import Phaser from 'phaser';
 import { tuning } from '../config/tuning';
 
 /**
- * Dorothy sprites — NEW 8-way locomotion packs for walk/run/jump.
- * Idle uses frame 0 of the matching NEW Walk atlas (no separate NEW idle yet).
+ * Dorothy sprites — NEW 8-way loco (walk/run/jump) + East/West idle.
+ * Idle: East pack for any *East* facing + South; West pack for any *West* facing + North.
+ * Entering idle realigns facing to left (West) or right (East).
  * Masters stay under `masters/dorothy/Sprites/` — never load those at runtime.
  */
 
 /** NEW compass packs: Walk / Run / Jump. */
 export const SPRITES_NEW_BASE = 'models/dorothy/Sprites/NEW';
 
-/** NEW packs authored/exported at this FPS in 3D Studio. */
-const DOROTHY_SOURCE_FPS = 30;
+/** Playback FPS for Dorothy sprite anims (walk / run / jump / idle). */
+const DOROTHY_ANIM_FPS = 42;
 
-/** Playback multiplier on top of source FPS (walk / idle / jump). */
-export const DOROTHY_ANIM_TIME_SCALE = 1.75;
-/** Run plays a bit slower than other loco clips. */
-export const DOROTHY_RUN_ANIM_TIME_SCALE = 1.5;
+/** Playback multiplier — 1 = play at DOROTHY_ANIM_FPS with no speedup. */
+export const DOROTHY_ANIM_TIME_SCALE = 1;
+/** Run uses the same rate as other loco clips. */
+export const DOROTHY_RUN_ANIM_TIME_SCALE = 1;
+/** Jump plays faster so the clip matches the physics arc. */
+export const DOROTHY_JUMP_ANIM_TIME_SCALE = 1.5;
 
 /**
  * NEW packs are untrimmed 460² with transparent pad under the soles (~53px).
- * Origin at 1.0 floats her — pin every ground/jump frame to this authored sole line.
- * Do NOT chase per-frame opaque bounds: N/S perspective makes soles bounce and
- * looks like a size pulse.
+ * Phaser originY=1 is the canvas bottom (below soles) — pin every clip to this
+ * shared authored sole line. Not a per-anim fudge: one constant for all NEW packs.
+ * Do NOT chase per-frame opaque bounds (reads as size pulse on N/S).
  */
 const DOROTHY_NEW_FEET_ORIGIN_Y = 407 / 460;
-
-/** Jump silhouettes fill more of the 460² box — constant shrink only. */
-const DOROTHY_JUMP_SCALE_NORM = 0.86;
-
-/** N/S walk silhouettes read tall in the shared 460² box. */
-const ATLAS_SIZE_MUL: Readonly<Record<string, number>> = {
-  'dorothy-walk-n': 0.93,
-  'dorothy-walk-s': 0.93,
-};
 
 /** 8-way facing (floor: +x east/right, +y toward camera / front). */
 export type DorothyWalkDir = 'e' | 'ne' | 'n' | 'nw' | 'w' | 'sw' | 's' | 'se';
 export type DorothySide = 'left' | 'right';
+/** Two idle packs — East (right) / West (left). */
+export type DorothyIdleSide = 'e' | 'w';
 
 const COMPASS: readonly { dir: DorothyWalkDir; folder: string }[] = [
   { dir: 'e', folder: 'East' },
@@ -50,23 +46,40 @@ const COMPASS: readonly { dir: DorothyWalkDir; folder: string }[] = [
   { dir: 'ne', folder: 'Northeast' },
 ] as const;
 
+/**
+ * Authored idle packs live under East/Idle and West/Idle.
+ * TexturePacker frame names still use se/sw prefixes from the export camera.
+ */
+const IDLE_PACKS: readonly {
+  side: DorothyIdleSide;
+  folder: string;
+  framePrefix: string;
+}[] = [
+  { side: 'e', folder: 'East', framePrefix: 'dorothy_se_idle_' },
+  { side: 'w', folder: 'West', framePrefix: 'dorothy_sw_idle_' },
+] as const;
+
+const IDLE_FRAME_RATE = DOROTHY_ANIM_FPS;
+
 const LOCO_ANIMS = ['Walk', 'Run', 'Jump'] as const;
 type LocoAnim = (typeof LOCO_ANIMS)[number];
 
-const WALK_FRAME_RATE = DOROTHY_SOURCE_FPS;
-const RUN_FRAME_RATE = DOROTHY_SOURCE_FPS;
-const JUMP_FRAME_RATE = DOROTHY_SOURCE_FPS;
+const WALK_FRAME_RATE = DOROTHY_ANIM_FPS;
+const RUN_FRAME_RATE = DOROTHY_ANIM_FPS;
+const JUMP_FRAME_RATE = DOROTHY_ANIM_FPS;
 
 /**
- * NEW Jump clips include a crouch anticipation (~34 frames) before feet leave
- * the ground. Physics launches on button press — start the anim at takeoff so
- * she isn't airborne while still crouching on-screen.
+ * Jump packs still include a crouch lead-in before takeoff. Physics launches on
+ * press — start the anim at takeoff so she isn't airborne while crouching.
+ * (Not a scale/Y compensation; height comes from engine `z` only.)
  */
 export const DOROTHY_JUMP_START_FRAME = 34;
 
 export const DOROTHY_DEFAULT_WALK_DIR: DorothyWalkDir = 'e';
-/** First frame of NEW East Walk — used as spawn / idle pose. */
-export const DOROTHY_WALK_IDLE_FRAME = 'dorothy_e_walk_0000.png';
+/** First frame of NEW East Idle — spawn pose. */
+export const DOROTHY_IDLE_FRAME = 'dorothy_se_idle_0000.png';
+/** @deprecated Prefer DOROTHY_IDLE_FRAME; kept for older call sites. */
+export const DOROTHY_WALK_IDLE_FRAME = DOROTHY_IDLE_FRAME;
 export const DOROTHY_SOURCE_EDGE_PX = 460;
 
 const OCTANTS: readonly DorothyWalkDir[] = [
@@ -108,17 +121,35 @@ export function dorothyJumpShouldMirror(_dir: DorothyWalkDir): boolean {
   return false;
 }
 
-export function dorothyIdleAnimKey(dir: DorothyWalkDir = DOROTHY_DEFAULT_WALK_DIR): string {
-  return `dorothy-idle-${dir}`;
+export function dorothyIdleAtlasKey(side: DorothyIdleSide = 'e'): string {
+  return `dorothy-idle-${side}`;
 }
 
-/** Idle uses 8-way NEW walk frame 0 — never mirror. */
+export function dorothyIdleAnimKey(side: DorothyIdleSide = 'e'): string {
+  return `dorothy-idle-${side}`;
+}
+
+/**
+ * East idle: any facing whose name contains East, plus South.
+ * West idle: any facing whose name contains West, plus North.
+ */
+export function dorothyIdleSideFromDir(dir: DorothyWalkDir): DorothyIdleSide {
+  if (dir === 'e' || dir === 'ne' || dir === 'se' || dir === 's') return 'e';
+  return 'w';
+}
+
+/** After idle starts, snap loco facing to pure East or West. */
+export function dorothyIdleRealignDir(side: DorothyIdleSide): DorothyWalkDir {
+  return side;
+}
+
+export function dorothyIdleFacing(side: DorothyIdleSide): 1 | -1 {
+  return side === 'e' ? 1 : -1;
+}
+
+/** East/West idle atlases are already sided — never mirror. */
 export function dorothyIdleShouldMirror(_dir: DorothyWalkDir): boolean {
   return false;
-}
-
-export function dorothyIdleFrameName(dir: DorothyWalkDir): string {
-  return `dorothy_${dir}_walk_0000.png`;
 }
 
 export function dorothyWalkDirFromMove(x: number, y: number): DorothyWalkDir {
@@ -138,14 +169,16 @@ export function dorothySideFromDir(
 }
 
 /**
- * Canvas → world scale. Most walk/run at 1×; N/S walk slightly shrunk.
- * Jump uses a constant shrink only.
+ * Shared canvas → world base scale. Identical for every anim; depth uses
+ * Projection.entityDepthScale only (no per-clip multipliers).
  */
-export function dorothyWorldScale(atlasKey: string): number {
-  const base = tuning.playerSpriteHeight / DOROTHY_SOURCE_EDGE_PX;
-  const sizeMul = ATLAS_SIZE_MUL[atlasKey] ?? 1;
-  const jumpMul = atlasKey.startsWith('dorothy-jump-') ? DOROTHY_JUMP_SCALE_NORM : 1;
-  return base * sizeMul * jumpMul;
+export function dorothyBaseScale(): number {
+  return tuning.playerSpriteHeight / DOROTHY_SOURCE_EDGE_PX;
+}
+
+/** @deprecated Prefer dorothyBaseScale — atlas key no longer affects scale. */
+export function dorothyWorldScale(_atlasKey?: string): number {
+  return dorothyBaseScale();
 }
 
 export function applyDorothyAnimTimeScale(
@@ -174,7 +207,7 @@ export function playDorothyAnim(
 /** Jump: skip crouch lead-in so takeoff matches physics launch. */
 export function playDorothyJumpAnim(sprite: Phaser.GameObjects.Sprite, key: string): void {
   sprite.play({ key, startFrame: DOROTHY_JUMP_START_FRAME });
-  applyDorothyAnimTimeScale(sprite, DOROTHY_ANIM_TIME_SCALE);
+  applyDorothyAnimTimeScale(sprite, DOROTHY_JUMP_ANIM_TIME_SCALE);
 }
 
 function newLocoUrl(compass: string, anim: LocoAnim): string {
@@ -183,6 +216,14 @@ function newLocoUrl(compass: string, anim: LocoAnim): string {
 
 function newLocoPath(compass: string, anim: LocoAnim): string {
   return `${SPRITES_NEW_BASE}/${encodeURIComponent(compass)}/Traversal/${anim}/`;
+}
+
+function newIdleUrl(compass: string): string {
+  return `${SPRITES_NEW_BASE}/${encodeURIComponent(compass)}/Idle/${encodeURIComponent('Idle.json')}`;
+}
+
+function newIdlePath(compass: string): string {
+  return `${SPRITES_NEW_BASE}/${encodeURIComponent(compass)}/Idle/`;
 }
 
 function atlasKeyFor(anim: LocoAnim, dir: DorothyWalkDir): string {
@@ -222,7 +263,7 @@ function createAnimFromAtlasFrames(
  */
 const MISSING_NEW_LOCO: ReadonlySet<string> = new Set();
 
-/** Queue NEW walk/run/jump (8-way). Idle = walk frame 0 per dir. */
+/** Queue NEW walk/run/jump (8-way) + East/West idle. */
 export function preloadDorothySprites(scene: Phaser.Scene): void {
   for (const { dir, folder } of COMPASS) {
     for (const anim of LOCO_ANIMS) {
@@ -233,6 +274,13 @@ export function preloadDorothySprites(scene: Phaser.Scene): void {
         newLocoPath(folder, anim),
       );
     }
+  }
+  for (const { side, folder } of IDLE_PACKS) {
+    scene.load.multiatlas(
+      dorothyIdleAtlasKey(side),
+      newIdleUrl(folder),
+      newIdlePath(folder),
+    );
   }
 }
 
@@ -267,28 +315,25 @@ export function ensureDorothyAnims(scene: Phaser.Scene): void {
       JUMP_FRAME_RATE,
       0,
     );
+  }
 
-    // Idle hold: first NEW Walk frame for this facing (matches outline style).
-    const idleKey = dorothyIdleAnimKey(dir);
-    const idleFrame = dorothyIdleFrameName(dir);
-    if (
-      scene.textures.exists(walkAtlas) &&
-      scene.textures.get(walkAtlas).has(idleFrame) &&
-      !scene.anims.exists(idleKey)
-    ) {
-      scene.anims.create({
-        key: idleKey,
-        frames: [{ key: walkAtlas, frame: idleFrame }],
-        frameRate: 1,
-        repeat: -1,
-      });
-    }
+  for (const { side, framePrefix } of IDLE_PACKS) {
+    createAnimFromAtlasFrames(
+      scene,
+      dorothyIdleAnimKey(side),
+      dorothyIdleAtlasKey(side),
+      framePrefix,
+      IDLE_FRAME_RATE,
+      -1,
+    );
   }
 }
 
 export function dorothySpritesReady(scene: Phaser.Scene): boolean {
-  // East Walk is the spawn/idle atlas; other dirs may still be pending re-export.
-  return scene.textures.exists(dorothyWalkAtlasKey(DOROTHY_DEFAULT_WALK_DIR));
+  return (
+    scene.textures.exists(dorothyWalkAtlasKey(DOROTHY_DEFAULT_WALK_DIR)) &&
+    scene.textures.exists(dorothyIdleAtlasKey('e'))
+  );
 }
 
 export function dorothyAnimExists(scene: Phaser.Scene, key: string): boolean {
@@ -296,17 +341,20 @@ export function dorothyAnimExists(scene: Phaser.Scene, key: string): boolean {
 }
 
 /**
- * TexturePacker keeps transparent pad in the source square. Phaser origins use
- * that full box, so originY=1 floats Dorothy. Fixed pad origin for every anim —
- * no per-frame opaque chase (that reads as bob/pulse on N/S).
+ * Feet pivot for every frame. Untrimmed NEW packs share one sole line in the
+ * 460² box. Trimmed frames (if any) use the bottom of the trim rect so soles
+ * stay planted without per-anim offsets.
  */
 export function applyDorothyFeetOrigin(sprite: Phaser.GameObjects.Sprite): void {
   const frame = sprite.frame;
   const realH = Math.max(1, frame.realHeight || frame.height);
-  const fillsSource = frame.y <= 1 && frame.height >= realH - 1;
-  const feetFromTop = fillsSource
-    ? realH * DOROTHY_NEW_FEET_ORIGIN_Y
-    : frame.y + frame.height;
+  const untrimmed =
+    frame.y <= 1 && frame.height >= realH - 1 && Math.abs(realH - DOROTHY_SOURCE_EDGE_PX) < 2;
+  if (untrimmed) {
+    sprite.setOrigin(0.5, DOROTHY_NEW_FEET_ORIGIN_Y);
+    return;
+  }
+  const feetFromTop = frame.y + frame.height;
   sprite.setOrigin(0.5, Phaser.Math.Clamp(feetFromTop / realH, 0.55, 1));
 }
 

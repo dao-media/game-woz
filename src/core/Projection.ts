@@ -41,12 +41,27 @@ export const Projection = {
     return 1 + (tuning.perspectiveFarScale - 1) * t;
   },
 
+  /**
+   * Cosmetic entity size vs depth. `strength` 0 = flat size, 1 = full depthScale.
+   * Sole permitted scale modifier for character sprites (no per-clip multipliers).
+   */
+  entityDepthScale(floorY: number, strength = 1): number {
+    const d = Projection.depthScale(floorY);
+    const s = clamp(strength, 0, 1);
+    return 1 + (d - 1) * s;
+  },
+
+  /** Ground contact screen-Y (no jump). Airborne sprites use groundScreenY − z. */
+  groundScreenY(floorY: number): number {
+    return floorY * tuning.foreshorten;
+  },
+
   toScreen(floorX: number, floorY: number, z = 0): ScreenPoint {
     const scale = Projection.depthScale(floorY);
     const vp = vanishingX;
     return {
       x: vp + (floorX - vp) * scale,
-      y: floorY * tuning.foreshorten - z,
+      y: Projection.groundScreenY(floorY) - z,
     };
   },
 

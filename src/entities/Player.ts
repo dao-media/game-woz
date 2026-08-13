@@ -16,20 +16,23 @@ import type { CombatController } from '../combat/CombatController';
 import { flashFill } from '../combat/CombatFeel';
 import {
   DOROTHY_DEFAULT_WALK_DIR,
-  DOROTHY_WALK_IDLE_FRAME,
+  DOROTHY_IDLE_FRAME,
   applyDorothyAnimTimeScale,
   applyDorothyFeetOrigin,
   dorothyAnimExists,
   dorothyIdleAnimKey,
+  dorothyIdleAtlasKey,
+  dorothyIdleFacing,
+  dorothyIdleRealignDir,
   dorothyIdleShouldMirror,
+  dorothyIdleSideFromDir,
   dorothyJumpAnimKey,
   dorothyJumpShouldMirror,
   dorothyRunAnimKey,
   dorothySpritesReady,
   dorothyWalkAnimKey,
-  dorothyWalkAtlasKey,
   dorothyWalkDirFromMove,
-  dorothyWorldScale,
+  dorothyBaseScale,
   playDorothyAnim,
   playDorothyJumpAnim,
   type DorothyWalkDir,
@@ -125,8 +128,8 @@ export class Player implements Damageable {
 
     const useSprites = characterId === 'dorothy' && dorothySpritesReady(scene);
     if (useSprites) {
-      const atlas = dorothyWalkAtlasKey(DOROTHY_DEFAULT_WALK_DIR);
-      this.visual = scene.add.sprite(0, 0, atlas, DOROTHY_WALK_IDLE_FRAME);
+      const atlas = dorothyIdleAtlasKey('e');
+      this.visual = scene.add.sprite(0, 0, atlas, DOROTHY_IDLE_FRAME);
       this.visual.setScrollFactor(1);
       applyDorothyFeetOrigin(this.visual);
       applyDorothyAnimTimeScale(this.visual);
@@ -398,15 +401,18 @@ export class Player implements Damageable {
   syncVisual(): void {
     const screen = Projection.toScreen(this.floorX, this.floorY, this.z);
     const ground = Projection.toScreen(this.floorX, this.floorY, 0);
-    const scale = Projection.depthScale(this.floorY);
+    // Visual only — combat/AI use floor space at full size.
+    const scale = Projection.entityDepthScale(
+      this.floorY,
+      tuning.playerDepthScaleStrength,
+    );
 
     this.body.setPosition(screen.x, screen.y);
     this.body.setScale((this.facingDir < 0 ? -1 : 1) * scale, scale);
     applyDepth(this.body, this.floorY, 1);
 
     if (this.visual) {
-      const atlasKey = this.visual.texture.key;
-      const vs = dorothyWorldScale(atlasKey) * scale;
+      const vs = dorothyBaseScale() * scale;
       const airborne = this.state === 'jump' || this.state === 'fall';
       const flip =
         (this.state === 'idle' && this.idleMirror) ||
@@ -452,8 +458,9 @@ export class Player implements Damageable {
         return;
       }
       // Jump pack missing — hold idle pose in the air.
-      this.idleMirror = dorothyIdleShouldMirror(this.walkDir);
-      const idleKey = dorothyIdleAnimKey(this.walkDir);
+      const airIdle = dorothyIdleSideFromDir(this.jumpDir);
+      this.idleMirror = dorothyIdleShouldMirror(this.jumpDir);
+      const idleKey = dorothyIdleAnimKey(airIdle);
       if (dorothyAnimExists(this.scene, idleKey) && sprite.anims.currentAnim?.key !== idleKey) {
         playDorothyAnim(sprite, idleKey, true);
       }
@@ -461,9 +468,13 @@ export class Player implements Damageable {
     }
 
     if (this.state === 'idle' || (this.state !== 'walk' && this.state !== 'run')) {
+      const idleSide = dorothyIdleSideFromDir(this.walkDir);
+      // Realign facing to the idle pack (East → right, West → left).
+      this.walkDir = dorothyIdleRealignDir(idleSide);
+      this.facingDir = dorothyIdleFacing(idleSide);
       this.idleMirror = dorothyIdleShouldMirror(this.walkDir);
-      const idleKey = dorothyIdleAnimKey(this.walkDir);
-      const idleFallback = dorothyIdleAnimKey(DOROTHY_DEFAULT_WALK_DIR);
+      const idleKey = dorothyIdleAnimKey(idleSide);
+      const idleFallback = dorothyIdleAnimKey('e');
       const key = dorothyAnimExists(this.scene, idleKey)
         ? idleKey
         : dorothyAnimExists(this.scene, idleFallback)
