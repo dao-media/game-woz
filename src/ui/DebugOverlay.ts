@@ -33,7 +33,7 @@ export class DebugOverlay {
         fontFamily: 'monospace',
         fontSize: '11px',
         color: '#a0ffa0',
-        backgroundColor: '#000000aa',
+        backgroundColor: '#000000cc',
         padding: { x: 8, y: 6 },
       })
       .setScrollFactor(0)
@@ -53,7 +53,10 @@ export class DebugOverlay {
     this.feetLine.setVisible(this.visible);
     if (!this.visible) {
       this.feetLine.clear();
+      return;
     }
+    // Immediate feedback so an empty first frame doesn't look like a dead toggle.
+    if (!this.text.text) this.text.setText('debug…');
   }
 
   update(
@@ -73,10 +76,17 @@ export class DebugOverlay {
       this.idleRef = { feetScreenY, bodyHeight };
     }
 
+    const entityScale = player.entityVisualScale;
+    const depthOnly = Projection.entityDepthScale(
+      player.floorY,
+      // strength applied inside entityVisualScale; show raw depth factor too
+      1,
+    );
     const lines = [
-      `floorX  ${player.floorX.toFixed(1)}  floorY  ${player.floorY.toFixed(1)}`,
-      `depth01  ${player.depth01.toFixed(3)}  depthScale  ${Projection.depthScale(player.floorY).toFixed(3)}`,
-      `entityScale  ${Projection.entityDepthScale(player.floorY).toFixed(3)}  z  ${player.z.toFixed(1)}`,
+      `floorX  ${player.floorX.toFixed(1)}  floorY  ${player.floorY.toFixed(1)}  z  ${player.z.toFixed(1)}`,
+      `entityScale  ${entityScale.toFixed(4)}  depthScale  ${depthOnly.toFixed(4)}  (scale = f(floorY) only)`,
+      `jumpScaleDrift  ${player.jumpScaleDrift.toFixed(4)}  floorYDrift  ${player.jumpFloorYDrift.toFixed(2)}`,
+      `  (leak only if scale drifts while floorYDrift≈0)`,
       `anim  ${animName}`,
       `spriteH  ${bodyHeight.toFixed(1)}px  feetY  ${feetScreenY.toFixed(1)}`,
     ];

@@ -22,10 +22,9 @@ export const DOROTHY_RUN_ANIM_TIME_SCALE = 1;
 export const DOROTHY_JUMP_ANIM_TIME_SCALE = 1.5;
 
 /**
- * NEW packs are untrimmed 460² with transparent pad under the soles (~53px).
- * Phaser originY=1 is the canvas bottom (below soles) — pin every clip to this
- * shared authored sole line. Not a per-anim fudge: one constant for all NEW packs.
- * Do NOT chase per-frame opaque bounds (reads as size pulse on N/S).
+ * NEW packs share a 460² source with transparent pad under the soles (~53px).
+ * Origin at 1.0 floats her — pin every clip to this authored sole line in
+ * SOURCE space (Phaser adds trim offsets when atlases are auto-trimmed).
  */
 const DOROTHY_NEW_FEET_ORIGIN_Y = 407 / 460;
 
@@ -259,7 +258,6 @@ function createAnimFromAtlasFrames(
 
 /**
  * Incomplete NEW loco packs skipped at preload (empty = all present).
- * Previously: North Walk / South Walk pending re-export.
  */
 const MISSING_NEW_LOCO: ReadonlySet<string> = new Set();
 
@@ -341,21 +339,28 @@ export function dorothyAnimExists(scene: Phaser.Scene, key: string): boolean {
 }
 
 /**
- * Feet pivot for every frame. Untrimmed NEW packs share one sole line in the
- * 460² box. Trimmed frames (if any) use the bottom of the trim rect so soles
- * stay planted without per-anim offsets.
+ * Feet pivot for every frame.
+ *
+ * Phaser displayOrigin uses realHeight (sourceSize). The renderer then offsets
+ * by frame.y/x (spriteSourceSize) for auto-trimmed atlases — so the sole line
+ * must stay in SOURCE space for both trimmed and untrimmed 460² packs.
  */
 export function applyDorothyFeetOrigin(sprite: Phaser.GameObjects.Sprite): void {
   const frame = sprite.frame;
-  const realH = Math.max(1, frame.realHeight || frame.height);
-  const untrimmed =
-    frame.y <= 1 && frame.height >= realH - 1 && Math.abs(realH - DOROTHY_SOURCE_EDGE_PX) < 2;
-  if (untrimmed) {
+  const sourceH = Math.max(1, frame.realHeight || frame.height);
+
+  if (Math.abs(sourceH - DOROTHY_SOURCE_EDGE_PX) < 2) {
     sprite.setOrigin(0.5, DOROTHY_NEW_FEET_ORIGIN_Y);
     return;
   }
-  const feetFromTop = frame.y + frame.height;
-  sprite.setOrigin(0.5, Phaser.Math.Clamp(feetFromTop / realH, 0.55, 1));
+
+  // Non-standard source: plant at bottom of opaque (trim bottom) or canvas.
+  if (frame.trimmed) {
+    const soleInSource = (frame.y || 0) + (frame.cutHeight || frame.height);
+    sprite.setOrigin(0.5, Phaser.Math.Clamp(soleInSource / sourceH, 0.55, 1));
+    return;
+  }
+  sprite.setOrigin(0.5, 1);
 }
 
 export const DOROTHY_WALK_ATLAS = dorothyWalkAtlasKey(DOROTHY_DEFAULT_WALK_DIR);

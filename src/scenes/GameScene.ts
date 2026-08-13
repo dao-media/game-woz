@@ -86,7 +86,7 @@ export class GameScene extends Phaser.Scene {
       .text(
         16,
         tuning.gameHeight - 28,
-        `${path.label} → ${path.destination}  ·  J/L/U  ·  ] spawn  ·  F3`,
+        `${path.label} → ${path.destination}  ·  J/L/U  ·  ] spawn  ·  ; or \` debug`,
         {
           fontFamily: 'monospace',
           fontSize: '13px',

@@ -36,7 +36,7 @@ Boot → Preload → Menu → CharacterSelect → Munchkinland → Game → Win
 | Scene | What happens |
 |-------|----------------|
 | **Boot** | Registers `Input`, `Storage`, `Lifecycle`, `RunState` in the Phaser registry |
-| **Preload** | Placeholder load (greybox — no FBX/atlas yet) |
+| **Preload** | Dorothy NEW sprite atlases (walk / run / jump / idle) via `dorothySprites.ts` |
 | **Menu** | Facade gate title (“Press START”) |
 | **CharacterSelect** | Pick traveler + **difficulty** (Easy / Normal / Hard); persist to `RunState` |
 | **Munchkinland** | Intro camera move → gate walk-out → free floor play → fork by `floorY` → path saved |
@@ -57,7 +57,7 @@ Boot → Preload → Menu → CharacterSelect → Munchkinland → Game → Win
 | Light attack (combo) | **J** |
 | Heavy (heel-click bolt) | **L** |
 | Ultimate (triple pulse) | **U** |
-| Debug overlay | F3 / \` |
+| Debug overlay | **;** / \` / F3 (macOS: F3 is often Mission Control — use **;** ) |
 | Debug spawn enemy | **]** (`CLOSED_BRACKET`) — toggles Wheeler / Winged Monkey |
 | Character select | ← → character · ↑ ↓ difficulty · Enter confirm · Esc back |
 
@@ -67,13 +67,15 @@ Bindings live in `src/config/keybindings.ts`. Unknown Phaser key names are **ski
 
 ## Stage model
 
-- **One-point perspective** — `src/core/Projection.ts`: `floorX` / `floorY` / `z` → screen; `depthScale` from `perspectiveFarScale`; vanishing X tracks camera mid-X.
+- **One-point perspective** — `src/core/Projection.ts`: `floorX` / `floorY` / `z` → screen; vanishing X tracks camera mid-X.
+- **Depth scale** — `depthScale` drives perspective X; character sprites use `entityDepthScale(floorY, playerDepthScaleStrength)` only (no per-clip scale multipliers).
+- **Jump height** — screen Y is `groundScreenY(floorY) − z`. Air height comes from engine `z` only; Jump sprites are in-place (no baked lift).
 - **StageView** — trapezoid floor + vertical back wall; clean horizon seam (`src/render/StageView.ts`).
 - **DepthTracks** — décor: `backdrop` (parallax) + `far` / `midFar` / `mid` / `near` (`src/core/DepthTracks.ts`).
 - **Player** — free travel on the floor plane (not lane-locked); always `scrollFactor` 1.
 - **Direction** — East = +`floorX` = screen-right; Munchkinland gate at west.
 
-**All combat and AI resolve in floor space** (depth-aware). No screen-space hit tests.
+**All combat and AI resolve in floor space** (depth-aware). No screen-space hit tests. Visual sprite scale never feeds hit boxes.
 
 ---
 
@@ -81,8 +83,8 @@ Bindings live in `src/config/keybindings.ts`. Unknown Phaser key names are **ski
 
 ### Status legend
 
-- **Shipped on `main`** — pushed to origin (through Dorothy combat spine commit `40ed63d` and earlier traversal).
-- **In working tree** — implemented locally (Phase A AI / encounters / difficulty UI). May still need a commit/push.
+- **Shipped on `main`** — on origin (traversal, Dorothy combat, Phase A AI/encounters, Dorothy NEW sprites + unified scale).
+- **In working tree** — local-only changes (e.g. 3D Studio experiments) not yet committed.
 - **On disk only** — asset folders not wired into Preload.
 
 ### 1. Traversal & opening — shipped
@@ -119,7 +121,7 @@ Reusable combat under `src/combat/`:
 
 **HUD** (`CombatHUD`): HP bar + L / U cooldown fill slots.
 
-### 3. Enemies, utility AI, difficulty, encounters — Phase A (in working tree)
+### 3. Enemies, utility AI, difficulty, encounters — Phase A (shipped)
 
 | Module | Role |
 |--------|------|
@@ -153,21 +155,30 @@ Reusable combat under `src/combat/`:
 
 Greybox combat dummies **retired**. `]` debug-spawns live AI enemies.
 
-### 4. Platform / UX hardening — in working tree
+### 4. Platform / UX hardening — shipped
 
 - [x] Input: unknown key codes warn + skip (fixes black screen from invalid `BRACKETRIGHT`; correct key is `CLOSED_BRACKET`)
-- [x] Debug overlay: player combat + **per-enemy intent / top scores / executor state** + encounter phase / wave / arena lock / difficulty
+- [x] Debug overlay: combat + **per-enemy intent / scores / executor** + encounter / difficulty
+- [x] F3 sprite ground-truth: anim name, on-screen height, feet Y, `z`; auto-captures idle → shows **Δheight / Δfeet**; optional feet reference line
 
-### 5. Art assets
+### 5. Dorothy sprites — shipped (unified scale)
 
 | Path | Contents | In git? | Wired? |
 |------|----------|---------|--------|
-| `masters/dorothy/Sprites/` | Original Dorothy sprite exports (`NEW/`, direction packs, atlases) | **Yes** (Git LFS) | Source only — do not edit |
-| `models/dorothy/Sprites/` | Optimized / game packs (`game/`, derived atlases) | **Yes** (Git LFS) | **Yes** — Preload / `dorothySprites.ts` |
+| `masters/dorothy/Sprites/NEW/` | Original 8-way Walk / Run / Jump + East/West Idle exports | **Yes** (Git LFS) | Source only — do not edit |
+| `models/dorothy/Sprites/NEW/` | Runtime copy of NEW packs (Preload) | **Yes** (Git LFS) | **Yes** — `dorothySprites.ts` |
+| `models/dorothy/Sprites/game/` | Older optimized packs | **Yes** (Git LFS) | Legacy / presentation |
 | `models/` (FBX / GLB / other characters) | Dorothy + companions meshes & animations | Partially / local | Studio + some gameplay paths |
 | `photos/characters/` | Reference photos / PSDs | Local | **No** |
 
-**Sprites:** originals live under `masters/dorothy/Sprites/`; runtime packs under `models/dorothy/Sprites/` (especially `game/`). PNGs use **Git LFS** (see `.gitattributes`). After clone: `git lfs pull`. When you add or re-export packs, commit both trees so the remote stays current — never overwrite masters in place; copy → derive into `models/`.
+**Scale invariant** (`Player.syncVisual` + `dorothySprites.ts`):
+
+1. **One shared scale** — `dorothyBaseScale()` × `Projection.entityDepthScale(floorY, playerDepthScaleStrength)`. No per-anim multipliers (old jump / N·S shrink removed).
+2. **Feet-anchored** — shared sole origin on untrimmed 460² frames (`applyDorothyFeetOrigin`).
+3. **Vertical from `z` only** — in-place Jump packs; height is engine jump, not baked sprite lift.
+4. **Jump playback** — `DOROTHY_JUMP_ANIM_TIME_SCALE = 1.5` (clip rate only; physics unchanged).
+
+PNGs use **Git LFS**. After clone: `git lfs pull`. New exports → copy into `masters/` first, then mirror/derive into `models/` — never optimize masters in place.
 
 `createPlayer` / `createEnemy` remain the seams for other characters’ atlases.
 
@@ -198,7 +209,7 @@ src/
     characters.ts  enemies.ts  encounters.ts
     branches.ts  scenery.ts  entities.ts
   entities/
-    Player.ts  Enemy.ts
+    Player.ts  Enemy.ts  dorothySprites.ts
     createPlayer.ts  createEnemy.ts   # art seams
     StageProp.ts
   platform/
@@ -264,9 +275,9 @@ src/
 - [x] Live AI monkeys / Wheelers react to player state (not dumb loops)
 - [x] Difficulty changes **behavior** more than sponge HP/damage
 - [x] Triggered waves + arena lock clear/unlock
-- [x] F3 AI readout usable for tuning
+- [x] F3 AI + sprite scale/feet ground-truth readout
+- [x] Dorothy NEW sprites: shared scale, feet pivot, in-place jump (height from `z`)
 - [ ] Phase B director / tokens
-- [ ] Commit + push remaining Phase A working-tree files if not yet on `origin/main`
 - [ ] Art pipeline / kits for other characters
 
 ---
@@ -277,5 +288,6 @@ src/
 2. On the road: **J** combo · **L** bolt · **U** ultimate vs spawns.
 3. Confirm monkeys keep standoff when heavy is ready; dive when you’re committed and heavy is down.
 4. Confirm Wheelers circle then charge; arena at ~1100 locks until clear, then unlocks.
-5. **F3** — verify intents/scores/difficulty/encounter state.
-6. Soften/harden difficulty and confirm reaction / telegraph / punish feel changes more than HP.
+5. **F3** — intents/scores/difficulty/encounter; stand idle to capture ref, then walk/run/jump and check **Δheight / Δfeet** (~0 at standing frames).
+6. Jump: clean rise/fall on `z` (no squat / double-lift); clip plays at 1.5×.
+7. Soften/harden difficulty and confirm reaction / telegraph / punish feel changes more than HP.

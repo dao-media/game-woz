@@ -90,6 +90,11 @@ export class Player implements Damageable {
   private knockVelY = 0;
   private baseFill: number;
 
+  /** Takeoff snapshot for jump-scale drift proof (visual debug only). */
+  private jumpScaleTakeoff: number | null = null;
+  private jumpFloorYTakeoff: number | null = null;
+  private lastWarnedJumpScaleLeak = false;
+
   constructor(
     scene: Phaser.Scene,
     def: EntityDef,
@@ -148,6 +153,10 @@ export class Player implements Damageable {
           this.zVel = this.stats.jumpVelocityZ;
           this.jumpDir = this.walkDir;
           this.jumpMirror = dorothyJumpShouldMirror(this.jumpDir);
+          // Capture scale at takeoff for leak proof (warn only if floorY stays fixed).
+          this.jumpScaleTakeoff = this.entityVisualScale;
+          this.jumpFloorYTakeoff = this.floorY;
+          this.lastWarnedJumpScaleLeak = false;
         },
       })
       .add('fall', {})
@@ -208,6 +217,28 @@ export class Player implements Damageable {
 
   get state(): PlayerState {
     return (this.fsm.current as PlayerState | null) ?? 'idle';
+  }
+
+  /**
+   * On-screen entity scale — pure function of floorY (never z / screen-Y).
+   * Identical grounded and airborne at the same depth.
+   */
+  get entityVisualScale(): number {
+    return (
+      dorothyBaseScale() *
+      Projection.entityDepthScale(this.floorY, tuning.playerDepthScaleStrength)
+    );
+  }
+
+  /** |current − takeoff| scale while airborne; 0 when grounded / no takeoff. */
+  get jumpScaleDrift(): number {
+    if (this.jumpScaleTakeoff === null) return 0;
+    return Math.abs(this.entityVisualScale - this.jumpScaleTakeoff);
+  }
+
+  get jumpFloorYDrift(): number {
+    if (this.jumpFloorYTakeoff === null) return 0;
+    return Math.abs(this.floorY - this.jumpFloorYTakeoff);
   }
 
   canStartAttack(): boolean {
@@ -338,7 +369,11 @@ export class Player implements Damageable {
         this.fsm.set('jump');
       }
 
+      const airborne = this.state === 'jump' || this.state === 'fall' || this.z > 0;
       const mul = (move.x !== 0 || move.y !== 0) && wantRun ? this.stats.runSpeedMul : 1;
+
+      // Full air travel (including N/S depth). Scale stays f(floorY) only — if
+      // depth changes mid-jump, size may change with perspective (correct).
       this.floorX += move.x * this.stats.moveSpeedX * mul * dt;
       this.floorY += move.y * this.stats.moveSpeedY * mul * dt;
 
@@ -349,13 +384,16 @@ export class Player implements Damageable {
         this.walkDir = dorothyWalkDirFromMove(move.x, move.y);
       }
 
-      const airborne = this.state === 'jump' || this.state === 'fall' || this.z > 0;
       if (airborne) {
         this.zVel -= this.stats.gravityZ * dt;
         this.z += this.zVel * dt;
         if (this.z <= 0) {
           this.z = 0;
           this.zVel = 0;
+          this.jumpScaleTakeoff = null;
+          this.jumpFloorYTakeoff = null;
+        } else {
+          this.assertJumpScaleInvariant();
         }
       }
 
@@ -369,6 +407,10 @@ export class Player implements Damageable {
         if (this.z <= 0) {
           this.z = 0;
           this.zVel = 0;
+          this.jumpScaleTakeoff = null;
+          this.jumpFloorYTakeoff = null;
+        } else {
+          this.assertJumpScaleInvariant();
         }
       }
       this.fsm.update(dtMs);
@@ -398,43 +440,65 @@ export class Player implements Damageable {
     else this.fsm.set('walk');
   }
 
+  /**
+   * Visual only. Scale is a pure function of floorY; z only moves screen Y.
+   * Order is mandatory: (1) scale from floorY (2) position with groundY − z.
+   */
   syncVisual(): void {
-    const screen = Projection.toScreen(this.floorX, this.floorY, this.z);
-    const ground = Projection.toScreen(this.floorX, this.floorY, 0);
-    // Visual only — combat/AI use floor space at full size.
-    const scale = Projection.entityDepthScale(
+    // 1) Scale from floorY alone — never read z or screen-Y here.
+    const entityScale = Projection.entityDepthScale(
       this.floorY,
       tuning.playerDepthScaleStrength,
     );
+    const visualScale = dorothyBaseScale() * entityScale;
 
-    this.body.setPosition(screen.x, screen.y);
-    this.body.setScale((this.facingDir < 0 ? -1 : 1) * scale, scale);
+    // 2) Position — z enters only as vertical offset from ground contact.
+    const groundY = Projection.groundScreenY(this.floorY);
+    const screenX = Projection.toScreen(this.floorX, this.floorY, 0).x;
+    const screenY = groundY - this.z;
+    const groundX = screenX;
+
+    this.body.setScale((this.facingDir < 0 ? -1 : 1) * entityScale, entityScale);
+    this.body.setPosition(screenX, screenY);
     applyDepth(this.body, this.floorY, 1);
 
     if (this.visual) {
-      const vs = dorothyBaseScale() * scale;
       const airborne = this.state === 'jump' || this.state === 'fall';
       const flip =
         (this.state === 'idle' && this.idleMirror) ||
         (airborne && this.jumpMirror)
           ? -1
           : 1;
-      this.visual.setPosition(screen.x, screen.y);
-      this.visual.setScale(flip * vs, vs);
+      // Exactly one scale assignment for the character sprite.
+      this.visual.setScale(flip * visualScale, visualScale);
+      this.visual.setPosition(screenX, screenY);
       applyDorothyFeetOrigin(this.visual);
       applyDepth(this.visual, this.floorY, 1);
       this.visual.setVisible(this.shadow.visible);
     }
 
-    this.shadow.setPosition(ground.x, ground.y);
+    this.shadow.setPosition(groundX, groundY);
     const t = Phaser.Math.Clamp(this.z / tuning.shadowMaxZ, 0, 1);
     const shadowMul = Phaser.Math.Linear(
       tuning.shadowScaleGround,
       tuning.shadowScaleAir,
       t,
     );
-    this.shadow.setScale(scale * shadowMul);
+    this.shadow.setScale(entityScale * shadowMul);
     applyDepth(this.shadow, this.floorY, 0);
+  }
+
+  /** Dev guard: scale must not change while floorY is constant mid-jump. */
+  private assertJumpScaleInvariant(): void {
+    if (this.jumpScaleTakeoff === null || this.jumpFloorYTakeoff === null) return;
+    const floorDrift = Math.abs(this.floorY - this.jumpFloorYTakeoff);
+    const scaleDrift = Math.abs(this.entityVisualScale - this.jumpScaleTakeoff);
+    if (floorDrift < 0.01 && scaleDrift > 0.0005 && !this.lastWarnedJumpScaleLeak) {
+      this.lastWarnedJumpScaleLeak = true;
+      console.warn(
+        `[Player] jump scale leak: scale drifted ${scaleDrift.toFixed(4)} while floorY constant (${this.floorY.toFixed(1)}) z=${this.z.toFixed(1)}`,
+      );
+    }
   }
 
   /** Idle / walk(8) / run / jump when packs exist. */

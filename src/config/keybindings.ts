@@ -16,6 +16,6 @@ export const defaultKeybindings: Record<InputAction, string[]> = {
   back: ['ESC', 'BACKSPACE'],
   menuUp: ['W', 'UP'],
   menuDown: ['S', 'DOWN'],
-  debug: ['F3', 'BACKTICK'],
+  debug: ['F3', 'BACKTICK', 'SEMICOLON'],
   spawnEnemy: ['CLOSED_BRACKET'],
 };

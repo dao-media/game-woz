@@ -176,7 +176,7 @@ export class MunchkinlandScene extends Phaser.Scene {
     this.player.setScriptedMove(null);
     getServices(this).input.setEnabled(true);
     this.hint.setText(
-      `←→ walk · ↑↓ depth · Shift run · Space jump · fork by depth  ·  F3`,
+      `←→ walk · ↑↓ depth · Shift run · Space jump · fork by depth  ·  ; or \` debug`,
     );
   }
 

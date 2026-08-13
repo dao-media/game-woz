@@ -63,6 +63,7 @@ export class Input {
     }
 
     this.actions.clear();
+    const captureNames: string[] = [];
     for (const [action, keyNames] of Object.entries(bindings) as [InputAction, string[]][]) {
       const keys: Phaser.Input.Keyboard.Key[] = [];
       for (const name of keyNames) {
@@ -71,9 +72,14 @@ export class Input {
           console.warn(`Input: unknown key "${name}" for action "${action}" — skipped`);
           continue;
         }
-        keys.push(keyboard.addKey(code));
+        // enableCapture=true so browser defaults (Find on F3, etc.) don't steal the key.
+        keys.push(keyboard.addKey(code, true));
+        captureNames.push(name);
       }
       this.actions.set(action, { keys, axis: 0 });
+    }
+    if (captureNames.length > 0) {
+      keyboard.addCapture(captureNames);
     }
     this.bound = true;
   }
