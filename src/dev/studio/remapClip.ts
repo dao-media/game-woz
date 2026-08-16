@@ -1,5 +1,7 @@
 import * as THREE from 'three';
+import { retargetClip } from 'three/examples/jsm/utils/SkeletonUtils.js';
 import {
+  detectClipBoneStyle,
   detectRigKind,
   mixamoMapFor,
   positionBonesFor,
@@ -70,7 +72,17 @@ function sanitizeClip(
 ): THREE.AnimationClip {
   const posBones = positionBonesFor(kind);
   const tracks: THREE.KeyframeTrack[] = [];
+  const clipLeaves = clip.tracks.map((t) => {
+    const d = t.name.lastIndexOf('.');
+    const path = d >= 0 ? t.name.slice(0, d) : t.name;
+    return path.split('/').pop()?.split('|').pop() ?? path;
+  });
+  const clipStyle = detectClipBoneStyle(clipLeaves);
+  // Full baked locals only when mesh is Mixamo-named MASTER. Alt/Simple are
+  // Tripo-named (even with Mixamo-like axes) — keep hip position + quats only,
+  // never Mixamo Hips.scale (~0.01) or limb bind positions (causes jelly/squash).
   const isBakedMaster =
+    clipStyle === 'mixamo_char' &&
     kind === 'mixamo_char' &&
     clip.tracks.some((t) => /^(Hips|LeftUpLeg|Spine02)\.(position|quaternion)/.test(t.name.split('|').pop() ?? t.name));
 
@@ -81,10 +93,16 @@ function sanitizeClip(
     const prop = track.name.slice(dot + 1);
     const leaf = bonePath.split('/').pop()?.split('|').pop() ?? bonePath;
     const bone =
-      remapBoneName(leaf, kind) ??
-      (kind === 'mixamo_char' && /^(Hips|Spine|Left|Right|neck|Head)/.test(leaf) ? leaf : null);
+      remapBoneName(leaf, kind, clipStyle) ??
+      (kind === 'mixamo_char' &&
+      (/^(Hips|Spine|Left|Right|neck|Head|Dress_|Hair_)/.test(leaf) ||
+        /cloth|skirt|ponytail|bang/i.test(leaf))
+        ? leaf
+        : null);
     if (!bone) continue;
     if (isLockedBone(bone, kind)) continue;
+
+    const isCloth = /^(Dress_|Hair_)/.test(bone);
 
     if (prop === 'quaternion') {
       const cloned = track.clone();
@@ -93,14 +111,15 @@ function sanitizeClip(
       continue;
     }
     if (prop === 'position') {
-      if (isBakedMaster || posBones.has(bone)) {
+      // Cloth/hair chains are rotation-driven; keep hip (and baked body) positions only.
+      if (!isCloth && (isBakedMaster || posBones.has(bone))) {
         const cloned = track.clone();
         cloned.name = `${bone}.${prop}`;
         tracks.push(cloned);
       }
       continue;
     }
-    if (prop === 'scale' && isBakedMaster) {
+    if (prop === 'scale' && isBakedMaster && !isCloth) {
       const cloned = track.clone();
       cloned.name = `${bone}.${prop}`;
       tracks.push(cloned);
@@ -109,7 +128,7 @@ function sanitizeClip(
   return new THREE.AnimationClip(name ?? clip.name, clip.duration, tracks);
 }
 
-const HIP_BONES = new Set(['Hips', 'Pelvis', 'Hip']);
+const HIP_BONES = new Set(['Hips', 'Pelvis', 'Hip', 'GargPelvis']);
 
 /** Horizontal unit vector from a world-space direction (Y up). */
 function flatForward(v: THREE.Vector3): THREE.Vector3 | null {
@@ -127,14 +146,56 @@ function signedYawBetween(from: THREE.Vector3, to: THREE.Vector3): number {
 }
 
 function findFacingProbeBone(root: THREE.Object3D): THREE.Bone | null {
-  // Prefer spine/hips — Head tracks are stripped on MASTER (locked), so Head local
-  // stays bind while the body yaws underneath; spine tracks the clip facing.
   return (
-    findBone(root, ['Spine2', 'Spine02', 'mixamorigSpine2', 'mixamorig:Spine2']) ??
-    findBone(root, ['Spine1', 'Spine01', 'mixamorigSpine1', 'mixamorig:Spine1']) ??
-    findBone(root, ['Hips', 'Pelvis', 'Hip', 'mixamorigHips', 'mixamorig:Hips']) ??
-    findBone(root, ['Head', 'mixamorigHead', 'mixamorig:Head'])
+    findBone(root, ['Hips', 'Pelvis', 'Hip', 'GargPelvis', 'mixamorigHips', 'mixamorig:Hips']) ??
+    findBone(root, ['Spine2', 'Spine02', 'GargRibcage', 'GargSpine3', 'mixamorigSpine2', 'mixamorig:Spine2']) ??
+    findBone(root, ['Spine1', 'Spine01', 'GargSpine2', 'mixamorigSpine1', 'mixamorig:Spine1']) ??
+    findBone(root, ['Head', 'GargHead', 'mixamorigHead', 'mixamorig:Head'])
   );
+}
+
+/** Mesh facing from the shoulder line (Mixamo hips local +X is sideways, not forward). */
+function sampleChestFlatForward(root: THREE.Object3D): THREE.Vector3 | null {
+  // Prefer upper arms: Gargoyle MVP clavicle *heads* sit on the same sternum
+  // point, so Left/Right collarbone origins give a near-zero / noisy shoulder
+  // axis and alignClipFacingToRest yaws every clip ~90–180° wrong.
+  const left =
+    findBone(root, [
+      'LeftArm',
+      'LeftUpperArm',
+      'L_Upperarm',
+      'GargLArmUpperarm1',
+      'mixamorigLeftArm',
+      'mixamorig:LeftArm',
+      'LeftShoulder',
+      'L_Clavicle',
+      'GargLArmCollarbone',
+      'mixamorigLeftShoulder',
+      'mixamorig:LeftShoulder',
+    ]);
+  const right =
+    findBone(root, [
+      'RightArm',
+      'RightUpperArm',
+      'R_Upperarm',
+      'GargRUpperarm1',
+      'mixamorigRightArm',
+      'mixamorig:RightArm',
+      'RightShoulder',
+      'R_Clavicle',
+      'GargRCollarbone',
+      'mixamorigRightShoulder',
+      'mixamorig:RightShoulder',
+    ]);
+  if (!left || !right) return null;
+  const ls = left.getWorldPosition(new THREE.Vector3());
+  const rs = right.getWorldPosition(new THREE.Vector3());
+  const shoulder = new THREE.Vector3().subVectors(rs, ls);
+  shoulder.y = 0;
+  if (shoulder.lengthSq() < 1e-10) return null;
+  shoulder.normalize();
+  // character-right ≈ (Right − Left); facing = up × right
+  return flatForward(new THREE.Vector3().crossVectors(new THREE.Vector3(0, 1, 0), shoulder));
 }
 
 /** Snapshot / restore bone locals — never call skeleton.pose() on the live studio rig. */
@@ -190,12 +251,17 @@ function sampleFlatForward(
       root.updateMatrixWorld(true);
     }
 
+    const chest = sampleChestFlatForward(root);
+    if (chest) return chest;
+
+    // Fallback: hips local +Z then +X (Tripo / odd binds).
     const probe = findFacingProbeBone(root);
     if (!probe) return null;
-    const worldX = new THREE.Vector3(1, 0, 0).applyQuaternion(
-      probe.getWorldQuaternion(new THREE.Quaternion()),
+    const q = probe.getWorldQuaternion(new THREE.Quaternion());
+    return (
+      flatForward(new THREE.Vector3(0, 0, 1).applyQuaternion(q)) ??
+      flatForward(new THREE.Vector3(1, 0, 0).applyQuaternion(q))
     );
-    return flatForward(worldX);
   } finally {
     mixer?.stopAllAction();
     restoreLocalsForAlign(root, saved);
@@ -203,63 +269,35 @@ function sampleFlatForward(
 }
 
 /**
- * Some MASTER bakes (Run / Idle / Jump) face ~90° off Walk/rest while hip travel
- * already matches studio East. Apply a yaw-only world correction to Hips keys.
- *
- * Never call skeleton.pose() on the live rig — Mixamo bind is flat + Hips.scale=0.01.
+ * Apply a constant world-+Y yaw to quaternion keys on the given bone names.
+ * Axis is derived from `axisParent`'s world quaternion (scale-free).
+ * Returns null if the parent axis is unsafe (would tip into a wall-run).
  */
-function alignClipFacingToRest(
+function yawOrientationTracks(
   clip: THREE.AnimationClip,
-  targetSkinned: THREE.SkinnedMesh,
-): THREE.AnimationClip {
-  let alignRoot: THREE.Object3D = targetSkinned;
-  for (let cur: THREE.Object3D | null = targetSkinned; cur && cur.type !== 'Scene'; cur = cur.parent) {
-    alignRoot = cur;
-  }
-
-  const hips =
-    findBone(alignRoot, ['Hips', 'Pelvis', 'Hip']) ??
-    findBone(targetSkinned, ['Hips', 'Pelvis', 'Hip']);
-  if (!hips) return clip;
-
-  const restFwd = sampleFlatForward(alignRoot, null);
-  const clipFwd = sampleFlatForward(alignRoot, clip, 0);
-  if (!restFwd || !clipFwd) return clip;
-
-  // Rotate clip facing → rest facing about world +Y (sign matches Three.js Yaw).
-  const rawYaw = -signedYawBetween(clipFwd, restFwd);
-  if (!Number.isFinite(rawYaw)) return clip;
-
-  // Only correct near ±90°/±180° bake errors — keep the measured angle (don't
-  // snap to exactly 90° or a ~13° residual stays in the run).
-  const quarter = Math.PI / 2;
-  const nearest = Math.round(rawYaw / quarter) * quarter;
-  if (Math.abs(nearest) < quarter - 1e-3) return clip;
-  if (Math.abs(rawYaw - nearest) > THREE.MathUtils.degToRad(40)) return clip;
-  const deltaYaw = rawYaw;
-
-  // Travel already matches studio East on Run — only yaw the hips orientation.
-  // (Rotating positions when travel is already correct re-introduces crabbing.)
-  const parent = hips.parent;
-  parent?.updateWorldMatrix(true, false);
+  axisParent: THREE.Object3D,
+  boneNames: Set<string>,
+  deltaYaw: number,
+): THREE.AnimationClip | null {
+  axisParent.updateWorldMatrix(true, false);
   // IMPORTANT: do NOT setFromRotationMatrix(matrixWorld) — studio roots are
   // uniformly scaled (~×2), and that pollutes the extracted rotation into a
   // tipped "up" axis (wall-run). Use world quaternion (scale-free).
   const parentQ = new THREE.Quaternion();
-  if (parent) parent.getWorldQuaternion(parentQ);
+  axisParent.getWorldQuaternion(parentQ);
   const localUp = new THREE.Vector3(0, 1, 0).applyQuaternion(parentQ.clone().invert()).normalize();
-  if (localUp.lengthSq() < 1e-8) return clip;
+  if (localUp.lengthSq() < 1e-8) return null;
   // Guard: world +Y in parent space must be near a horizontal local axis
   // (glTF Armature +90°X → ±Z). A dominant local Y means parent orientation
   // wasn't resolved — yawing about it tips the character onto the wall.
-  if (Math.abs(localUp.y) > 0.5) return clip;
+  if (Math.abs(localUp.y) > 0.5) return null;
   const qDeltaLocal = new THREE.Quaternion().setFromAxisAngle(localUp, deltaYaw);
 
   const tracks = clip.tracks.map((track) => {
     const dot = track.name.lastIndexOf('.');
     if (dot < 0) return track.clone();
     const bone = track.name.slice(0, dot).split('/').pop()?.split('|').pop() ?? '';
-    if (!HIP_BONES.has(bone)) return track.clone();
+    if (!boneNames.has(bone)) return track.clone();
 
     if (track instanceof THREE.QuaternionKeyframeTrack && track.name.endsWith('.quaternion')) {
       const values = track.values.slice();
@@ -275,20 +313,259 @@ function alignClipFacingToRest(
       return new THREE.QuaternionKeyframeTrack(track.name, track.times.slice(), values);
     }
 
-    // Leave hip position tracks untouched — preserves upright travel that already
-    // matches studio East on the mis-faced Run bake.
     return track.clone();
   });
 
-  const aligned = new THREE.AnimationClip(clip.name, clip.duration, tracks);
+  return new THREE.AnimationClip(clip.name, clip.duration, tracks);
+}
 
-  // Safety rail: if the correction tips her (head–foot upY collapses), keep original.
-  const beforeUp = sampleHeadFootUpY(alignRoot, clip, 0.05);
-  const afterUp = sampleHeadFootUpY(alignRoot, aligned, 0.05);
-  if (beforeUp != null && afterUp != null && afterUp < beforeUp * 0.9) {
-    return clip;
+function yawHipOrientationTracks(
+  clip: THREE.AnimationClip,
+  hips: THREE.Bone,
+  deltaYaw: number,
+): THREE.AnimationClip | null {
+  const axisParent = hips.parent ?? hips;
+  return yawOrientationTracks(clip, axisParent, HIP_BONES, deltaYaw);
+}
+
+/**
+ * Yaw quaternion tracks on `boneNames` about world +Y, assuming a constant
+ * rest-pose parent world quaternion (thighs under Hips at bind).
+ * Avoids the localUp wall-run guard, which false-rejects when Hips isn't at rest.
+ */
+function yawTracksAroundWorldY(
+  clip: THREE.AnimationClip,
+  parentWorldQ: THREE.Quaternion,
+  boneNames: Set<string>,
+  deltaYaw: number,
+): THREE.AnimationClip {
+  const yawWorld = new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), deltaYaw);
+  const parentInv = parentWorldQ.clone().invert();
+
+  const tracks = clip.tracks.map((track) => {
+    const dot = track.name.lastIndexOf('.');
+    if (dot < 0) return track.clone();
+    const bone = track.name.slice(0, dot).split('/').pop()?.split('|').pop() ?? '';
+    if (!boneNames.has(bone)) return track.clone();
+    if (!(track instanceof THREE.QuaternionKeyframeTrack) || !track.name.endsWith('.quaternion')) {
+      return track.clone();
+    }
+    const values = track.values.slice();
+    const q = new THREE.Quaternion();
+    for (let i = 0; i < values.length; i += 4) {
+      q.set(values[i]!, values[i + 1]!, values[i + 2]!, values[i + 3]!);
+      // q_local' = parentInv * yaw * parent * q_local
+      q.premultiply(parentWorldQ).premultiply(yawWorld).premultiply(parentInv);
+      values[i] = q.x;
+      values[i + 1] = q.y;
+      values[i + 2] = q.z;
+      values[i + 3] = q.w;
+    }
+    return new THREE.QuaternionKeyframeTrack(track.name, track.times.slice(), values);
+  });
+
+  return new THREE.AnimationClip(clip.name, clip.duration, tracks);
+}
+
+const THIGH_BONES = new Set([
+  'LeftUpLeg',
+  'RightUpLeg',
+  'L_Thigh',
+  'R_Thigh',
+  'GargLLegThigh1',
+  'GargRThigh1',
+  'mixamorigLeftUpLeg',
+  'mixamorigRightUpLeg',
+]);
+
+/** Mean horizontal facing over the clip (average of unit forwards). */
+function sampleMeanFlatForward(
+  root: THREE.Object3D,
+  clip: THREE.AnimationClip,
+  samples = 16,
+): THREE.Vector3 | null {
+  const acc = new THREE.Vector3();
+  let n = 0;
+  const dur = Math.max(clip.duration, 1e-4);
+  for (let i = 0; i < samples; i++) {
+    const t = (i / samples) * dur;
+    const fwd = sampleFlatForward(root, clip, t);
+    if (!fwd) continue;
+    acc.add(fwd);
+    n++;
   }
-  return aligned;
+  if (n === 0 || acc.lengthSq() < 1e-10) return null;
+  return acc.normalize();
+}
+
+/**
+ * Principal swing skew (rad) of feet relative to mean chest facing.
+ * Positive = swing plane CCW of facing about world +Y.
+ */
+function measureFootSwingSkew(
+  root: THREE.Object3D,
+  clip: THREE.AnimationClip,
+  samples = 24,
+): number | null {
+  const hips =
+    findBone(root, ['Hips', 'Pelvis', 'Hip', 'GargPelvis']) ??
+    findBone(root, ['mixamorigHips', 'mixamorig:Hips']);
+  const footL =
+    findBone(root, ['LeftFoot', 'L_Foot', 'GargLLegAnkle', 'mixamorigLeftFoot', 'mixamorig:LeftFoot']);
+  const footR =
+    findBone(root, ['RightFoot', 'R_Foot', 'GargRAnkle', 'mixamorigRightFoot', 'mixamorig:RightFoot']);
+  if (!hips || (!footL && !footR)) return null;
+
+  const meanChest = sampleMeanFlatForward(root, clip, samples);
+  if (!meanChest) return null;
+  const rightAxis = new THREE.Vector3().crossVectors(meanChest, new THREE.Vector3(0, 1, 0));
+  if (rightAxis.lengthSq() < 1e-10) return null;
+  rightAxis.normalize();
+
+  const skews: number[] = [];
+  for (const foot of [footL, footR]) {
+    if (!foot) continue;
+    const rel: THREE.Vector3[] = [];
+    const saved = captureLocalsForAlign(root);
+    let mixer: THREE.AnimationMixer | null = null;
+    try {
+      mixer = new THREE.AnimationMixer(root);
+      mixer.clipAction(clip).play();
+      const dur = Math.max(clip.duration, 1e-4);
+      for (let i = 0; i < samples; i++) {
+        mixer.setTime((i / samples) * dur);
+        root.updateMatrixWorld(true);
+        rel.push(
+          foot.getWorldPosition(new THREE.Vector3()).sub(hips.getWorldPosition(new THREE.Vector3())),
+        );
+      }
+    } finally {
+      mixer?.stopAllAction();
+      restoreLocalsForAlign(root, saved);
+    }
+    if (rel.length < 4) continue;
+    const fs = rel.map((p) => p.dot(meanChest));
+    const rs = rel.map((p) => p.dot(rightAxis));
+    const mf = fs.reduce((a, b) => a + b, 0) / fs.length;
+    const mr = rs.reduce((a, b) => a + b, 0) / rs.length;
+    let cff = 0;
+    let crr = 0;
+    let cfr = 0;
+    for (let i = 0; i < fs.length; i++) {
+      const f = fs[i]! - mf;
+      const r = rs[i]! - mr;
+      cff += f * f;
+      crr += r * r;
+      cfr += f * r;
+    }
+    // Ignore near-circular / lateral-dominated noise.
+    if (cff + crr < 1e-8) continue;
+    skews.push(0.5 * Math.atan2(2 * cfr, cff - crr));
+  }
+  if (skews.length === 0) return null;
+  return skews.reduce((a, b) => a + b, 0) / skews.length;
+}
+
+/**
+ * Some MASTER bakes (Run / Idle / Jump) face ~90° off Walk/rest.
+ * 1) Correct large quarter-turn bake errors using t=0 chest facing.
+ * 2) Cancel leftover *mean* facing bias over the cycle.
+ * 3) Yaw thighs only so foot swing plane matches chest (hip yaw alone can't —
+ *    it rotates torso and legs together; Run left ~6° leg skew vs upper body).
+ *
+ * Hip position stays put: studio Run is in-place (cm-scale bob).
+ * Never call skeleton.pose() on the live rig — Mixamo bind is flat + Hips.scale=0.01.
+ */
+function alignClipFacingToRest(
+  clip: THREE.AnimationClip,
+  targetSkinned: THREE.SkinnedMesh,
+): THREE.AnimationClip {
+  let alignRoot: THREE.Object3D = targetSkinned;
+  for (let cur: THREE.Object3D | null = targetSkinned; cur && cur.type !== 'Scene'; cur = cur.parent) {
+    alignRoot = cur;
+  }
+
+  const hips =
+    findBone(alignRoot, ['Hips', 'Pelvis', 'Hip', 'GargPelvis']) ??
+    findBone(targetSkinned, ['Hips', 'Pelvis', 'Hip', 'GargPelvis']);
+  if (!hips) return clip;
+
+  const restFwd = sampleFlatForward(alignRoot, null);
+  if (!restFwd) return clip;
+
+  // Snapshot bind locals so yaw-axis extraction isn't poisoned by a leftover
+  // mixer sample (Hips mid-run has local Y ≈ world up → false wall-run reject).
+  const restLocals = captureLocalsForAlign(alignRoot);
+
+  let result = clip;
+
+  // Pass 1: large ~90°/180° bake errors (t=0 chest vs rest).
+  const clipFwd = sampleFlatForward(alignRoot, result, 0);
+  if (clipFwd) {
+    const rawYaw = -signedYawBetween(clipFwd, restFwd);
+    if (Number.isFinite(rawYaw)) {
+      const quarter = Math.PI / 2;
+      const nearest = Math.round(rawYaw / quarter) * quarter;
+      const nearQuarter =
+        Math.abs(nearest) >= quarter - 1e-3 &&
+        Math.abs(rawYaw - nearest) <= THREE.MathUtils.degToRad(40);
+      if (nearQuarter) {
+        const yawed = yawHipOrientationTracks(result, hips, rawYaw);
+        if (yawed) {
+          const beforeUp = sampleHeadFootUpY(alignRoot, result, 0.05);
+          const afterUp = sampleHeadFootUpY(alignRoot, yawed, 0.05);
+          if (!(beforeUp != null && afterUp != null && afterUp < beforeUp * 0.9)) {
+            result = yawed;
+          }
+        }
+      }
+    }
+  }
+
+  // Pass 2: zero mean facing bias (keeps stride oscillation, removes crook).
+  const meanFwd = sampleMeanFlatForward(alignRoot, result);
+  if (meanFwd) {
+    const biasYaw = -signedYawBetween(meanFwd, restFwd);
+    if (
+      Number.isFinite(biasYaw) &&
+      Math.abs(biasYaw) >= THREE.MathUtils.degToRad(1.5) &&
+      Math.abs(biasYaw) <= THREE.MathUtils.degToRad(35)
+    ) {
+      const yawed = yawHipOrientationTracks(result, hips, biasYaw);
+      if (yawed) {
+        const beforeUp = sampleHeadFootUpY(alignRoot, result, 0.05);
+        const afterUp = sampleHeadFootUpY(alignRoot, yawed, 0.05);
+        if (!(beforeUp != null && afterUp != null && afterUp < beforeUp * 0.9)) {
+          result = yawed;
+        }
+      }
+    }
+  }
+
+  // Pass 3: legs vs torso — yaw thighs so foot swing matches chest facing.
+  restoreLocalsForAlign(alignRoot, restLocals);
+  const skew = measureFootSwingSkew(alignRoot, result);
+  restoreLocalsForAlign(alignRoot, restLocals);
+  if (
+    skew != null &&
+    Number.isFinite(skew) &&
+    Math.abs(skew) >= THREE.MathUtils.degToRad(1.5) &&
+    Math.abs(skew) <= THREE.MathUtils.degToRad(45)
+  ) {
+    const hipsWorldQ = new THREE.Quaternion();
+    hips.getWorldQuaternion(hipsWorldQ);
+    const yawed = yawTracksAroundWorldY(result, hipsWorldQ, THIGH_BONES, skew);
+    const beforeUp = sampleHeadFootUpY(alignRoot, result, 0.05);
+    restoreLocalsForAlign(alignRoot, restLocals);
+    const afterUp = sampleHeadFootUpY(alignRoot, yawed, 0.05);
+    restoreLocalsForAlign(alignRoot, restLocals);
+    if (!(beforeUp != null && afterUp != null && afterUp < beforeUp * 0.9)) {
+      result = yawed;
+    }
+  }
+
+  restoreLocalsForAlign(alignRoot, restLocals);
+  return result;
 }
 
 function sampleHeadFootUpY(
@@ -304,10 +581,10 @@ function sampleHeadFootUpY(
     action.play();
     mixer.setTime(Math.max(0, Math.min(timeSec, Math.max(clip.duration - 1e-4, 0))));
     root.updateMatrixWorld(true);
-    const head = findBone(root, ['Head', 'mixamorigHead', 'mixamorig:Head']);
+    const head = findBone(root, ['Head', 'GargHead', 'mixamorigHead', 'mixamorig:Head']);
     const foot =
-      findBone(root, ['LeftFoot', 'mixamorigLeftFoot', 'mixamorig:LeftFoot']) ??
-      findBone(root, ['RightFoot', 'mixamorigRightFoot', 'mixamorig:RightFoot']);
+      findBone(root, ['LeftFoot', 'GargLLegAnkle', 'mixamorigLeftFoot', 'mixamorig:LeftFoot']) ??
+      findBone(root, ['RightFoot', 'GargRAnkle', 'mixamorigRightFoot', 'mixamorig:RightFoot']);
     if (!head || !foot) return null;
     const up = head
       .getWorldPosition(new THREE.Vector3())
@@ -330,10 +607,16 @@ export type RootMotionOptions = {
    * lives on local Z after the Armature +90° X, not local Y.
    */
   hips?: THREE.Object3D | null;
+  /**
+   * When true (default for Jump clips), also lock world Y so the hop is
+   * removed — game code owns up/down. Walk/run keep hip bob unless set.
+   */
+  lockVertical?: boolean;
 };
 
 /**
- * In place: lock world-space horizontal travel; keep world vertical (jump hop).
+ * In place: lock world-space horizontal travel.
+ * Jump clips (or `lockVertical`) also lock world Y — static hips for sprite export.
  * Travel: pass through root motion unchanged.
  *
  * Bone-local XZ lock is wrong for MASTER clips — jump height is often on local Z.
@@ -347,6 +630,7 @@ export function applyRootMotionMode(
     return clip.clone();
   }
 
+  const lockVertical = opts.lockVertical ?? /jump/i.test(clip.name);
   const hips = opts.hips ?? null;
   const parent = hips?.parent ?? null;
   if (parent) {
@@ -366,10 +650,11 @@ export function applyRootMotionMode(
     const values = track.values.slice();
     if (values.length < 3) return track.clone();
 
-    // First key → world anchor (lock XZ, keep Y free per frame).
+    // First key → world anchor (lock XZ; optionally Y for jumps).
     local.fromArray(values, 0);
     world.copy(local).applyMatrix4(parentWorld);
     const anchorX = world.x;
+    const anchorY = world.y;
     const anchorZ = world.z;
 
     for (let i = 0; i < values.length; i += 3) {
@@ -377,6 +662,7 @@ export function applyRootMotionMode(
       world.copy(local).applyMatrix4(parentWorld);
       world.x = anchorX;
       world.z = anchorZ;
+      if (lockVertical) world.y = anchorY;
       local.copy(world).applyMatrix4(parentInv);
       local.toArray(values, i);
     }
@@ -527,9 +813,98 @@ function retargetMixamoRenameOnly(
 }
 
 /**
+ * SkeletonUtils writes `.bones[Name].quaternion` — flatten for scene mixers.
+ */
+function flattenBoneTracks(clip: THREE.AnimationClip): THREE.AnimationClip {
+  const tracks = clip.tracks.map((t) => {
+    const m = t.name.match(/\.bones\[([^\]]+)\]\.(.+)$/);
+    if (!m) return t.clone();
+    const cloned = t.clone();
+    cloned.name = `${m[1]}.${m[2]}`;
+    return cloned;
+  });
+  return new THREE.AnimationClip(clip.name, clip.duration, tracks);
+}
+
+/**
+ * Retarget a same-named Tripo clip from a bake-source skin onto a different bind
+ * (Alt / Simple ← Dorothy_new).
+ */
+export function retargetTripoClipBetweenSkins(
+  clip: THREE.AnimationClip,
+  target: THREE.SkinnedMesh,
+  source: THREE.SkinnedMesh,
+): THREE.AnimationClip {
+  const names: Record<string, string> = {};
+  const sourceNames = new Set(source.skeleton.bones.map((b) => b.name));
+  for (const b of target.skeleton.bones) {
+    if (sourceNames.has(b.name)) names[b.name] = b.name;
+  }
+  source.skeleton.pose();
+  target.skeleton.pose();
+  source.updateMatrixWorld(true);
+  target.updateMatrixWorld(true);
+  const raw = retargetClip(target, source, clip, {
+    hip: 'Pelvis',
+    names,
+    // Runtime SkeletonUtils uses preserveBonePositions; @types lag behind.
+    preserveBonePositions: true,
+  } as Parameters<typeof retargetClip>[3]);
+  // retargetClip leaves both skins on the last sampled frame — restore binds.
+  source.skeleton.pose();
+  target.skeleton.pose();
+  source.updateMatrixWorld(true);
+  target.updateMatrixWorld(true);
+  return flattenBoneTracks(raw);
+}
+
+/**
+ * Same-skeleton pass-through (Gargoyle bones on winged monkey).
+ * Quaternions only — Gargoyle FBX location channels are in pre-scale units and
+ * will launch bones hundreds of units if applied raw.
+ *
+ * Facing offsets stay on the studio root (do not invent a second root yaw here).
+ * Do NOT run alignClipFacingToRest here: MVP bind clavicles share a sternum head,
+ * and fly poses make shoulder-line facing noisy — hip yaw then folds the mesh
+ * (Fly Idle stretch / inverted torso). Clips are baked to the bind facing.
+ */
+export function passThroughClipForSkeleton(
+  clip: THREE.AnimationClip,
+  targetSkinned: THREE.SkinnedMesh,
+  name?: string,
+): THREE.AnimationClip {
+  const boneNames = new Set(targetSkinned.skeleton.bones.map((b) => b.name));
+  /** Root / pelvis only — fly height & hip bob. Limb positions smash fitted binds. */
+  const positionBones = new Set(['GargPelvis', 'Pelvis', 'Hip', 'Hips']);
+  const tracks: THREE.KeyframeTrack[] = [];
+  for (const track of clip.tracks) {
+    const dot = track.name.lastIndexOf('.');
+    if (dot < 0) continue;
+    const bonePath = track.name.slice(0, dot);
+    const prop = track.name.slice(dot + 1);
+    const leaf = bonePath.split('/').pop()?.split('|').pop() ?? bonePath;
+    if (!boneNames.has(leaf)) continue;
+    if (prop === 'quaternion') {
+      const cloned = track.clone();
+      cloned.name = `${leaf}.${prop}`;
+      tracks.push(cloned);
+      continue;
+    }
+    if (prop === 'position' && positionBones.has(leaf)) {
+      const cloned = track.clone();
+      cloned.name = `${leaf}.${prop}`;
+      tracks.push(cloned);
+    }
+  }
+
+  return new THREE.AnimationClip(name ?? clip.name, clip.duration, tracks);
+}
+
+/**
  * Remap a clip onto the active Dorothy rig.
  * - MASTER-baked GLB: sanitize channel names only (already in MASTER bind space)
  * - Mixamo FBX fallback: rename + rotation-only (prefer baked clips)
+ * - Optional retargetSource: SkeletonUtils when target bind ≠ clip bake bind
  */
 export function remapClipToDorothy(
   clip: THREE.AnimationClip,
@@ -539,6 +914,10 @@ export function remapClipToDorothy(
     sourceRoot?: THREE.Object3D;
     kind?: DorothyRigKind;
     inPlace?: boolean;
+    /** Skinned mesh whose bind matches the clip (e.g. Dorothy_new for Tripo bakes). */
+    retargetSource?: THREE.SkinnedMesh;
+    /** Skip hip/thigh facing align (use for MASTER-baked Mixamo GLBs). */
+    skipFacingAlign?: boolean;
   },
 ): THREE.AnimationClip {
   const kind = opts.kind ?? detectRigKind(opts.targetSkinned);
@@ -560,6 +939,13 @@ export function remapClipToDorothy(
     });
   }
 
+  if (opts.retargetSource && kind === 'tripo') {
+    remapped = retargetTripoClipBetweenSkins(remapped, opts.targetSkinned, opts.retargetSource);
+  }
+
+  if (opts.skipFacingAlign) {
+    return remapped;
+  }
   return alignClipFacingToRest(remapped, opts.targetSkinned);
 }
 

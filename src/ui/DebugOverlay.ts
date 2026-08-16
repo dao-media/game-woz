@@ -12,6 +12,24 @@ export type DebugCombatContext = {
   encounter: EncounterManager;
 };
 
+export type DebugFenceContext = {
+  tileCount: number;
+  nearFloorY: number;
+  farFloorY: number;
+};
+
+export type DebugYbrContext = {
+  segments: number;
+  tileCount: number;
+  roadLength: number;
+};
+
+export type DebugUpdateExtras = {
+  combat?: DebugCombatContext;
+  fence?: DebugFenceContext;
+  ybr?: DebugYbrContext;
+};
+
 type IdleGroundTruth = {
   feetScreenY: number;
   bodyHeight: number;
@@ -63,7 +81,7 @@ export class DebugOverlay {
     player: Player,
     branch: ForkBranch | null | undefined,
     selectedCharacter: string | null | undefined,
-    combat?: DebugCombatContext,
+    extras?: DebugUpdateExtras,
   ): void {
     if (!this.visible) return;
 
@@ -110,14 +128,14 @@ export class DebugOverlay {
       `path  ${branch?.id ?? '(none)'} — ${branch?.label ?? ''}`,
     );
 
-    if (combat) {
-      const enc = combat.encounter;
+    if (extras?.combat) {
+      const enc = extras.combat.encounter;
       lines.push(
-        `difficulty  ${combat.difficulty}`,
-        `enemies  ${combat.enemies.length}  encounter  ${enc.phase}  wave  ${enc.waveIndex}  locked  ${enc.arenaLocked}`,
+        `difficulty  ${extras.combat.difficulty}`,
+        `enemies  ${extras.combat.enemies.length}  encounter  ${enc.phase}  wave  ${enc.waveIndex}  locked  ${enc.arenaLocked}`,
         `activeEnc  ${enc.activeEncounterId ?? '(none)'}`,
       );
-      for (const e of combat.enemies.slice(0, 4)) {
+      for (const e of extras.combat.enemies.slice(0, 4)) {
         const top = e.lastScores
           .slice(0, 3)
           .map((s) => `${s.id}:${s.score.toFixed(2)}`)
@@ -127,6 +145,18 @@ export class DebugOverlay {
           `    ${top}`,
         );
       }
+    }
+
+    if (extras?.fence) {
+      lines.push(
+        `fence  tiles ${extras.fence.tileCount}  nearY ${extras.fence.nearFloorY}  farY ${extras.fence.farFloorY}`,
+      );
+    }
+
+    if (extras?.ybr) {
+      lines.push(
+        `ybr  ${extras.ybr.segments} seg  tiles ${extras.ybr.tileCount}  length ${extras.ybr.roadLength.toFixed(0)}`,
+      );
     }
 
     this.text.setText(lines.join('\n'));

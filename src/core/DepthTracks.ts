@@ -11,7 +11,7 @@ import { Projection } from './Projection';
  *
  * Gameplay (player / obstacles) stays on scroll factor 1.
  */
-export type DepthTrackId = 'backdrop' | 'far' | 'midFar' | 'mid' | 'near';
+export type DepthTrackId = 'backdrop' | 'beyond' | 'far' | 'midFar' | 'mid' | 'near';
 
 export type DepthTrack = {
   id: DepthTrackId;
@@ -40,13 +40,14 @@ function trackFromFloorY(id: DepthTrackId, floorY: number, label: string): Depth
 }
 
 /**
- * Default track set. Includes an intermediary (midFar) between far and mid.
- * Backdrop is slower than the far floor so the wall reads behind the road.
+ * Default track set. `beyond` is the grass strip outside the far fence.
+ * Backdrop is slower than that strip so the wall reads behind the ground.
  */
 export function createDepthTracks(): readonly DepthTrack[] {
   const span = tuning.depthNear - tuning.depthFar;
   const at = (t: number) => tuning.depthFar + span * t;
 
+  const beyond = trackFromFloorY('beyond', Projection.farSceneryFloorY(), 'Beyond fence');
   const far = trackFromFloorY('far', at(0.12), 'Far track');
   const midFar = trackFromFloorY('midFar', at(0.35), 'Mid-far track');
   const mid = trackFromFloorY('mid', at(0.58), 'Mid track');
@@ -54,12 +55,12 @@ export function createDepthTracks(): readonly DepthTrack[] {
 
   const backdrop: DepthTrack = {
     id: 'backdrop',
-    floorY: tuning.depthFar,
-    scrollFactor: Math.max(0.15, far.scrollFactor * tuning.backdropParallaxScale),
+    floorY: Projection.horizonFloorY(),
+    scrollFactor: Math.max(0.15, beyond.scrollFactor * tuning.backdropParallaxScale),
     label: 'Backdrop',
   };
 
-  return [backdrop, far, midFar, mid, near];
+  return [backdrop, beyond, far, midFar, mid, near];
 }
 
 export function getTrack(

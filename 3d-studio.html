@@ -69,9 +69,33 @@
         margin-left: auto;
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 10px;
         color: var(--muted);
         font-size: 12px;
+      }
+      header .family-tabs {
+        display: flex;
+        gap: 4px;
+        padding: 2px;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: #0e1015;
+      }
+      header .family-tabs button {
+        border: 0;
+        border-radius: 6px;
+        background: transparent;
+        color: var(--muted);
+        padding: 6px 12px;
+        font: 500 12px var(--font);
+        cursor: pointer;
+      }
+      header .family-tabs button:hover {
+        color: var(--text);
+      }
+      header .family-tabs button.active {
+        background: #1e2a44;
+        color: #d6e6ff;
       }
       header .char-pick select {
         min-width: 180px;
@@ -91,6 +115,9 @@
         position: relative;
         min-width: 0;
         min-height: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
         background:
           radial-gradient(ellipse at 50% 20%, #161922 0%, transparent 55%),
           var(--bg);
@@ -99,6 +126,25 @@
         display: block;
         width: 100%;
         height: 100%;
+      }
+      #viewport.is-portrait canvas {
+        width: auto;
+        height: auto;
+      }
+      #portrait-frame {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        z-index: 1;
+      }
+      #portrait-frame[hidden] {
+        display: none;
+      }
+      #portrait-frame .portrait-square {
+        position: absolute;
+        box-shadow: 0 0 0 9999px rgba(8, 10, 14, 0.52);
+        border: 1px solid rgba(232, 234, 239, 0.32);
+        border-radius: 2px;
       }
       #outline-preview {
         position: absolute;
@@ -275,105 +321,6 @@
         grid-template-columns: 72px 1fr;
         align-items: center;
       }
-      .timeline {
-        margin: 8px 0 6px;
-        user-select: none;
-      }
-      .timeline-track {
-        position: relative;
-        display: flex;
-        height: 28px;
-        border-radius: 6px;
-        overflow: hidden;
-        border: 1px solid var(--border);
-        background: #0c1018;
-      }
-      .timeline-pad {
-        flex: 0 0 auto;
-        background: repeating-linear-gradient(
-          -45deg,
-          #1a2438,
-          #1a2438 4px,
-          #141c2c 4px,
-          #141c2c 8px
-        );
-        min-width: 0;
-      }
-      .timeline-core {
-        position: relative;
-        flex: 0 0 auto;
-        background: linear-gradient(180deg, #2a3f66, #1e2a44);
-        min-width: 8px;
-      }
-      .timeline-core::after {
-        content: '';
-        position: absolute;
-        inset: 0;
-        background: linear-gradient(
-          90deg,
-          transparent 0,
-          transparent calc(100% - 1px),
-          rgba(255, 255, 255, 0.12) calc(100% - 1px)
-        );
-        background-size: calc(100% / var(--tl-loops, 1)) 100%;
-        pointer-events: none;
-      }
-      .timeline-playhead {
-        position: absolute;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        margin-left: -1px;
-        background: #f0c674;
-        box-shadow: 0 0 4px rgba(240, 198, 116, 0.6);
-        pointer-events: none;
-        z-index: 2;
-      }
-      .timeline-handle {
-        position: absolute;
-        top: -2px;
-        bottom: -2px;
-        width: 10px;
-        margin-left: -5px;
-        border: 1px solid var(--accent-dim, #5b8def);
-        border-radius: 3px;
-        background: #d6e6ff;
-        cursor: ew-resize;
-        z-index: 3;
-        padding: 0;
-      }
-      .timeline-handle:hover,
-      .timeline-handle:focus-visible {
-        background: #fff;
-      }
-      .timeline-meta {
-        display: flex;
-        justify-content: space-between;
-        gap: 6px;
-        margin-top: 6px;
-        font-family: var(--mono);
-        font-size: 10px;
-        color: var(--muted);
-      }
-      .timeline-meta .core {
-        color: var(--text);
-      }
-      .timeline-pads {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        margin-top: 8px;
-      }
-      .timeline-pads label {
-        display: grid;
-        gap: 4px;
-        color: var(--muted);
-        font-size: 11px;
-      }
-      .timeline-pads input {
-        width: 100%;
-        box-sizing: border-box;
-      }
       .toggle-pair {
         display: flex;
         gap: 4px;
@@ -454,15 +401,6 @@
         padding: 6px 8px;
         font: 12px var(--mono);
       }
-      #cloth-note {
-        font-size: 11px;
-        color: var(--muted);
-        line-height: 1.4;
-        padding: 8px;
-        border-radius: var(--radius);
-        background: #10131a;
-        border: 1px solid var(--border);
-      }
       @media (max-width: 960px) {
         body {
           grid-template-columns: 1fr;
@@ -485,28 +423,31 @@
   <body>
     <header>
       <h1>3D Studio</h1>
-      <span class="sub">Dorothy · Mixamo remap · PNG sheet export</span>
-      <label class="char-pick">
-        Character
-        <select id="character-select" aria-label="Character"></select>
-      </label>
+      <span class="sub">Character clips · retarget · PNG sheet export</span>
+      <div class="char-pick">
+        <div class="family-tabs" id="family-tabs" role="tablist" aria-label="Character family"></div>
+        <label>
+          Variant
+          <select id="character-select" aria-label="Character variant"></select>
+        </label>
+      </div>
     </header>
 
     <aside class="panel" style="grid-area: left">
       <div class="section">
-        <h2>Clip library</h2>
+        <h2 id="clip-library-heading">Clip library</h2>
+        <p class="hint" id="clip-library-hint">Clips for this character only.</p>
         <div id="dropzone">Drop FBX / GLB or click to browse</div>
         <input id="file-input" type="file" accept=".fbx,.glb,.gltf" hidden />
         <div id="clip-list"></div>
-      </div>
-      <div class="section">
-        <h2>Cloth / hair</h2>
-        <div id="cloth-note">Checking rig…</div>
       </div>
     </aside>
 
     <div id="viewport">
       <div id="hud">Loading…</div>
+      <div id="portrait-frame" hidden>
+        <div class="portrait-square" aria-hidden="true"></div>
+      </div>
     </div>
 
     <aside class="panel right" style="grid-area: right">
@@ -524,9 +465,9 @@
         </label>
         <label
           class="field cam-field yaw-field"
-          title="Orbit around Dorothy — locks to 8 compass directions (45°)."
+          title="Yaw Dorothy to face each compass direction. Capture camera stays world-fixed (true N/S/E/W sprites — not side views of an eastbound run)."
         >
-          Direction
+          Facing
           <span class="yaw-slider-wrap">
             <input
               id="scene-yaw"
@@ -536,7 +477,7 @@
               step="1"
               value="0"
               list="scene-yaw-notches"
-              aria-label="Scene direction"
+              aria-label="Character facing direction"
             />
             <datalist id="scene-yaw-notches">
               <option value="0" label="E"></option>
@@ -554,6 +495,30 @@
           </span>
           <span id="scene-yaw-val">E</span>
         </label>
+        <label
+          class="field root-motion"
+          title="Sprite is the game three-quarter camera. Portrait is square-on, closer, and square-framed for yearbook / selector stills."
+        >
+          Framing
+          <span class="toggle-pair">
+            <button type="button" class="btn toggle active" id="btn-cam-sprite" aria-pressed="true">
+              Sprite
+            </button>
+            <button type="button" class="btn toggle" id="btn-cam-portrait" aria-pressed="false">
+              Portrait
+            </button>
+          </span>
+        </label>
+        <label
+          class="field cam-field"
+          id="portrait-crop-field"
+          hidden
+          title="0 = full figure, 100 = bust. Export uses this crop in a square frame."
+        >
+          Crop
+          <input id="portrait-crop" type="range" min="0" max="100" step="1" value="40" />
+          <span id="portrait-crop-val">3/4</span>
+        </label>
         <label class="field cam-field" title="Temporal pose damping after Mixamo playback. 0 = raw, 1 = heavy smooth.">
           Smoothening
           <input id="pose-smooth" type="range" min="0" max="100" step="1" value="0" />
@@ -564,7 +529,7 @@
           <input id="anim-speed" type="range" min="10" max="200" step="5" value="100" />
           <span id="anim-speed-val">1.00×</span>
         </label>
-        <label class="field root-motion" title="Lock hips on XZ (in place) or keep Mixamo root travel.">
+        <label class="field root-motion" title="In place: lock horizontal travel. Jump clips also lock vertical hop (game owns up/down). Travel: keep Mixamo root motion.">
           Root motion
           <span class="toggle-pair">
             <button type="button" class="btn toggle active" id="btn-inplace" aria-pressed="true">In place</button>
@@ -581,71 +546,49 @@
         <div id="stack-list"></div>
       </div>
       <div class="section">
-        <h2>Timeline</h2>
+        <h2>Playback</h2>
         <p class="hint">
-          Core = clip × loops. Drag the ends (or use Before/After) to loop-extend past the clip bounds.
+          Select a clip to load it (won't play until you hit Play). Stack
+          <strong>Loop</strong> repeats forever while playing; when Loop is off,
+          preview/export run for the Loops count below (decimals OK, e.g. 1.5).
         </p>
-        <label class="field" title="How many times the clip repeats in the core segment.">
+        <label class="field" title="How many clip cycles for preview (if Loop is off) and PNG export.">
           Loops
-          <input id="export-loops" type="number" min="1" max="20" value="1" />
+          <input id="export-loops" type="number" min="0.1" max="20" step="0.1" value="1" />
           <span id="export-loops-val">×1</span>
         </label>
-        <div class="timeline" id="timeline" aria-label="Export timeline">
-          <div class="timeline-track" id="tl-track">
-            <div class="timeline-pad" id="tl-pad-before" title="Loop pad before"></div>
-            <div class="timeline-core" id="tl-core" title="Core (clip × loops)"></div>
-            <div class="timeline-pad" id="tl-pad-after" title="Loop pad after"></div>
-            <div class="timeline-playhead" id="tl-playhead" hidden></div>
-            <button class="timeline-handle" id="tl-handle-l" type="button" aria-label="Extend before"></button>
-            <button class="timeline-handle" id="tl-handle-r" type="button" aria-label="Extend after"></button>
-          </div>
-          <div class="timeline-meta">
-            <span id="tl-before-val">−0.00s</span>
-            <span class="core" id="tl-core-val">0.00s × 1</span>
-            <span id="tl-after-val">+0.00s</span>
-          </div>
-          <div class="timeline-pads">
-            <label>
-              Before (s)
-              <input id="tl-pad-before-input" type="number" min="0" max="30" step="0.05" value="0" />
-            </label>
-            <label>
-              After (s)
-              <input id="tl-pad-after-input" type="number" min="0" max="30" step="0.05" value="0" />
-            </label>
-          </div>
-        </div>
       </div>
       <div class="section">
         <h2>Lighting</h2>
         <p class="hint">Applies to viewport and PNG export.</p>
         <label class="field cam-field" title="Soft sky/ground fill (hemisphere).">
           Ambient
-          <input id="light-ambient" type="range" min="0" max="300" step="5" value="140" />
-          <span id="light-ambient-val">1.40</span>
+          <input id="light-ambient" type="range" min="0" max="300" step="5" value="300" />
+          <span id="light-ambient-val">3.00</span>
         </label>
         <label class="field cam-field" title="Main key light intensity.">
           Key
-          <input id="light-key" type="range" min="0" max="400" step="5" value="200" />
-          <span id="light-key-val">2.00</span>
+          <input id="light-key" type="range" min="0" max="400" step="5" value="0" />
+          <span id="light-key-val">0.00</span>
         </label>
         <label class="field cam-field" title="Back/rim light intensity.">
           Rim
-          <input id="light-rim" type="range" min="0" max="200" step="5" value="55" />
-          <span id="light-rim-val">0.55</span>
+          <input id="light-rim" type="range" min="0" max="200" step="5" value="0" />
+          <span id="light-rim-val">0.00</span>
         </label>
         <label class="field cam-field" title="Renderer exposure (tone mapping).">
           Exposure
-          <input id="light-exposure" type="range" min="50" max="250" step="5" value="120" />
-          <span id="light-exposure-val">1.20×</span>
+          <input id="light-exposure" type="range" min="50" max="250" step="5" value="160" />
+          <span id="light-exposure-val">1.60×</span>
         </label>
       </div>
       <div class="section">
         <h2>Export</h2>
-        <p class="hint" title="Viewport Play uses the same timeline as the zip (minus pixel size).">
-          Preview mirrors timeline (loops + pads), FPS, prefix, and outline — not resolution.
+        <p class="hint" title="Viewport Play uses the same loops count and FPS as the zip (minus pixel size).">
+          Preview uses Loops, FPS, prefix, and outline — not resolution.
           Prefix defaults to <code>character_direction_animation</code>.
-          Export writes the configured loops once, then stops (does not keep looping).
+          Export writes a square PNG sequence at the chosen size (up to 4096²).
+          Portrait framing matches this square. Export writes the configured loops once, then stops.
         </p>
         <div class="export-grid">
           <label>
@@ -654,6 +597,8 @@
               <option value="512" selected>512²</option>
               <option value="1080">1080²</option>
               <option value="1920">1920²</option>
+              <option value="2048">2048²</option>
+              <option value="4096">4096²</option>
             </select>
           </label>
           <label title="Auto-filled as character_direction_animation. Edit to lock a custom name until you clear the field.">

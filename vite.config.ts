@@ -3,8 +3,9 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   // Relative base so dist runs from file:// and custom app schemes.
   base: './',
-  // MPA: /3d-studio.html + /particle-studio.html. Avoid SPA HTML fallback
-  // for missing .glb/.fbx (GLTFLoader was parsing <!doctype as JSON).
+  // MPA: /3d-studio.html + /particle-studio.html + /env-studio.html.
+  // Each tool is its own chunk; the game bundle is only index.html → src/main.ts.
+  // Avoid SPA HTML fallback for missing .glb/.fbx (GLTFLoader was parsing <!doctype as JSON).
   appType: 'mpa',
   server: {
     // Dedicated Oz port (avoid clashing with other local apps on 5173).
@@ -22,6 +23,7 @@ export default defineConfig({
         main: 'index.html',
         studio3d: '3d-studio.html',
         particle: 'particle-studio.html',
+        envStudio: 'env-studio.html',
       },
     },
   },

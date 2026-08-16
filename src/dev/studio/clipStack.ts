@@ -87,10 +87,7 @@ export class ClipStack {
     }
   }
 
-  /**
-   * Scrub every enabled layer to an absolute clip time (wrapped).
-   * Used for timeline pad sampling so pre/post roll can loop past clip bounds.
-   */
+  /** Scrub every enabled layer to an absolute clip time (wrapped). */
   scrubTo(timeSec: number): void {
     for (const layer of this.layers) {
       if (!layer.enabled) {

@@ -1,0 +1,291 @@
+{
+  "mvp_bones": [
+    "GargPelvis",
+    "GargSpine1",
+    "GargRibcage",
+    "GargNeck1",
+    "GargHead",
+    "GargLArmCollarbone",
+    "GargLArmUpperarm1",
+    "GargLArmForearm1",
+    "GargLArmPalm",
+    "GargRCollarbone",
+    "GargRUpperarm1",
+    "GargRForearm1",
+    "GargRPalm",
+    "GargLLegThigh1",
+    "GargLLegCalf1",
+    "GargLLegAnkle",
+    "GargRThigh1",
+    "GargRCalf1",
+    "GargRAnkle",
+    "GargLWing1",
+    "GargRWing1"
+  ],
+  "deleted": [
+    "GargSpine2",
+    "GargSpine3",
+    "GargNeck2",
+    "GargJaw",
+    "GargTongue1",
+    "GargTongue2",
+    "GargLidR_T",
+    "GargLidL_T",
+    "GargBrowR1",
+    "GargBrowL1",
+    "GargLipR",
+    "GargLipL",
+    "GargEyeR",
+    "GargEyeL",
+    "GargRUpperarm2",
+    "GargRUpperarm3",
+    "GargRForearm2",
+    "GargRForearm3",
+    "GargRDigit01",
+    "GargRDigit02",
+    "GargRDigit03",
+    "GargRDigit11",
+    "GargRDigit12",
+    "GargRDigit13",
+    "GargRDigit21",
+    "GargRDigit22",
+    "GargRDigit23",
+    "GargRDigit31",
+    "GargRDigit32",
+    "GargRDigit33",
+    "GargRDigit41",
+    "GargRDigit42",
+    "GargRDigit43",
+    "GargLWingWCollarbone",
+    "GargLWing2",
+    "GargLDigitMiddle",
+    "GargLDigitMiddle2",
+    "GargLDigitMiddle3",
+    "GargLDigitPink",
+    "GargLDigitPink2",
+    "GargLWingLWingPalm",
+    "GargLWingLDigit1",
+    "GargLWingLDigit2",
+    "GargWingThumbL",
+    "GargWingThumbL2",
+    "GargRWingWCollarbone",
+    "GargRWing2",
+    "GargRDigitMiddle",
+    "GargRDigitMiddle2",
+    "GargRDigitMiddle3",
+    "GargRDigitPink",
+    "GargRDigitPink2",
+    "GargRWingRWingPalm",
+    "GargRWingRDigit1",
+    "GargRWingRDigit2",
+    "GargWingThumbR",
+    "GargWingThumbR2",
+    "GargLArmUpperarm2",
+    "GargLArmUpperarm3",
+    "GargLArmForearm2",
+    "GargLArmForearm3",
+    "GargLArmDigit01",
+    "GargLArmDigit02",
+    "GargLArmDigit03",
+    "GargLArmDigit11",
+    "GargLArmDigit12",
+    "GargLArmDigit13",
+    "GargLArmDigit21",
+    "GargLArmDigit22",
+    "GargLArmDigit23",
+    "GargLArmDigit31",
+    "GargLArmDigit32",
+    "GargLArmDigit33",
+    "GargLArmDigit41",
+    "GargLArmDigit42",
+    "GargLArmDigit43",
+    "GargTail1",
+    "GargTail2",
+    "GargTail3",
+    "GargRThigh2",
+    "GargRCalf2",
+    "GargRToe1",
+    "GargRToe2",
+    "GargRToe011",
+    "GargRToe012",
+    "GargLLegThigh2",
+    "GargLLegCalf2",
+    "GargLLegToe1",
+    "GargLLegToe2",
+    "GargLLegDigit21",
+    "GargLLegDigit22"
+  ],
+  "weight_groups": 20,
+  "mesh_verts": 321259,
+  "new_verts": 321152,
+  "arm_scale": [
+    1.0,
+    1.0,
+    1.0
+  ],
+  "fit": {
+    "arm_L": {
+      "sternum": [
+        0.0,
+        -0.019,
+        0.711
+      ],
+      "socket": [
+        0.075,
+        -0.023,
+        0.73
+      ],
+      "hand": [
+        0.25,
+        -0.065,
+        0.474
+      ]
+    },
+    "arm_R": {
+      "sternum": [
+        0.0,
+        -0.039,
+        0.711
+      ],
+      "socket": [
+        -0.12,
+        -0.021,
+        0.737
+      ],
+      "hand": [
+        -0.25,
+        -0.059,
+        0.456
+      ]
+    },
+    "leg_L": {
+      "hip": [
+        0.046,
+        -0.058,
+        0.485
+      ],
+      "knee": [
+        0.046,
+        -0.068,
+        0.249
+      ],
+      "ankle": [
+        0.064,
+        -0.031,
+        0.005
+      ],
+      "foot_dir": [
+        0.076,
+        -0.988,
+        0.132
+      ]
+    },
+    "leg_R": {
+      "hip": [
+        -0.067,
+        -0.061,
+        0.474
+      ],
+      "knee": [
+        -0.066,
+        -0.065,
+        0.249
+      ],
+      "ankle": [
+        -0.056,
+        -0.037,
+        0.018
+      ],
+      "foot_dir": [
+        -0.203,
+        -0.977,
+        0.063
+      ]
+    },
+    "wing_L": {
+      "root": [
+        0.112,
+        0.03,
+        0.684
+      ],
+      "tip": [
+        0.29,
+        -0.046,
+        0.419
+      ],
+      "len": 0.328
+    },
+    "wing_R": {
+      "root": [
+        -0.135,
+        0.03,
+        0.682
+      ],
+      "tip": [
+        -0.29,
+        -0.046,
+        0.416
+      ],
+      "len": 0.318
+    }
+  },
+  "verify": {
+    "bone_count": 21,
+    "bones": [
+      "GargHead",
+      "GargLArmCollarbone",
+      "GargLArmForearm1",
+      "GargLArmPalm",
+      "GargLArmUpperarm1",
+      "GargLLegAnkle",
+      "GargLLegCalf1",
+      "GargLLegThigh1",
+      "GargLWing1",
+      "GargNeck1",
+      "GargPelvis",
+      "GargRAnkle",
+      "GargRCalf1",
+      "GargRCollarbone",
+      "GargRForearm1",
+      "GargRPalm",
+      "GargRThigh1",
+      "GargRUpperarm1",
+      "GargRWing1",
+      "GargRibcage",
+      "GargSpine1"
+    ],
+    "fwd": [
+      0.034,
+      -0.999,
+      0.0
+    ],
+    "L_foot_dir": [
+      0.076,
+      -0.988,
+      0.132
+    ],
+    "L_foot_dot_fwd": 0.99,
+    "L_shin_dir": [
+      0.071,
+      0.15,
+      -0.986
+    ],
+    "L_hip_dir": [
+      0.0,
+      -0.046,
+      -0.999
+    ],
+    "L_shoulder_dir": [
+      0.968,
+      -0.052,
+      0.246
+    ],
+    "L_wing_dir": [
+      0.541,
+      -0.232,
+      -0.808
+    ],
+    "L_wing_len": 0.328,
+    "clav_head_dy": -0.02
+  }
+}

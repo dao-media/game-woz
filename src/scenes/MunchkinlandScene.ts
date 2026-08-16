@@ -14,6 +14,10 @@ import { munchkinScenery } from '../data/scenery';
 import { createPlayer } from '../entities/createPlayer';
 import { Player } from '../entities/Player';
 import { StageProp } from '../entities/StageProp';
+import { Fence } from '../entities/Fence';
+import { PlantField } from '../entities/PlantField';
+import { YellowBrickRoad } from '../entities/YellowBrickRoad';
+import { ybrRoadLength } from '../data/ybr';
 import { buildApproachFraming } from '../render/FacadeGate';
 import { MunchkinGate } from '../render/MunchkinGate';
 import { createStageLayers, redrawStage, type StageLayers } from '../render/StageView';
@@ -29,6 +33,9 @@ type Beat = 'intro' | 'walk' | 'play';
 export class MunchkinlandScene extends Phaser.Scene {
   private player!: Player;
   private props: StageProp[] = [];
+  private fence!: Fence;
+  private plants!: PlantField;
+  private ybr!: YellowBrickRoad;
   private gate!: MunchkinGate;
   private tracks: readonly DepthTrack[] = [];
   private stage!: StageLayers;
@@ -38,7 +45,7 @@ export class MunchkinlandScene extends Phaser.Scene {
   private committed: ForkBranch | null = null;
   private hint!: Phaser.GameObjects.Text;
   private beat: Beat = 'intro';
-  private readonly worldWidth = tuning.munchkinRoadLength;
+  private readonly worldWidth = ybrRoadLength(tuning.munchkinYbrSegments);
 
   constructor() {
     super('Munchkinland');
@@ -74,6 +81,12 @@ export class MunchkinlandScene extends Phaser.Scene {
       prop.setAlpha(0);
       return prop;
     });
+    this.ybr = new YellowBrickRoad(this, tuning.munchkinYbrSegments);
+    this.ybr.setAlpha(0);
+    this.plants = new PlantField(this, this.worldWidth);
+    this.plants.setAlpha(0);
+    this.fence = new Fence(this, this.worldWidth);
+    this.fence.setAlpha(0);
 
     const characterId = runState.selectedCharacter ?? DEFAULT_CHARACTER_ID;
     this.player = createPlayer(
@@ -95,6 +108,9 @@ export class MunchkinlandScene extends Phaser.Scene {
       this.stage.floor,
       ...this.gate.displayObjects,
       ...this.props.flatMap((p) => p.displayObjects),
+      ...this.ybr.displayObjects,
+      ...this.plants.displayObjects,
+      ...this.fence.displayObjects,
     ];
 
     this.intro = new IntroCameraMove(this, this.approach, sideScrollTargets, {
@@ -121,7 +137,18 @@ export class MunchkinlandScene extends Phaser.Scene {
 
     if (this.beat === 'intro') {
       this.syncCameraAndStage();
-      this.debug.update(this.player, this.committed, runState.selectedCharacter);
+      this.debug.update(this.player, this.committed, runState.selectedCharacter, {
+        fence: {
+          tileCount: this.fence.tileCount,
+          nearFloorY: tuning.fenceNearFloorY,
+          farFloorY: tuning.fenceFarFloorY,
+        },
+        ybr: {
+          segments: this.ybr.segments,
+          tileCount: this.ybr.tileCount,
+          roadLength: this.ybr.roadLength,
+        },
+      });
       return;
     }
 
@@ -132,7 +159,18 @@ export class MunchkinlandScene extends Phaser.Scene {
     this.player.update(input, dt);
     this.syncCameraAndStage();
 
-    this.debug.update(this.player, this.committed, runState.selectedCharacter);
+    this.debug.update(this.player, this.committed, runState.selectedCharacter, {
+      fence: {
+        tileCount: this.fence.tileCount,
+        nearFloorY: tuning.fenceNearFloorY,
+        farFloorY: tuning.fenceFarFloorY,
+      },
+      ybr: {
+        segments: this.ybr.segments,
+        tileCount: this.ybr.tileCount,
+        roadLength: this.ybr.roadLength,
+      },
+    });
 
     if (
       this.beat === 'play' &&
@@ -159,6 +197,9 @@ export class MunchkinlandScene extends Phaser.Scene {
 
     this.gate.syncVisual();
     this.props.forEach((p) => p.syncVisual());
+    this.fence.syncVisual();
+    this.ybr.syncVisual();
+    this.plants.syncVisual();
     this.player.syncVisual();
   }
 

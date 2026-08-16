@@ -5,10 +5,80 @@ export const tuning = {
 
   foreshorten: 0.55,
   perspectiveFarScale: 0.58,
+  /**
+   * Extra shrink/lag past the far road edge (0 = clamp, 1 = vanish at horizon).
+   * Mild — rear décor size mostly comes from the hill, not this.
+   */
+  sceneryDepthFalloff: 0.22,
 
   depthFar: 120,
   depthNear: 420,
   worldFloorPad: 40,
+  /** Ground beyond the far fence, as a fraction of the walkable road's floor-Y span. */
+  farSceneryStripRatio: 0.3,
+  /**
+   * Rear hill: crest elevation in screen-px (subtracted from screen Y).
+   * Tall enough that peaks silhouette against the sky, not a flat strip.
+   */
+  hillHeight: 64,
+  /** How much farther (floor-Y) the crest sits vs the toe — mild parallax only. */
+  hillFloorDrop: 16,
+
+  /**
+   * Fence near row — just outside the walkable near bound (depthNear), in the
+   * floor pad so posts plant on the ground and always draw in front of fighters.
+   */
+  fenceNearFloorY: 432,
+  /**
+   * Fence far row — just beyond the far walkable bound (depthFar), on the
+   * inner edge of the far scenery strip. Characters on the road always sort
+   * in front.
+   */
+  fenceFarFloorY: 118,
+  postSpacingFloorX: 64,
+  postBaseScale: 0.8,
+  postGreyboxWidth: 11,
+  postGreyboxHeight: 64,
+  /**
+   * Authored fence tiles (~230px tall). Floor span = sourceWidth × fenceTileScale.
+   * 0.224 is 20% smaller than the first authored fit (0.28).
+   */
+  fenceTileScale: 0.224,
+  /** Two rails per edge, as a fraction of post height (0 = ground). */
+  railHeightLo: 0.3,
+  railHeightHi: 0.66,
+  railThickness: 8,
+
+  /** Far-grass strip as a fraction of the YBR block (top of the image). */
+  ybrGrassBandFar: 0.085,
+  /** Near-grass strip as a fraction of the YBR block (bottom of the image). */
+  ybrGrassBandNear: 0.103,
+  /** Grass-tip sway in floor-X. Bricks stay still. */
+  ybrGrassSway: 4.5,
+  ybrGrassSwaySpeed: 1.15,
+  ybrGrassGustSpeed: 0.42,
+  ybrGrassSwayTravel: 0.028,
+
+  /** Sparse grass tufts per 1000 floor-X (crest of the rear hill). */
+  plantGrassPer1000X: 4.5,
+  plantGrassBaseScale: 0.21,
+  plantGrassLargeScale: 0.16,
+  plantGrassFlowersScale: 0.17,
+  /** Grass lean (radians) from the feet. Wheat uses the same sprite lean (no mesh slices). */
+  plantGrassLean: 0.028,
+  /** Whole-tuft breeze (radians). Mesh tip-bends shard the texture. */
+  plantWheatLean: 0.07,
+
+  /** Wheat field starts after the gate so the intro isn't a grain wall. */
+  plantWheatStartFloorX: 220,
+  plantWheatRows: 5,
+  plantWheatSpacingFar: 100,
+  plantWheatSpacingNear: 68,
+  plantWheatScaleFar: 0.37,
+  plantWheatScaleNear: 0.43,
+  plantSwaySpeed: 0.85,
+  plantGustSpeed: 0.38,
+  plantSwayTravel: 0.024,
 
   backdropHeight: 220,
   backdropParallaxScale: 0.55,
@@ -33,8 +103,10 @@ export const tuning = {
   introCameraMoveMs: 1400,
   introCameraMoveEase: 'Cubic.easeInOut',
   forkSplitFloorX: 900,
-  munchkinRoadLength: 1400,
-  continuationRoadLength: 2400,
+  /** Munchkinland length, in YBR blocks. */
+  munchkinYbrSegments: 48,
+  /** Continuation (Game) length, in YBR blocks. */
+  continuationYbrSegments: 64,
   finishMargin: 64,
 
   shadowScaleGround: 1,
@@ -216,10 +288,23 @@ export const tuning = {
     road: 0xc4a35a,
     munchkin: 0x7a5a8a,
     divider: 0x5a6a7a,
+    fencePost: 0x6a5a48,
+    fenceOutline: 0x14100c,
+    fenceWoodDark: 0x3a2418,
+    fenceWoodMid: 0x6b442c,
+    fenceWoodLight: 0x8f5e3c,
+    fenceWoodHi: 0xb0784c,
+    fenceWoodGrain: 0x4e2e1c,
+    fenceWoodSide: 0x452818,
     forkMarker: 0xe8d5a3,
     player: 0xc4a35a,
     shadow: 0x1a1a1e,
     grass: 0x3a4a32,
+    sceneryGroundFar: 0x2a3826,
+    sceneryGroundNear: 0x3e5238,
+    sceneryHillLit: 0x4d6844,
+    sceneryHillShadow: 0x1c281a,
+    trackBeyond: 0x5a7a52,
     trackFar: 0x6a8aaa,
     trackMidFar: 0x7a9a7a,
     trackMid: 0x8a9a6a,

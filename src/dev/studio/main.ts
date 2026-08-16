@@ -8,7 +8,9 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import {
   builtInClips,
-  STUDIO_CHARACTERS,
+  STUDIO_FAMILIES,
+  charactersForFamily,
+  resolveStudioSelection,
   type CatalogClip,
   type StudioCharacterId,
 } from './clipCatalog';
@@ -16,23 +18,27 @@ import { ClipStack } from './clipStack';
 import {
   detectRigKind,
   remapClipToDorothy,
+  passThroughClipForSkeleton,
   applyRootMotionMode,
   mirrorAnimationClip,
   type RootMotionMode,
 } from './remapClip';
-import { applyAlphaOutline, exportPngSequence, timelineToAnimTime } from './exporter';
+import { applyAlphaOutline, exportPngSequence } from './exporter';
 
 const TARGET_HEIGHT_M = 1.7;
-const DEFAULT_CHARACTER: StudioCharacterId = 'rigged';
 /** Clockwise 90° from above (align body facing to Mixamo forward). */
 const MODEL_YAW_CLOCKWISE_RAD = -Math.PI / 2;
 /** Orbit pitch locked: degrees down from horizontal. Pan / azimuth / zoom stay free. */
 const CAMERA_DOWN_DEG = 28;
+/** Yearbook / selector stills: nearly eye-level, square-on to the character. */
+const PORTRAIT_DOWN_DEG = 6;
+const SPRITE_FOV = 40;
+const PORTRAIT_FOV = 24;
 /** Default look-at height above ground (meters). */
 const CAMERA_LOOK_Y_DEFAULT = 1.3;
 const DEFAULT_EXPORT_FPS = 30;
-/** Cap on each loop-extend pad (seconds). */
-const MAX_TIMELINE_PAD_SEC = 30;
+/** Cap on export/preview loop count. */
+const MAX_LOOPS = 20;
 
 /** Filename-safe segment for export prefix parts. */
 function slugifyPart(s: string): string {
@@ -51,7 +57,6 @@ const hud = $('hud');
 const clipListEl = $('clip-list');
 const stackEl = $('stack-list');
 const statusEl = $('status');
-const clothNote = $('cloth-note');
 
 function setStatus(text: string): void {
   statusEl.textContent = text;
@@ -151,34 +156,46 @@ function skeletonWorldBox(root: THREE.Object3D): THREE.Box3 {
 }
 
 function normalizeCharacterPose(root: THREE.Object3D): number {
+  // Mixamo / monkey +Z bind: MODEL_YAW → Facing E = world −X (game East).
   root.rotation.set(0, MODEL_YAW_CLOCKWISE_RAD, 0);
   root.position.set(0, 0, 0);
   root.scale.setScalar(1);
   root.updateMatrixWorld(true);
 
-  const head = getBone(root, 'Head');
+  const head =
+    getBone(root, 'Head') ??
+    getBone(root, 'GargHead') ??
+    getBone(root, 'mixamorigHead') ??
+    getBone(root, 'mixamorig:Head');
   const foot =
     getBone(root, 'LeftFoot') ??
     getBone(root, 'RightFoot') ??
     getBone(root, 'L_Foot') ??
     getBone(root, 'R_Foot') ??
+    getBone(root, 'GargLLegAnkle') ??
+    getBone(root, 'GargRAnkle') ??
     getBone(root, 'Hips') ??
     getBone(root, 'Pelvis') ??
-    getBone(root, 'Hip');
-  let up = new THREE.Vector3();
+    getBone(root, 'Hip') ??
+    getBone(root, 'GargPelvis');
+
+  // Tip ONLY from bone head→foot. Never use AABB size as an "up" vector —
+  // winged Tripo meshes are wider than tall in X and that tipped them horizontal
+  // (mid-air float).
   if (head && foot) {
-    up.copy(head.getWorldPosition(new THREE.Vector3())).sub(foot.getWorldPosition(new THREE.Vector3()));
-  } else {
-    const size = skeletonWorldBox(root).getSize(new THREE.Vector3());
-    up.set(size.x, size.y, size.z);
-  }
-  const ax = Math.abs(up.x);
-  const ay = Math.abs(up.y);
-  const az = Math.abs(up.z);
-  if (ay < ax || ay < az) {
-    if (az >= ax) root.rotation.x = up.z >= 0 ? -Math.PI / 2 : Math.PI / 2;
-    else root.rotation.z = up.x >= 0 ? Math.PI / 2 : -Math.PI / 2;
-    root.updateMatrixWorld(true);
+    const up = head
+      .getWorldPosition(new THREE.Vector3())
+      .sub(foot.getWorldPosition(new THREE.Vector3()));
+    const ax = Math.abs(up.x);
+    const ay = Math.abs(up.y);
+    const az = Math.abs(up.z);
+    // Only tip when clearly lying down (Y not dominant). Near-upright
+    // Gargoyle binds must not get a 90° X tip that maps hip L/R onto Z.
+    if (ay < Math.max(ax, az) * 0.75) {
+      if (az >= ax) root.rotation.x = up.z >= 0 ? -Math.PI / 2 : Math.PI / 2;
+      else root.rotation.z = up.x >= 0 ? Math.PI / 2 : -Math.PI / 2;
+      root.updateMatrixWorld(true);
+    }
   }
 
   let height = 1;
@@ -188,6 +205,7 @@ function normalizeCharacterPose(root: THREE.Object3D): number {
       1e-3,
     );
   } else {
+    // Mesh AABB height (Y-up in Three) — Tripo bone_* / tripo::Root have no Head/Foot.
     height = Math.max(skeletonWorldBox(root).getSize(new THREE.Vector3()).y, 1e-3);
   }
   const scale = Math.min(Math.max(TARGET_HEIGHT_M / height, 0.001), 20);
@@ -238,6 +256,44 @@ function fitCamera(
 }
 
 /**
+ * Square-on yearbook framing. `crop01` 0 = full figure, 1 = bust.
+ * Distance is computed for a square aspect (export / portrait viewport).
+ */
+function fitPortraitCamera(
+  camera: THREE.PerspectiveCamera,
+  controls: OrbitControls,
+  root: THREE.Object3D,
+  crop01: number,
+  theta: number,
+): { groundY: number; topY: number; lookY: number } {
+  const box = skeletonWorldBox(root);
+  const size = box.getSize(new THREE.Vector3());
+  const center = box.getCenter(new THREE.Vector3());
+  const height = Math.max(size.y, 0.5);
+  const width = Math.max(size.x, size.z, 0.5);
+  const crop = THREE.MathUtils.clamp(crop01, 0, 1);
+  const fitH = height / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2));
+  const fitW = width / (2 * Math.tan(THREE.MathUtils.degToRad(camera.fov) / 2));
+  const pad = THREE.MathUtils.lerp(1.18, 0.52, crop);
+  const dist = Math.max(fitH, fitW) * pad;
+  const lookY = THREE.MathUtils.lerp(center.y, box.min.y + height * 0.74, crop);
+  const pitch = THREE.MathUtils.degToRad(PORTRAIT_DOWN_DEG);
+  const polar = Math.PI / 2 - pitch;
+  camera.near = Math.max(0.05, dist / 80);
+  camera.far = Math.max(100, dist * 20);
+  camera.updateProjectionMatrix();
+  controls.target.set(center.x, lookY, center.z);
+  const offset = new THREE.Vector3().setFromSpherical(new THREE.Spherical(dist, polar, theta));
+  camera.position.copy(controls.target).add(offset);
+  controls.minDistance = dist * 0.2;
+  controls.maxDistance = dist * 5;
+  controls.minPolarAngle = polar;
+  controls.maxPolarAngle = polar;
+  controls.update();
+  return { groundY: box.min.y, topY: box.max.y, lookY };
+}
+
+/**
  * Raise/lower the whole rig (camera + look target) on world Y.
  * Polar stays locked; this only cranes the look height.
  */
@@ -252,35 +308,49 @@ function setCameraCraneHeight(
   controls.update();
 }
 
-/** Eight compass notches for sprite/export orbit (45°). */
+/** Eight compass notches for sprite facing (45°). E=0 … NE=7 — matches game octants. */
 const SCENE_YAW_DIRS = ['E', 'SE', 'S', 'SW', 'W', 'NW', 'N', 'NE'] as const;
 const SCENE_YAW_STEP = Math.PI / 4;
+/**
+ * World-fixed capture camera azimuth (OrbitControls theta).
+ * Character yaws under this camera so N/S/E/W are true facing views — not
+ * side profiles of an eastbound run (that looked crooked in-game).
+ * theta=π → camera on −Z looking toward +Z (south → north), classic iso rear-east for east facing.
+ */
+const CAPTURE_CAMERA_THETA = Math.PI;
 
-function normalizeAngle(rad: number): number {
-  const twoPi = Math.PI * 2;
-  return ((rad % twoPi) + twoPi) % twoPi;
+type CameraMode = 'sprite' | 'portrait';
+
+/** Camera sits in front of the character's facing direction (yearbook square-on). */
+function portraitAzimuth(baseYaw: number, facingIndex: number): number {
+  const yaw = baseYaw - facingIndex * SCENE_YAW_STEP;
+  return yaw + Math.PI;
 }
 
-/** Lock orbit azimuth to an 8-way notch (keeps distance + locked polar). */
-function setSceneYawNotch(
+/** Lock orbit azimuth (keeps distance + polar). */
+function setCaptureCameraAzimuth(
   camera: THREE.PerspectiveCamera,
   controls: OrbitControls,
-  index: number,
+  theta = CAPTURE_CAMERA_THETA,
 ): void {
-  const i = ((Math.round(index) % 8) + 8) % 8;
   const offset = new THREE.Vector3().subVectors(camera.position, controls.target);
   const spherical = new THREE.Spherical().setFromVector3(offset);
-  // +π: label E = camera on the west side looking east (character faces the label).
-  spherical.theta = i * SCENE_YAW_STEP + Math.PI;
-  // Keep polar locked to OrbitControls clamp.
+  spherical.theta = theta;
   spherical.phi = controls.getPolarAngle();
   offset.setFromSpherical(spherical);
   camera.position.copy(controls.target).add(offset);
   controls.update();
 }
 
-function sceneYawIndexFromAzimuth(theta: number): number {
-  return Math.round(normalizeAngle(theta - Math.PI) / SCENE_YAW_STEP) % 8;
+/**
+ * Yaw character so they face the compass label. Camera stays world-fixed.
+ * index 0 = East (base bind facing after MODEL_YAW).
+ * Clockwise via subtracting step (Three.js Y is CCW+).
+ */
+function setCharacterFacingYaw(root: THREE.Object3D, baseYaw: number, index: number): void {
+  const i = ((Math.round(index) % 8) + 8) % 8;
+  root.rotation.y = baseYaw - i * SCENE_YAW_STEP;
+  root.updateMatrixWorld(true);
 }
 
 function flattenCubicSplineClip(clip: THREE.AnimationClip): THREE.AnimationClip {
@@ -393,7 +463,7 @@ function resetToRest(
   skinned: THREE.SkinnedMesh,
   root: THREE.Object3D,
   rest: Map<string, { pos: THREE.Vector3; quat: THREE.Quaternion; scale: THREE.Vector3 }> | null,
-  rig: 'mixamo_char' | 'tripo',
+  rig: 'mixamo_char' | 'tripo' | 'wingedmonkey',
 ): void {
   if (rig === 'mixamo_char' && rest) {
     restoreBoneLocals(root, rest);
@@ -402,42 +472,64 @@ function resetToRest(
   }
 }
 
-function hasClothBones(root: THREE.Object3D): boolean {
-  const keys = /cloth|hair|skirt|dress|cape|ribbon|ponytail|bang/i;
-  let found = false;
-  root.traverse((obj) => {
-    if ((obj as THREE.Bone).isBone && keys.test(obj.name)) found = true;
-  });
-  return found;
-}
-
 async function loadClipFromUrl(
   url: string,
   kind: 'fbx' | 'glb',
   label: string,
   targetSkinned: THREE.SkinnedMesh,
+  retargetSource?: THREE.SkinnedMesh | null,
+  /** Prefer catalog character rig when mesh detection is ambiguous. */
+  preferredRig?: 'mixamo_char' | 'tripo' | 'wingedmonkey',
 ): Promise<THREE.AnimationClip> {
-  const rigKind = detectRigKind(targetSkinned);
+  const detected = detectRigKind(targetSkinned);
+  const rigKind =
+    preferredRig === 'wingedmonkey' || preferredRig === 'tripo'
+      ? 'tripo'
+      : preferredRig === 'mixamo_char'
+        ? 'mixamo_char'
+        : detected;
+  const retarget =
+    retargetSource && rigKind === 'tripo' && preferredRig !== 'wingedmonkey'
+      ? { retargetSource }
+      : {};
   if (kind === 'glb') {
     const gltf = await new GLTFLoader().loadAsync(url);
     const clip = gltf.animations[0];
     if (!clip) throw new Error(`No animation in ${label}`);
-    return remapClipToDorothy(clip, { name: label, targetSkinned, kind: rigKind });
+    // Same-skeleton Gargoyle monkey: keep Garg* tracks as-is (no Dorothy remap).
+    if (preferredRig === 'wingedmonkey') {
+      return passThroughClipForSkeleton(clip, targetSkinned, label);
+    }
+    return remapClipToDorothy(clip, {
+      name: label,
+      targetSkinned,
+      kind: rigKind,
+      // MASTER-baked Mixamo GLBs already share Dorothy bind; facing align can
+      // twist wrists/feet on CC→Dorothy retargets (Skip, Ultimate, etc.).
+      skipFacingAlign: preferredRig === 'mixamo_char',
+      ...retarget,
+    });
   }
   const fbx = await new FBXLoader().loadAsync(url);
   const clip = fbx.animations[0];
   if (!clip) throw new Error(`No animation in ${label}`);
+  if (preferredRig === 'wingedmonkey') {
+    return passThroughClipForSkeleton(clip, targetSkinned, label);
+  }
   return remapClipToDorothy(clip, {
     name: label,
     targetSkinned,
     sourceRoot: fbx,
     kind: rigKind,
+    ...retarget,
   });
 }
 
 async function loadClipFromFile(
   file: File,
   targetSkinned: THREE.SkinnedMesh,
+  retargetSource?: THREE.SkinnedMesh | null,
+  preferredRig?: 'mixamo_char' | 'tripo' | 'wingedmonkey',
 ): Promise<THREE.AnimationClip> {
   const url = URL.createObjectURL(file);
   try {
@@ -445,7 +537,14 @@ async function loadClipFromFile(
       file.name.toLowerCase().endsWith('.glb') || file.name.toLowerCase().endsWith('.gltf')
         ? 'glb'
         : 'fbx';
-    return await loadClipFromUrl(url, kind, file.name.replace(/\.[^.]+$/, ''), targetSkinned);
+    return await loadClipFromUrl(
+      url,
+      kind,
+      file.name.replace(/\.[^.]+$/, ''),
+      targetSkinned,
+      retargetSource,
+      preferredRig,
+    );
   } finally {
     URL.revokeObjectURL(url);
   }
@@ -453,10 +552,19 @@ async function loadClipFromFile(
 
 function renderClipLibrary(
   characterId: StudioCharacterId,
+  familyLabel: string,
   onAdd: (clip: CatalogClip) => void,
 ): void {
   clipListEl.innerHTML = '';
-  for (const clip of builtInClips(characterId)) {
+  const clips = builtInClips(characterId);
+  if (clips.length === 0) {
+    const empty = document.createElement('p');
+    empty.className = 'empty';
+    empty.textContent = `No clips for ${familyLabel} yet.`;
+    clipListEl.appendChild(empty);
+    return;
+  }
+  for (const clip of clips) {
     const row = document.createElement('button');
     row.type = 'button';
     row.className = 'clip-row';
@@ -528,13 +636,34 @@ function renderStack(
 
 async function main(): Promise<void> {
   const params = new URLSearchParams(window.location.search);
-  const initialChar = (params.get('char') as StudioCharacterId) || DEFAULT_CHARACTER;
-  const character =
-    STUDIO_CHARACTERS.find((c) => c.id === initialChar) ?? STUDIO_CHARACTERS[0]!;
+  const { family, character } = resolveStudioSelection(
+    params.get('family'),
+    params.get('char'),
+  );
+
+  const familyTabs = $('family-tabs');
+  familyTabs.innerHTML = '';
+  for (const f of STUDIO_FAMILIES) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.role = 'tab';
+    btn.textContent = f.label;
+    btn.dataset.family = f.id;
+    btn.classList.toggle('active', f.id === family.id);
+    btn.setAttribute('aria-selected', f.id === family.id ? 'true' : 'false');
+    btn.addEventListener('click', () => {
+      if (f.id === family.id) return;
+      const url = new URL(window.location.href);
+      url.searchParams.set('family', f.id);
+      url.searchParams.set('char', f.defaultCharacterId);
+      window.location.href = url.toString();
+    });
+    familyTabs.appendChild(btn);
+  }
 
   const charSelect = $('character-select') as HTMLSelectElement;
   charSelect.innerHTML = '';
-  for (const c of STUDIO_CHARACTERS) {
+  for (const c of charactersForFamily(family.id)) {
     const opt = document.createElement('option');
     opt.value = c.id;
     opt.textContent = c.label;
@@ -544,17 +673,25 @@ async function main(): Promise<void> {
   charSelect.addEventListener('change', () => {
     const next = charSelect.value;
     const url = new URL(window.location.href);
+    url.searchParams.set('family', family.id);
     url.searchParams.set('char', next);
     window.location.href = url.toString();
   });
 
+  const sub = document.querySelector('header .sub');
+  if (sub) {
+    sub.textContent =
+      family.id === 'wingedmonkey'
+        ? 'Winged Monkey · Gargoyle armature · PNG sheet export'
+        : 'Dorothy · Mixamo remap · sprite & portrait PNG export';
+  }
   const viewport = $('viewport');
   const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setClearColor(0x0c0d10, 1);
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.2;
+  renderer.toneMappingExposure = 1.6;
   viewport.appendChild(renderer.domElement);
 
   /** 2D overlay: same alpha-outline pass as export, composited on studio bg. */
@@ -570,19 +707,20 @@ async function main(): Promise<void> {
   const scene = new THREE.Scene();
   scene.background = new THREE.Color(0x0c0d10);
 
-  const camera = new THREE.PerspectiveCamera(40, 1, 0.05, 200);
+  const camera = new THREE.PerspectiveCamera(SPRITE_FOV, 1, 0.05, 200);
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;
   const lockedPolar = Math.PI / 2 - THREE.MathUtils.degToRad(CAMERA_DOWN_DEG);
   controls.minPolarAngle = lockedPolar;
   controls.maxPolarAngle = lockedPolar;
+  let cameraMode: CameraMode = 'sprite';
 
-  const hemi = new THREE.HemisphereLight(0xdde6ff, 0x1a1c22, 1.4);
+  const hemi = new THREE.HemisphereLight(0xdde6ff, 0x1a1c22, 3.0);
   scene.add(hemi);
-  const key = new THREE.DirectionalLight(0xfff4e8, 2.0);
+  const key = new THREE.DirectionalLight(0xfff4e8, 0.0);
   key.position.set(2.4, 4, 2.8);
   scene.add(key);
-  const rim = new THREE.DirectionalLight(0x88a0ff, 0.55);
+  const rim = new THREE.DirectionalLight(0x88a0ff, 0.0);
   rim.position.set(-2, 2, -2);
   scene.add(rim);
   /** Viewport-only helpers — never included in PNG export. */
@@ -592,15 +730,49 @@ async function main(): Promise<void> {
   studioEnv.add(grid);
   scene.add(studioEnv);
 
+  function layoutPortraitFrame(viewW: number, viewH: number, edge: number): void {
+    const frame = $('portrait-frame');
+    const sq = frame.querySelector('.portrait-square') as HTMLElement | null;
+    if (!sq) return;
+    sq.style.width = `${edge}px`;
+    sq.style.height = `${edge}px`;
+    sq.style.left = `${(viewW - edge) / 2}px`;
+    sq.style.top = `${(viewH - edge) / 2}px`;
+  }
+
   function resize(): void {
     const w = viewport.clientWidth;
     const h = viewport.clientHeight;
-    camera.aspect = w / Math.max(h, 1);
+    const portrait = cameraMode === 'portrait';
+    const edge = Math.max(1, Math.min(w, h));
+    const rw = portrait ? edge : w;
+    const rh = portrait ? edge : Math.max(h, 1);
+    camera.aspect = rw / rh;
     camera.updateProjectionMatrix();
-    renderer.setSize(w, h, false);
+    renderer.setSize(rw, rh, false);
+    const canvas = renderer.domElement;
+    if (portrait) {
+      viewport.classList.add('is-portrait');
+      canvas.style.width = `${edge}px`;
+      canvas.style.height = `${edge}px`;
+      outlinePreview.style.width = `${edge}px`;
+      outlinePreview.style.height = `${edge}px`;
+      outlinePreview.style.left = `${(w - edge) / 2}px`;
+      outlinePreview.style.top = `${(h - edge) / 2}px`;
+      outlinePreview.style.right = 'auto';
+      outlinePreview.style.bottom = 'auto';
+    } else {
+      viewport.classList.remove('is-portrait');
+      canvas.style.width = '100%';
+      canvas.style.height = '100%';
+      outlinePreview.style.inset = '0';
+      outlinePreview.style.width = '100%';
+      outlinePreview.style.height = '100%';
+    }
     const dpr = renderer.getPixelRatio();
-    outlinePreview.width = Math.max(1, Math.floor(w * dpr));
-    outlinePreview.height = Math.max(1, Math.floor(h * dpr));
+    outlinePreview.width = Math.max(1, Math.floor(rw * dpr));
+    outlinePreview.height = Math.max(1, Math.floor(rh * dpr));
+    layoutPortraitFrame(w, h, edge);
   }
   resize();
   window.addEventListener('resize', resize);
@@ -623,7 +795,6 @@ async function main(): Promise<void> {
       ].join('\n'),
     );
     setStatus('Model missing — restore models/dorothy then refresh');
-    clothNote.textContent = 'No character loaded.';
     const tickEmpty = () => {
       controls.update();
       renderer.render(scene, camera);
@@ -634,15 +805,26 @@ async function main(): Promise<void> {
   const dorothy = gltf.scene;
   scene.add(dorothy);
   const skinned = findSkinnedMesh(dorothy);
-  if (!skinned) {
-    setHud(`No skinned mesh in ${character.label}`);
-    setStatus('No skinned mesh in character file');
-    const tickEmpty = () => {
-      controls.update();
-      renderer.render(scene, camera);
-    };
-    renderer.setAnimationLoop(tickEmpty);
-    return;
+  const meshOnly = !skinned;
+  if (skinned) {
+    // Skinned bounds can be wrong while bones settle — never frustum-cull away.
+    skinned.frustumCulled = false;
+    skinned.castShadow = false;
+    skinned.receiveShadow = false;
+  }
+
+  /** Off-scene skin whose bind matches Tripo clip bakes (Alt/Simple → Dorothy_new). */
+  let retargetSource: THREE.SkinnedMesh | null = null;
+  if (character.retargetFromUrl && skinned) {
+    try {
+      const srcGltf = await new GLTFLoader().loadAsync(character.retargetFromUrl);
+      retargetSource = findSkinnedMesh(srcGltf.scene);
+      if (!retargetSource) {
+        console.warn('[studio] retargetFromUrl has no skinned mesh', character.retargetFromUrl);
+      }
+    } catch (err) {
+      console.warn('[studio] failed to load retarget source', character.retargetFromUrl, err);
+    }
   }
 
   dorothy.traverse((obj) => {
@@ -658,9 +840,17 @@ async function main(): Promise<void> {
       mesh.visible = false;
       return;
     }
+    mesh.frustumCulled = false;
     const mats = Array.isArray(mesh.material) ? mesh.material : [mesh.material];
     for (const mat of mats) {
       if (mat && 'side' in mat) mat.side = THREE.FrontSide;
+      const std = mat as THREE.MeshStandardMaterial;
+      if (std?.isMeshStandardMaterial) {
+        // Avoid chrome-black Physical mats under ambient-only lighting.
+        if (std.metalness > 0.25) std.metalness = 0.05;
+        if (std.roughness < 0.35) std.roughness = 0.65;
+        std.needsUpdate = true;
+      }
     }
   });
   await applyCharacterAlbedo(dorothy, character.albedoUrl);
@@ -674,13 +864,30 @@ async function main(): Promise<void> {
     quaternion: dorothy.quaternion.clone(),
     scale: dorothy.scale.clone(),
   };
+  // Dorothy: default Facing E (game East = world −X).
+  // Monkey: same compass math, but default Facing N so rest faces world +Z North
+  // (Facing E would look West on screen — that's the Dorothy East label, not North).
+  const baseFacingYaw = dorothy.rotation.y;
+  let facingDirIndex = character.family === 'wingedmonkey' ? 6 : 0;
+  const applyFacing = (index: number) => {
+    setCharacterFacingYaw(dorothy, baseFacingYaw, index);
+  };
+  if (facingDirIndex !== 0) {
+    applyFacing(facingDirIndex);
+    const sceneYawEl = $('scene-yaw') as HTMLInputElement;
+    const sceneYawValEl = $('scene-yaw-val');
+    sceneYawEl.value = String(facingDirIndex);
+    sceneYawValEl.textContent = SCENE_YAW_DIRS[facingDirIndex]!;
+  }
 
   const restoreStudioRest = () => {
     stack.stopAll();
-    resetToRest(skinned, dorothy, boneRest, character.rig);
+    if (skinned) resetToRest(skinned, dorothy, boneRest, character.rig);
     dorothy.position.copy(rootRest.position);
     dorothy.quaternion.copy(rootRest.quaternion);
     dorothy.scale.copy(rootRest.scale);
+    // Re-apply compass facing (quaternion restore snaps back to East).
+    applyFacing(facingDirIndex);
     dorothy.updateMatrixWorld(true);
   };
   const camBounds = fitCamera(camera, controls, dorothy);
@@ -690,23 +897,15 @@ async function main(): Promise<void> {
   );
   setCameraCraneHeight(camera, controls, defaultLookY);
 
-  const cloth = hasClothBones(dorothy);
-  clothNote.textContent = cloth
-    ? 'Cloth/hair bones detected — cloth clips can target them.'
-    : `Rig: ${character.rig} · no separate cloth/hair bones (dress/hair ride body weights).`;
-
   const stack = new ClipStack(dorothy);
   let skeletonHelper: THREE.SkeletonHelper | null = null;
   let playing = false;
-  /** Wall-clock scrub of the export timeline (Speed slider). Mixer stays 1×. */
+  /** Wall-clock scrub of the export package (Speed slider). Mixer stays 1×. */
   let previewSpeed = 1;
-  /** Animation-seconds into the current export package (pads + loops × clip). */
+  /** Animation-seconds into the current export package (loops × clip). */
   let previewAnimTime = 0;
   /** Accumulator for discrete export-FPS frame steps. */
   let previewFrameAccum = 0;
-  /** Loop-extend pads (seconds) — shared by timeline UI, preview, and export. */
-  let padBeforeSec = 0;
-  let padAfterSec = 0;
   const smoothedPose = new Map<string, { pos: THREE.Vector3; quat: THREE.Quaternion }>();
   let smoothAmount = 0;
   let rootMotionMode: RootMotionMode = 'inplace';
@@ -717,6 +916,7 @@ async function main(): Promise<void> {
     character,
     dorothy,
     skinned,
+    meshOnly,
     stack,
     gltf,
     camera,
@@ -735,18 +935,6 @@ async function main(): Promise<void> {
   const exportPrefixEl = $('export-prefix') as HTMLInputElement;
   const exportLoopsEl = $('export-loops') as HTMLInputElement;
   const exportLoopsVal = $('export-loops-val');
-  const tlTrack = $('tl-track');
-  const tlPadBefore = $('tl-pad-before');
-  const tlCore = $('tl-core');
-  const tlPadAfter = $('tl-pad-after');
-  const tlPlayhead = $('tl-playhead');
-  const tlHandleL = $('tl-handle-l');
-  const tlHandleR = $('tl-handle-r');
-  const tlBeforeVal = $('tl-before-val');
-  const tlCoreVal = $('tl-core-val');
-  const tlAfterVal = $('tl-after-val');
-  const tlPadBeforeInput = $('tl-pad-before-input') as HTMLInputElement;
-  const tlPadAfterInput = $('tl-pad-after-input') as HTMLInputElement;
 
   /** Last auto-generated prefix; if the field still matches, keep syncing character_direction_animation. */
   let lastAutoExportPrefix = '';
@@ -768,11 +956,17 @@ async function main(): Promise<void> {
     lastAutoExportPrefix = next;
   };
 
-  const clampPad = (sec: number) =>
-    Math.max(0, Math.min(MAX_TIMELINE_PAD_SEC, Math.round(sec * 100) / 100));
+  const readLoops = () => {
+    const raw = Number(exportLoopsEl.value);
+    if (!Number.isFinite(raw)) return 1;
+    return Math.max(0.1, Math.min(MAX_LOOPS, Math.round(raw * 10) / 10));
+  };
 
-  const readLoops = () =>
-    Math.max(1, Math.min(20, Math.round(Number(exportLoopsEl.value) || 1)));
+  const syncLoopsLabel = () => {
+    const loops = readLoops();
+    exportLoopsEl.value = String(loops);
+    exportLoopsVal.textContent = `×${loops}`;
+  };
 
   const readExportPreviewUi = () => {
     const loops = readLoops();
@@ -786,8 +980,8 @@ async function main(): Promise<void> {
       loops,
       fps,
       prefix,
-      padBeforeSec,
-      padAfterSec,
+      padBeforeSec: 0,
+      padAfterSec: 0,
       outline: {
         enabled: ($('export-outline') as HTMLInputElement).checked,
         width: Math.max(
@@ -803,142 +997,69 @@ async function main(): Promise<void> {
     const loops = readLoops();
     const frameDt = 1 / Math.max(1, fps);
     const clipDur = Math.max(stack.duration(), frameDt);
-    const coreDur = clipDur * loops;
-    const totalDur = padBeforeSec + coreDur + padAfterSec;
+    const totalDur = clipDur * loops;
     const totalFrames = Math.max(1, Math.round(totalDur * fps));
-    return { loops, clipDur, coreDur, totalDur, totalFrames, frameDt };
+    return { loops, clipDur, totalDur, totalFrames, frameDt };
   };
 
-  const sampleTimeline = (timelineSec: number, clipDur: number, smoothDt: number) => {
-    const animT = timelineToAnimTime(timelineSec, padBeforeSec, clipDur);
-    stack.scrubTo(animT);
+  const layerLoopEnabled = () => stack.layers.some((l) => l.enabled && l.loop);
+
+  const sampleAtAnimTime = (animSec: number, smoothDt: number) => {
+    stack.scrubTo(animSec);
     applyPoseSmoothening(dorothy, smoothedPose, smoothAmount, smoothDt);
     dorothy.updateMatrixWorld(true);
   };
 
-  const paintTimeline = () => {
-    const ui = readExportPreviewUi();
-    const { loops, clipDur, coreDur, totalDur } = packageTiming(ui.fps);
-    const span = Math.max(totalDur, 1e-6);
-    const beforePct = (padBeforeSec / span) * 100;
-    const corePct = (coreDur / span) * 100;
-    const afterPct = (padAfterSec / span) * 100;
-
-    tlPadBefore.style.flexBasis = `${beforePct}%`;
-    tlCore.style.flexBasis = `${corePct}%`;
-    tlPadAfter.style.flexBasis = `${afterPct}%`;
-    tlCore.style.setProperty('--tl-loops', String(loops));
-
-    const leftHandlePct = beforePct;
-    const rightHandlePct = beforePct + corePct;
-    tlHandleL.style.left = `${leftHandlePct}%`;
-    tlHandleR.style.left = `${rightHandlePct}%`;
-
-    exportLoopsEl.value = String(loops);
-    exportLoopsVal.textContent = `×${loops}`;
-    tlBeforeVal.textContent = `−${padBeforeSec.toFixed(2)}s`;
-    tlCoreVal.textContent = `${coreDur.toFixed(2)}s · ${clipDur.toFixed(2)}s × ${loops}`;
-    tlAfterVal.textContent = `+${padAfterSec.toFixed(2)}s`;
-
-    if (document.activeElement !== tlPadBeforeInput) {
-      tlPadBeforeInput.value = String(padBeforeSec);
-    }
-    if (document.activeElement !== tlPadAfterInput) {
-      tlPadAfterInput.value = String(padAfterSec);
-    }
-
-    if (playing && totalDur > 0) {
-      tlPlayhead.hidden = false;
-      tlPlayhead.style.left = `${(previewAnimTime / span) * 100}%`;
+  /** Load clip onto the character at t=0 without starting playback. */
+  const holdClipAtStart = () => {
+    playing = false;
+    previewAnimTime = 0;
+    previewFrameAccum = 0;
+    stack.mixer.timeScale = 1;
+    stack.mixer.setTime(0);
+    if (stack.layers.length > 0) {
+      sampleAtAnimTime(0, 0);
     } else {
-      tlPlayhead.hidden = true;
+      restoreStudioRest();
     }
   };
 
-  const setPads = (before: number, after: number) => {
-    padBeforeSec = clampPad(before);
-    padAfterSec = clampPad(after);
-    paintTimeline();
-  };
-
-  const bindPadHandle = (handle: HTMLElement, side: 'before' | 'after') => {
-    handle.addEventListener('pointerdown', (ev) => {
-      ev.preventDefault();
-      handle.setPointerCapture(ev.pointerId);
-      const startX = ev.clientX;
-      const startBefore = padBeforeSec;
-      const startAfter = padAfterSec;
-      const trackW = Math.max(1, tlTrack.getBoundingClientRect().width);
-      const { totalDur } = packageTiming(readExportPreviewUi().fps);
-      const pxPerSec = trackW / Math.max(totalDur, 0.25);
-
-      const onMove = (e: PointerEvent) => {
-        const dx = e.clientX - startX;
-        if (side === 'before') {
-          // Drag left → more pad before; drag right → less.
-          setPads(startBefore - dx / pxPerSec, startAfter);
-        } else {
-          setPads(startBefore, startAfter + dx / pxPerSec);
-        }
-      };
-      const onUp = (e: PointerEvent) => {
-        handle.releasePointerCapture(e.pointerId);
-        handle.removeEventListener('pointermove', onMove);
-        handle.removeEventListener('pointerup', onUp);
-        handle.removeEventListener('pointercancel', onUp);
-      };
-      handle.addEventListener('pointermove', onMove);
-      handle.addEventListener('pointerup', onUp);
-      handle.addEventListener('pointercancel', onUp);
-    });
-  };
-  bindPadHandle(tlHandleL, 'before');
-  bindPadHandle(tlHandleR, 'after');
-
-  tlPadBeforeInput.addEventListener('change', () => {
-    setPads(Number(tlPadBeforeInput.value) || 0, padAfterSec);
-  });
-  tlPadAfterInput.addEventListener('change', () => {
-    setPads(padBeforeSec, Number(tlPadAfterInput.value) || 0);
-  });
-  exportLoopsEl.addEventListener('input', () => {
-    exportLoopsEl.value = String(readLoops());
-    paintTimeline();
-  });
-  exportLoopsEl.addEventListener('change', () => paintTimeline());
-  ($('export-fps') as HTMLSelectElement).addEventListener('change', () => paintTimeline());
-
-  const resetExportPreviewClock = () => {
+  const resetPreviewClock = () => {
     previewAnimTime = 0;
     previewFrameAccum = 0;
     stack.mixer.timeScale = 1;
     stack.mixer.setTime(0);
   };
 
-  const beginExportPreview = (note?: string) => {
+  const beginPreview = (note?: string) => {
     if (stack.layers.length === 0) return;
     smoothedPose.clear();
-    resetExportPreviewClock();
+    resetPreviewClock();
     stack.playAll();
-    // Scrub mode: actions stay paused; sampleTimeline drives pose.
+    // Scrub mode: actions stay paused; tick drives pose via sampleAtAnimTime.
     playing = true;
     const ui = readExportPreviewUi();
-    const { totalFrames, clipDur } = packageTiming(ui.fps);
-    sampleTimeline(0, clipDur, 0);
-    paintTimeline();
+    const { totalFrames, clipDur, loops } = packageTiming(ui.fps);
+    sampleAtAnimTime(0, 0);
+    const infinite = layerLoopEnabled();
     setStatus(
       note ??
-        `Preview · ${ui.prefix}_0000 · loop 1/${ui.loops} · ${totalFrames}f @ ${ui.fps}fps`,
+        (infinite
+          ? `Playing · ${ui.prefix} · Loop on · ${clipDur.toFixed(2)}s cycle @ ${ui.fps}fps`
+          : `Playing · ${ui.prefix} · ${loops}× · ${totalFrames}f @ ${ui.fps}fps`),
     );
   };
 
   const refreshStack = () => {
-    renderStack(stack, refreshStack, (label) => {
+    renderStack(stack, () => {
+      refreshStack();
+      if (playing) stack.playAll();
+    }, (label) => {
       const i = stackSources.findIndex((s) => s.label === label);
       if (i >= 0) stackSources.splice(i, 1);
     });
     syncExportPrefix();
-    paintTimeline();
+    syncLoopsLabel();
     // Removing the last clip must return to the captured upright rest — do not
     // re-run normalizeCharacterPose (that re-tips Mixamo bind into the floor).
     if (stack.layers.length === 0) {
@@ -966,7 +1087,7 @@ async function main(): Promise<void> {
     btnMirrorOn.setAttribute('aria-pressed', mirrorEnabled ? 'true' : 'false');
   };
 
-  const rebuildStackFromSources = (note?: string) => {
+  const rebuildStackFromSources = (note?: string, autoPlay = false) => {
     while (stack.layers.length > 0) {
       stack.remove(stack.layers[0]!.id);
     }
@@ -976,15 +1097,23 @@ async function main(): Promise<void> {
       getBone(dorothy, 'mixamorig:Hips');
     for (const src of stackSources) {
       const mirrored = mirrorEnabled ? mirrorAnimationClip(src.travelClip) : src.travelClip;
-      const clipped = applyRootMotionMode(mirrored, rootMotionMode, { hips });
+      const lockVertical = /jump/i.test(src.label) || /jump/i.test(mirrored.name);
+      const clipped = applyRootMotionMode(mirrored, rootMotionMode, { hips, lockVertical });
       stack.add(flattenCubicSplineClip(clipped), src.label);
     }
     refreshStack();
-    if (stack.layers.length > 0) {
-      const motion = rootMotionMode === 'inplace' ? 'in place' : 'travel';
-      const mirror = mirrorEnabled ? ' · mirrored' : '';
-      beginExportPreview(
-        note ?? `Preview · ${motion}${mirror} · ${stack.layers.map((l) => l.label).join(', ')}`,
+    if (stack.layers.length === 0) return;
+    const motion = rootMotionMode === 'inplace' ? 'in place' : 'travel';
+    const mirror = mirrorEnabled ? ' · mirrored' : '';
+    if (autoPlay) {
+      beginPreview(
+        note ?? `Playing · ${motion}${mirror} · ${stack.layers.map((l) => l.label).join(', ')}`,
+      );
+    } else {
+      holdClipAtStart();
+      setStatus(
+        note ??
+          `Loaded · ${stack.layers.map((l) => l.label).join(', ')} · ${motion}${mirror} · press Play`,
       );
     }
   };
@@ -993,14 +1122,14 @@ async function main(): Promise<void> {
     if (mode === rootMotionMode) return;
     rootMotionMode = mode;
     syncRootMotionButtons();
-    if (stackSources.length > 0) rebuildStackFromSources();
+    if (stackSources.length > 0) rebuildStackFromSources(undefined, playing);
     else setStatus(mode === 'inplace' ? 'Root motion: in place' : 'Root motion: travel');
   };
   const setMirrorEnabled = (on: boolean) => {
     if (on === mirrorEnabled) return;
     mirrorEnabled = on;
     syncMirrorButtons();
-    if (stackSources.length > 0) rebuildStackFromSources();
+    if (stackSources.length > 0) rebuildStackFromSources(undefined, playing);
     else setStatus(on ? 'Mirror: on' : 'Mirror: off');
   };
   btnInPlace.addEventListener('click', () => setRootMotionMode('inplace'));
@@ -1010,17 +1139,31 @@ async function main(): Promise<void> {
   syncRootMotionButtons();
   syncMirrorButtons();
 
-  const addAndPlay = (clip: THREE.AnimationClip, label: string, note: string) => {
+  const loadClip = (clip: THREE.AnimationClip, label: string, note?: string) => {
     // Library picks replace the stack so clips don't blend into a walk mush.
     while (stack.layers.length > 0) {
       stack.remove(stack.layers[0]!.id);
     }
     stackSources.length = 0;
     stackSources.push({ label, travelClip: clip.clone() });
-    rebuildStackFromSources(note);
+    rebuildStackFromSources(note, false);
   };
 
+  exportLoopsEl.addEventListener('input', () => syncLoopsLabel());
+  exportLoopsEl.addEventListener('change', () => syncLoopsLabel());
+  syncLoopsLabel();
+
   const onPickClip = async (cat: CatalogClip) => {
+    if (cat.family !== character.family) {
+      setStatus(
+        `Skipped “${cat.label}” — that clip belongs to ${cat.family}, not ${character.family}.`,
+      );
+      return;
+    }
+    if (!skinned) {
+      setStatus('This character is mesh-only — load a skinned rig to play clips.');
+      return;
+    }
     setStatus(`Loading ${cat.label}…`);
     try {
       // Same-bake characters (walking/running GLBs) may embed one clip — only
@@ -1038,48 +1181,76 @@ async function main(): Promise<void> {
           name: cat.label,
           targetSkinned: skinned,
           kind: detectRigKind(skinned),
+          skipFacingAlign: character.rig === 'mixamo_char',
+          ...(retargetSource ? { retargetSource } : {}),
         });
-        addAndPlay(
+        loadClip(
           clip,
           cat.label,
-          `Playing ${cat.label} from character GLB (${clip.tracks.length} tracks)`,
+          `Loaded ${cat.label} from character GLB (${clip.tracks.length} tracks)`,
         );
         return;
       }
-      const clip = await loadClipFromUrl(cat.url, cat.kind, cat.label, skinned);
-      addAndPlay(
+      const clip = await loadClipFromUrl(
+        cat.url,
+        cat.kind,
+        cat.label,
+        skinned,
+        retargetSource,
+        character.rig,
+      );
+      loadClip(
         clip,
         cat.label,
-        `Playing ${cat.label} (${clip.tracks.length} tracks, ${clip.duration.toFixed(2)}s)`,
+        `Loaded ${cat.label} (${clip.tracks.length} tracks, ${clip.duration.toFixed(2)}s)`,
       );
     } catch (err) {
       setStatus(`Failed: ${err instanceof Error ? err.message : String(err)}`);
     }
   };
 
-  renderClipLibrary(character.id, onPickClip);
+  const clipHeading = $('clip-library-heading');
+  const clipHint = $('clip-library-hint');
+  if (character.family === 'wingedmonkey') {
+    clipHeading.textContent = 'Clip library — Gargoyle';
+    clipHint.textContent =
+      character.clipSet === 'none'
+        ? 'No clips for this mesh-only / Tripo preview.'
+        : 'Gargoyle Take clips (rotation bake) on the fitted Gargoyle armature.';
+  } else {
+    clipHeading.textContent = 'Clip library — Dorothy';
+    clipHint.textContent = 'Dorothy Mixamo / Tripo clips only.';
+  }
+
+  renderClipLibrary(character.id, character.label, onPickClip);
+  setStatus(
+    meshOnly
+      ? `${character.label} loaded (mesh-only — clips disabled until skinned)`
+      : `${character.label} ready`,
+  );
 
   $('btn-play').addEventListener('click', () => {
     if (stack.layers.length === 0) {
       setStatus('Add a clip from the library first');
       return;
     }
-    beginExportPreview();
+    beginPreview();
   });
   $('btn-stop').addEventListener('click', () => {
-    playing = false;
-    resetExportPreviewClock();
-    smoothedPose.clear();
-    stackSources.length = 0;
-    while (stack.layers.length > 0) {
-      stack.remove(stack.layers[0]!.id);
+    if (stack.layers.length === 0) {
+      playing = false;
+      restoreStudioRest();
+      setStatus('Stopped');
+      return;
     }
-    refreshStack();
-    restoreStudioRest();
-    paintTimeline();
-    setStatus('Stopped');
+    holdClipAtStart();
+    setStatus('Stopped · press Play to resume');
   });
   $('btn-skeleton').addEventListener('click', () => {
+    if (meshOnly) {
+      setStatus('No skeleton in this mesh-only character');
+      return;
+    }
     if (!skeletonHelper) {
       skeletonHelper = new THREE.SkeletonHelper(dorothy);
       scene.add(skeletonHelper);
@@ -1148,40 +1319,92 @@ async function main(): Promise<void> {
     const y = controls.target.y;
     const yawLabel = SCENE_YAW_DIRS[Number(sceneYaw.value) % 8] ?? '—';
     camHeightVal.textContent = `${y.toFixed(2)}m`;
+    const frame = cameraMode === 'portrait' ? 'Portrait (square-on)' : 'Sprite (three-quarter)';
     setHud(
       [
         'Dorothy 3D Studio',
         `${character.label} · scale×${scale.toFixed(3)} · look ${y.toFixed(2)}m · ${yawLabel}`,
-        '8-way direction · yaw orbit · pan · zoom · cam height · skeleton',
+        `${frame} · 8-way facing · pan · zoom · cam height`,
       ].join('\n'),
     );
   };
 
+  const captureTheta = () =>
+    cameraMode === 'portrait'
+      ? portraitAzimuth(baseFacingYaw, facingDirIndex)
+      : CAPTURE_CAMERA_THETA;
+
+  const snapCapture = () => {
+    setCaptureCameraAzimuth(camera, controls, captureTheta());
+  };
+
+  const portraitCropLabel = (v: number): string => {
+    if (v < 20) return 'Full';
+    if (v < 70) return '3/4';
+    return 'Bust';
+  };
+
+  const applyStudioCamera = () => {
+    const cropField = $('portrait-crop-field');
+    const frame = $('portrait-frame');
+    const btnSprite = $('btn-cam-sprite');
+    const btnPortrait = $('btn-cam-portrait');
+    btnSprite.classList.toggle('active', cameraMode === 'sprite');
+    btnPortrait.classList.toggle('active', cameraMode === 'portrait');
+    btnSprite.setAttribute('aria-pressed', cameraMode === 'sprite' ? 'true' : 'false');
+    btnPortrait.setAttribute('aria-pressed', cameraMode === 'portrait' ? 'true' : 'false');
+    if (cameraMode === 'portrait') {
+      cropField.hidden = false;
+      frame.hidden = false;
+      camera.fov = PORTRAIT_FOV;
+      const crop01 = Number(($('portrait-crop') as HTMLInputElement).value) / 100;
+      fitPortraitCamera(camera, controls, dorothy, crop01, captureTheta());
+    } else {
+      cropField.hidden = true;
+      frame.hidden = true;
+      camera.fov = SPRITE_FOV;
+      const polar = Math.PI / 2 - THREE.MathUtils.degToRad(CAMERA_DOWN_DEG);
+      controls.minPolarAngle = polar;
+      controls.maxPolarAngle = polar;
+      fitCamera(camera, controls, dorothy);
+      setCameraCraneHeight(camera, controls, lookYFromSlider(Number(camHeight.value)));
+      setCaptureCameraAzimuth(camera, controls, CAPTURE_CAMERA_THETA);
+    }
+    camera.updateProjectionMatrix();
+    resize();
+    updateHudCam();
+  };
+
+  const setCameraMode = (mode: CameraMode) => {
+    cameraMode = mode;
+    applyStudioCamera();
+  };
+
   const syncSceneYawUi = (index: number) => {
     const i = ((Math.round(index) % 8) + 8) % 8;
+    facingDirIndex = i;
     sceneYaw.value = String(i);
     sceneYawVal.textContent = SCENE_YAW_DIRS[i]!;
   };
-  const applySceneYawFromSlider = () => {
+  const applyFacingFromSlider = () => {
     const i = Number(sceneYaw.value);
-    setSceneYawNotch(camera, controls, i);
+    applyFacing(i);
     syncSceneYawUi(i);
+    snapCapture();
     syncExportPrefix();
     updateHudCam();
   };
   {
-    const start = sceneYawIndexFromAzimuth(controls.getAzimuthalAngle());
-    setSceneYawNotch(camera, controls, start);
-    syncSceneYawUi(start);
+    snapCapture();
+    applyFacing(facingDirIndex);
+    syncSceneYawUi(facingDirIndex);
     syncExportPrefix(true);
   }
-  sceneYaw.addEventListener('input', applySceneYawFromSlider);
-  // Free orbit → snap to nearest of 8 directions when interaction ends.
+  sceneYaw.addEventListener('input', applyFacingFromSlider);
+  // Free orbit is fine for inspection; snap camera back to capture angle when done.
+  // Facing stays on the slider — do not re-derive direction from camera azimuth.
   controls.addEventListener('end', () => {
-    const snapped = sceneYawIndexFromAzimuth(controls.getAzimuthalAngle());
-    setSceneYawNotch(camera, controls, snapped);
-    syncSceneYawUi(snapped);
-    syncExportPrefix();
+    snapCapture();
     updateHudCam();
   });
 
@@ -1189,6 +1412,19 @@ async function main(): Promise<void> {
     setCameraCraneHeight(camera, controls, lookYFromSlider(Number(camHeight.value)));
     updateHudCam();
   });
+
+  const portraitCrop = $('portrait-crop') as HTMLInputElement;
+  const portraitCropVal = $('portrait-crop-val');
+  const syncPortraitCropLabel = () => {
+    portraitCropVal.textContent = portraitCropLabel(Number(portraitCrop.value));
+  };
+  portraitCrop.addEventListener('input', () => {
+    syncPortraitCropLabel();
+    if (cameraMode === 'portrait') applyStudioCamera();
+  });
+  syncPortraitCropLabel();
+  $('btn-cam-sprite').addEventListener('click', () => setCameraMode('sprite'));
+  $('btn-cam-portrait').addEventListener('click', () => setCameraMode('portrait'));
   updateHudCam();
 
   const drop = $('dropzone');
@@ -1197,10 +1433,15 @@ async function main(): Promise<void> {
   fileInput.addEventListener('change', async () => {
     const file = fileInput.files?.[0];
     if (!file) return;
+    if (!skinned) {
+      setStatus('This character is mesh-only — load a skinned rig to play clips.');
+      fileInput.value = '';
+      return;
+    }
     setStatus(`Loading ${file.name}…`);
     try {
-      const clip = await loadClipFromFile(file, skinned);
-      addAndPlay(clip, file.name.replace(/\.[^.]+$/, ''), `Playing ${file.name}`);
+      const clip = await loadClipFromFile(file, skinned, retargetSource, character.rig);
+      loadClip(clip, file.name.replace(/\.[^.]+$/, ''), `Loaded ${file.name}`);
     } catch (err) {
       setStatus(`Failed: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -1221,10 +1462,14 @@ async function main(): Promise<void> {
   drop.addEventListener('drop', async (e) => {
     const file = e.dataTransfer?.files?.[0];
     if (!file) return;
+    if (!skinned) {
+      setStatus('This character is mesh-only — load a skinned rig to play clips.');
+      return;
+    }
     setStatus(`Loading ${file.name}…`);
     try {
-      const clip = await loadClipFromFile(file, skinned);
-      addAndPlay(clip, file.name.replace(/\.[^.]+$/, ''), `Playing ${file.name}`);
+      const clip = await loadClipFromFile(file, skinned, retargetSource, character.rig);
+      loadClip(clip, file.name.replace(/\.[^.]+$/, ''), `Loaded ${file.name}`);
     } catch (err) {
       setStatus(`Failed: ${err instanceof Error ? err.message : String(err)}`);
     }
@@ -1237,13 +1482,13 @@ async function main(): Promise<void> {
     }
     const ui = readExportPreviewUi();
     const size = Number(($('export-size') as HTMLSelectElement).value) || 512;
-    // Export runs the configured package exactly once (loops × clip + pads) — never
+    // Export runs the configured package exactly once (loops × clip) — never
     // resumes infinite preview playback afterward.
-    const loops = Math.max(1, ui.loops);
-    const { clipDur, totalFrames, totalDur } = packageTiming(ui.fps);
-    setStatus(`Exporting · ${loops} loop${loops === 1 ? '' : 's'} · ${totalFrames}f…`);
+    const loops = ui.loops;
+    const { totalFrames, totalDur } = packageTiming(ui.fps);
+    setStatus(`Exporting · ${loops}× · ${totalFrames}f…`);
     smoothedPose.clear();
-    resetExportPreviewClock();
+    resetPreviewClock();
     playing = false;
     // Pause the live viewport loop so it can't re-draw helpers between export frames.
     renderer.setAnimationLoop(null);
@@ -1260,8 +1505,8 @@ async function main(): Promise<void> {
           fps: ui.fps,
           size,
           filePrefix: ui.prefix,
-          padBeforeSec: ui.padBeforeSec,
-          padAfterSec: ui.padAfterSec,
+          padBeforeSec: 0,
+          padAfterSec: 0,
           outline: {
             enabled: ui.outline.enabled,
             width: ui.outline.width,
@@ -1270,25 +1515,23 @@ async function main(): Promise<void> {
         },
         hideDuringExport,
         sampleAt: (t) => {
-          sampleTimeline(t, clipDur, 1 / ui.fps);
+          sampleAtAnimTime(t, 1 / ui.fps);
         },
         onProgress: (frac, label) =>
-          setStatus(
-            `Export ${Math.round(frac * 100)}% · ${loops} loop${loops === 1 ? '' : 's'} · ${label}`,
-          ),
+          setStatus(`Export ${Math.round(frac * 100)}% · ${loops}× · ${label}`),
       });
       // Hold the last exported frame; do not restart looping preview.
       playing = false;
       previewAnimTime = Math.max(0, totalDur - 1 / ui.fps);
-      sampleTimeline(previewAnimTime, clipDur, 0);
-      paintTimeline();
+      sampleAtAnimTime(previewAnimTime, 0);
       setStatus(
-        `Export complete · ${totalFrames} frames · ${loops} loop${loops === 1 ? '' : 's'} @ ${ui.fps}fps (preview stopped)`,
+        `Export complete · ${totalFrames} frames · ${loops}× @ ${ui.fps}fps (preview stopped)`,
       );
     } catch (err) {
       playing = false;
       setStatus(`Export failed: ${err instanceof Error ? err.message : String(err)}`);
     } finally {
+      resize();
       renderer.setAnimationLoop(tick);
     }
   });
@@ -1365,56 +1608,63 @@ async function main(): Promise<void> {
     const dt = Math.min(clock.getDelta(), 0.05);
     if (playing && stack.layers.length > 0) {
       const ui = readExportPreviewUi();
-      const { loops, clipDur, coreDur, totalDur, totalFrames, frameDt } = packageTiming(ui.fps);
+      const { loops, clipDur, totalDur, totalFrames, frameDt } = packageTiming(ui.fps);
+      const infinite = layerLoopEnabled();
+      const packageDur = infinite ? clipDur : totalDur;
 
-      // Same discrete timeline steps as export; Speed only scrubs wall-clock through that package.
+      // Same discrete steps as export; Speed only scrubs wall-clock through the package.
       previewFrameAccum += dt * previewSpeed;
       let stepped = false;
+      let ended = false;
       while (previewFrameAccum >= frameDt) {
         previewFrameAccum -= frameDt;
         previewAnimTime += frameDt;
         stepped = true;
 
-        if (previewAnimTime >= totalDur - 1e-9) {
-          previewAnimTime = 0;
-          previewFrameAccum = 0;
-          smoothedPose.clear();
-          break;
+        if (previewAnimTime >= packageDur - 1e-9) {
+          if (infinite) {
+            previewAnimTime = 0;
+            previewFrameAccum = 0;
+            smoothedPose.clear();
+          } else {
+            previewAnimTime = Math.max(0, packageDur - frameDt);
+            previewFrameAccum = 0;
+            ended = true;
+            break;
+          }
         }
       }
       if (stepped) {
-        sampleTimeline(previewAnimTime, clipDur, frameDt);
-        paintTimeline();
+        sampleAtAnimTime(previewAnimTime, frameDt);
       }
-
-      statusAcc += dt;
-      if (statusAcc >= 0.1) {
-        statusAcc = 0;
-        const frameIdx = Math.min(
-          totalFrames - 1,
-          Math.max(0, Math.floor(previewAnimTime * ui.fps + 1e-9)),
-        );
-        const coreT = previewAnimTime - padBeforeSec;
-        const loopIdx =
-          coreT < 0 ? 0 : Math.min(loops, Math.floor(coreT / clipDur) + 1);
-        const head = stack.playhead();
-        const clipNote = head ? ` · ${head.label}` : '';
-        const smoothNote = smoothAmount > 0 ? ` · smooth ${Math.round(smoothAmount * 100)}%` : '';
-        const speedNote = Math.abs(previewSpeed - 1) > 0.01 ? ` · ${previewSpeed.toFixed(2)}×` : '';
-        const outlineNote = ui.outline.enabled ? ` · outline ${ui.outline.width}px` : '';
-        const padNote =
-          padBeforeSec > 0 || padAfterSec > 0
-            ? ` · pad −${padBeforeSec.toFixed(2)}/+${padAfterSec.toFixed(2)}s`
-            : '';
-        const loopNote =
-          coreT < 0
-            ? ' · pre-roll'
-            : coreT >= coreDur
-              ? ' · post-roll'
-              : ` · loop ${loopIdx}/${loops}`;
+      if (ended) {
+        playing = false;
         setStatus(
-          `Preview · ${ui.prefix}_${String(frameIdx).padStart(4, '0')}${clipNote}${loopNote} · ${frameIdx + 1}/${totalFrames}f @ ${ui.fps}fps${padNote}${speedNote}${outlineNote}${smoothNote}`,
+          `Finished · ${ui.prefix} · ${loops}× · ${totalFrames}f @ ${ui.fps}fps · press Play`,
         );
+      } else {
+        statusAcc += dt;
+        if (statusAcc >= 0.1) {
+          statusAcc = 0;
+          const frameIdx = Math.min(
+            totalFrames - 1,
+            Math.max(0, Math.floor(previewAnimTime * ui.fps + 1e-9)),
+          );
+          const loopIdx = Math.min(loops, Math.floor(previewAnimTime / clipDur) + 1);
+          const head = stack.playhead();
+          const clipNote = head ? ` · ${head.label}` : '';
+          const smoothNote =
+            smoothAmount > 0 ? ` · smooth ${Math.round(smoothAmount * 100)}%` : '';
+          const speedNote =
+            Math.abs(previewSpeed - 1) > 0.01 ? ` · ${previewSpeed.toFixed(2)}×` : '';
+          const outlineNote = ui.outline.enabled ? ` · outline ${ui.outline.width}px` : '';
+          const loopNote = infinite
+            ? ' · Loop on'
+            : ` · loop ${loopIdx}/${loops}`;
+          setStatus(
+            `Playing · ${ui.prefix}_${String(frameIdx).padStart(4, '0')}${clipNote}${loopNote} · ${frameIdx + 1}/${totalFrames}f @ ${ui.fps}fps${speedNote}${outlineNote}${smoothNote}`,
+          );
+        }
       }
     }
     controls.update();

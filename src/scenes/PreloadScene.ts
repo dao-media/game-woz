@@ -3,6 +3,10 @@ import {
   ensureDorothyAnims,
   preloadDorothySprites,
 } from '../entities/dorothySprites';
+import { preloadPropSprites } from '../entities/propSprites';
+import { preloadFenceTiles } from '../entities/Fence';
+import { preloadPlants } from '../entities/PlantField';
+import { preloadYbr } from '../entities/YellowBrickRoad';
 
 export class PreloadScene extends Phaser.Scene {
   constructor() {
@@ -34,6 +38,10 @@ export class PreloadScene extends Phaser.Scene {
     });
 
     preloadDorothySprites(this);
+    preloadPropSprites(this);
+    preloadFenceTiles(this);
+    preloadPlants(this);
+    preloadYbr(this);
   }
 
   create(): void {

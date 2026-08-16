@@ -1,0 +1,5 @@
+Dorothy bind (from Dorothy.blend sync):
+mesh character forward ≈ (0.760, -0.650, 0.000)
+Hip/Pelvis local +Z ≈ [0.05, -0.996, 0.075] — do NOT use as facing unless it matches mesh forward.
+Armature bones: 26 — hierarchy uses Hip (no Pelvis/Waist).
+Mesh: Dorothy (297084 verts)

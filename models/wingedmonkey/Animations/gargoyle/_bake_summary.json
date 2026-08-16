@@ -1,0 +1,47 @@
+{
+  "method": "fresh_fbx_rest_relative_world_retarget_mvp_patch_root_pelvis",
+  "bind_bones": 21,
+  "clips": [
+    {
+      "name": "Tpose",
+      "frames": [
+        0,
+        5
+      ],
+      "bytes": 23388
+    },
+    {
+      "name": "Idle",
+      "frames": [
+        80,
+        190
+      ],
+      "bytes": 113248
+    },
+    {
+      "name": "Walk",
+      "frames": [
+        360,
+        390
+      ],
+      "bytes": 45564
+    },
+    {
+      "name": "GroundToFly",
+      "frames": [
+        1140,
+        1179
+      ],
+      "bytes": 53168
+    },
+    {
+      "name": "FlyIdleLoop",
+      "frames": [
+        1305,
+        1335
+      ],
+      "bytes": 45564
+    }
+  ],
+  "quick": true
+}

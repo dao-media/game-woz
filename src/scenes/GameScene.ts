@@ -14,6 +14,10 @@ import { createPlayer } from '../entities/createPlayer';
 import { Player } from '../entities/Player';
 import { Enemy } from '../entities/Enemy';
 import { StageProp } from '../entities/StageProp';
+import { Fence } from '../entities/Fence';
+import { PlantField } from '../entities/PlantField';
+import { YellowBrickRoad } from '../entities/YellowBrickRoad';
+import { ybrRoadLength } from '../data/ybr';
 import { createStageLayers, redrawStage, type StageLayers } from '../render/StageView';
 import { DebugOverlay } from '../ui/DebugOverlay';
 import { CombatHUD } from '../ui/CombatHUD';
@@ -24,6 +28,9 @@ export class GameScene extends Phaser.Scene {
   private player!: Player;
   private enemies: Enemy[] = [];
   private props: StageProp[] = [];
+  private fence!: Fence;
+  private plants!: PlantField;
+  private ybr!: YellowBrickRoad;
   private tracks: readonly DepthTrack[] = [];
   private stage!: StageLayers;
   private debug!: DebugOverlay;
@@ -31,7 +38,7 @@ export class GameScene extends Phaser.Scene {
   private encounters!: EncounterManager;
   private finished = false;
   private defeated = false;
-  private readonly worldWidth = tuning.continuationRoadLength;
+  private readonly worldWidth = ybrRoadLength(tuning.continuationYbrSegments);
   private spawnToggle = 0;
 
   constructor() {
@@ -64,6 +71,9 @@ export class GameScene extends Phaser.Scene {
       const track = getTrack(this.tracks, def.track as DepthTrackId);
       return new StageProp(this, def, track);
     });
+    this.ybr = new YellowBrickRoad(this, tuning.continuationYbrSegments);
+    this.plants = new PlantField(this, this.worldWidth);
+    this.fence = new Fence(this, this.worldWidth);
 
     const spawnY = (path.floorYMin + path.floorYMax) / 2;
     this.player = createPlayer(
@@ -131,9 +141,21 @@ export class GameScene extends Phaser.Scene {
 
     const path = getSelectedPath(this);
     this.debug.update(this.player, path, runState.selectedCharacter, {
-      difficulty: runState.difficulty,
-      enemies: this.enemies.filter((e) => e.alive),
-      encounter: this.encounters,
+      combat: {
+        difficulty: runState.difficulty,
+        enemies: this.enemies.filter((e) => e.alive),
+        encounter: this.encounters,
+      },
+      fence: {
+        tileCount: this.fence.tileCount,
+        nearFloorY: tuning.fenceNearFloorY,
+        farFloorY: tuning.fenceFarFloorY,
+      },
+      ybr: {
+        segments: this.ybr.segments,
+        tileCount: this.ybr.tileCount,
+        roadLength: this.ybr.roadLength,
+      },
     });
 
     if (this.player.health.isDead) {
@@ -169,6 +191,9 @@ export class GameScene extends Phaser.Scene {
     );
 
     this.props.forEach((p) => p.syncVisual());
+    this.ybr.syncVisual();
+    this.plants.syncVisual();
+    this.fence.syncVisual();
     this.player.syncVisual();
     this.enemies.forEach((e) => e.syncVisual());
   }

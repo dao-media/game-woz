@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
+    "env-studio": "vite --open /env-studio.html",
+    "bake:dorothy-wave": "blender --background --python scripts/bake_mixamo_fbx_to_dorothy.py",
     "bake:dorothy-mixamo": "blender --background --python scripts/bake_dorothy_mixamo_character.py"
   },
   "devDependencies": {

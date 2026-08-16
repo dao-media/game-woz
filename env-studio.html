@@ -1,0 +1,405 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Environment Studio</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg: #0c0d10;
+        --panel: #14161c;
+        --panel-2: #1a1d26;
+        --border: #2a2e3a;
+        --text: #e8eaef;
+        --muted: #8b93a7;
+        --accent: #8fba6a;
+        --accent-dim: #4a6a3a;
+        --radius: 8px;
+        --font: 'IBM Plex Sans', system-ui, sans-serif;
+        --mono: 'IBM Plex Mono', ui-monospace, monospace;
+      }
+      * { box-sizing: border-box; }
+      html, body {
+        margin: 0;
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font: 13px/1.45 var(--font);
+      }
+      body {
+        display: grid;
+        grid-template-columns: 300px 1fr 300px;
+        grid-template-rows: 48px 1fr 28px;
+        grid-template-areas:
+          'top top top'
+          'left stage right'
+          'status status status';
+      }
+      header {
+        grid-area: top;
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        padding: 0 16px;
+        border-bottom: 1px solid var(--border);
+        background: linear-gradient(180deg, #12141a, #0e1015);
+      }
+      header h1 {
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+      header .sub { color: var(--muted); font-size: 12px; }
+      header .history {
+        margin-left: auto;
+        display: flex;
+        gap: 6px;
+      }
+      header .links { display: flex; gap: 10px; }
+      header a { color: var(--muted); text-decoration: none; font-size: 12px; }
+      header a:hover { color: var(--accent); }
+      button.btn:disabled {
+        opacity: 0.4;
+        cursor: default;
+        color: var(--muted);
+        border-color: var(--border);
+      }
+      .panel { background: var(--panel); overflow: auto; padding: 12px; }
+      .panel.left { grid-area: left; border-right: 1px solid var(--border); }
+      .panel.right { grid-area: right; border-left: 1px solid var(--border); }
+      #viewport {
+        grid-area: stage;
+        position: relative;
+        min-width: 0;
+        min-height: 0;
+        background: var(--bg);
+      }
+      #viewport canvas { display: block; }
+      #hud {
+        position: absolute;
+        top: 12px;
+        left: 12px;
+        z-index: 2;
+        max-width: 340px;
+        padding: 8px 10px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background: rgba(12, 13, 16, 0.82);
+        font-family: var(--mono);
+        font-size: 11px;
+        white-space: pre-wrap;
+        pointer-events: none;
+        color: var(--muted);
+      }
+      #status {
+        grid-area: status;
+        display: flex;
+        align-items: center;
+        padding: 0 12px;
+        border-top: 1px solid var(--border);
+        background: #0e1015;
+        color: var(--muted);
+        font-family: var(--mono);
+        font-size: 11px;
+      }
+      h2 {
+        margin: 0 0 8px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--muted);
+      }
+      .section { margin-bottom: 18px; }
+      .toolbar { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 10px; }
+      button.btn, .file-btn {
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--panel-2);
+        color: var(--text);
+        padding: 6px 10px;
+        font: 500 12px var(--font);
+        cursor: pointer;
+      }
+      button.btn:hover, .file-btn:hover { border-color: var(--accent-dim); color: var(--accent); }
+      button.btn.primary {
+        background: #1a2a16;
+        border-color: var(--accent-dim);
+        color: #d8f0c4;
+      }
+      button.btn.active {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .muted { color: var(--muted); font-size: 12px; margin: 0 0 10px; }
+      .field {
+        display: grid;
+        grid-template-columns: 72px 1fr;
+        gap: 6px;
+        align-items: center;
+        margin: 0 0 8px;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .field.triple { grid-template-columns: 72px 1fr 1fr; }
+      input, select, textarea {
+        background: #0e1015;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        color: var(--text);
+        padding: 6px 8px;
+        font: 12px var(--mono);
+        width: 100%;
+      }
+      textarea { min-height: 72px; resize: vertical; }
+      #compose-wrap {
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        background:
+          repeating-conic-gradient(#1a1d26 0% 25%, #0e1015 0% 50%)
+          50% / 12px 12px;
+        overflow: auto;
+        max-height: 220px;
+        margin-bottom: 8px;
+      }
+      #compose-view {
+        display: block;
+        image-rendering: pixelated;
+        cursor: crosshair;
+      }
+      #palette {
+        display: grid;
+        grid-template-columns: repeat(8, 1fr);
+        gap: 3px;
+      }
+      #palette button {
+        width: 100%;
+        aspect-ratio: 1;
+        border: 1px solid var(--border);
+        border-radius: 3px;
+        padding: 0;
+        cursor: pointer;
+      }
+      #palette button:hover { outline: 1px solid var(--accent); }
+      #prim-list { display: flex; flex-direction: column; gap: 4px; }
+      .prim-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        padding: 6px 8px;
+        border: 1px solid var(--border);
+        border-radius: 6px;
+        background: var(--panel-2);
+        color: var(--text);
+        font: 12px var(--mono);
+        cursor: pointer;
+        text-align: left;
+        width: 100%;
+      }
+      .prim-row.selected { border-color: var(--accent); color: var(--accent); }
+      .swatch {
+        width: 12px;
+        height: 12px;
+        border-radius: 2px;
+        border: 1px solid #000;
+        flex: none;
+      }
+      #snippet {
+        font: 11px/1.5 var(--mono);
+        min-height: 88px;
+      }
+      .hint { margin: 0 0 8px; color: var(--muted); font-size: 11px; line-height: 1.35; }
+      @media (max-width: 960px) {
+        body {
+          grid-template-columns: 1fr;
+          grid-template-rows: 48px auto 1fr auto 28px;
+          grid-template-areas: 'top' 'left' 'stage' 'right' 'status';
+        }
+        .panel.left, .panel.right {
+          border: none;
+          border-bottom: 1px solid var(--border);
+          max-height: 280px;
+        }
+        #viewport { min-height: 360px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Environment Studio</h1>
+      <span class="sub">Palette · alpha outline · Projection preview · Phase A</span>
+      <div class="history">
+        <button class="btn" id="btn-undo" type="button" title="Undo (Ctrl/⌘Z)" disabled>Undo</button>
+        <button class="btn" id="btn-redo" type="button" title="Redo (Ctrl/⌘⇧Z)" disabled>Redo</button>
+      </div>
+      <div class="links">
+        <a href="./3d-studio.html">3D Studio</a>
+        <a href="./particle-studio.html">Particle Studio</a>
+        <a href="./">Game</a>
+      </div>
+    </header>
+
+    <aside class="panel left">
+      <div class="section">
+        <h2>Element</h2>
+        <label class="field">
+          Type
+          <select id="type-select"></select>
+        </label>
+        <label class="field">
+          Id
+          <input id="field-id" type="text" spellcheck="false" />
+        </label>
+        <div class="field triple">
+          Size
+          <input id="field-w" type="number" min="4" max="256" />
+          <input id="field-h" type="number" min="4" max="256" />
+        </div>
+        <div class="toolbar">
+          <button class="btn" id="btn-new" type="button">New from type</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Compose (1:1)</h2>
+        <div id="compose-wrap">
+          <canvas id="compose-view" width="14" height="64"></canvas>
+        </div>
+        <label class="field">
+          Zoom
+          <input id="compose-zoom" type="range" min="4" max="16" value="8" />
+        </label>
+        <div class="toolbar">
+          <button class="btn" data-kind="rect" type="button">Rect</button>
+          <button class="btn" data-kind="ellipse" type="button">Ellipse</button>
+          <button class="btn" data-kind="polygon" type="button">Polygon</button>
+          <button class="btn" data-kind="blob" type="button">Blob</button>
+        </div>
+        <div id="prim-list"></div>
+      </div>
+
+      <div class="section">
+        <h2>Palette (tuning.colors)</h2>
+        <p class="hint">Fills snap to the game palette. Outline is the shared 1px alpha-edge pass, last.</p>
+        <div id="palette"></div>
+      </div>
+
+      <div class="section">
+        <h2>Base PNG</h2>
+        <div class="toolbar">
+          <label class="file-btn">
+            Import PNG
+            <input id="import-png" type="file" accept="image/png" hidden />
+          </label>
+          <button class="btn" id="btn-clear-png" type="button">Clear PNG</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>Spec JSON</h2>
+        <div class="toolbar">
+          <button class="btn" id="btn-save-json" type="button">Save JSON</button>
+          <label class="file-btn">
+            Load JSON
+            <input id="load-json" type="file" accept="application/json,.json" hidden />
+          </label>
+        </div>
+      </div>
+    </aside>
+
+    <main id="viewport">
+      <div id="hud">Booting preview…</div>
+    </main>
+
+    <aside class="panel right">
+      <div class="section">
+        <h2>Selected primitive</h2>
+        <p class="muted" id="sel-label">None</p>
+        <label class="field">X <input id="prim-x" type="number" step="1" /></label>
+        <label class="field">Y <input id="prim-y" type="number" step="1" /></label>
+        <label class="field">W <input id="prim-w" type="number" min="1" step="1" /></label>
+        <label class="field">H <input id="prim-h" type="number" min="1" step="1" /></label>
+        <label class="field">Fill <input id="prim-fill" type="text" spellcheck="false" /></label>
+        <label class="field">
+          Role
+          <select id="prim-role">
+            <option value="anchor">anchor</option>
+            <option value="foliage">foliage</option>
+          </select>
+        </label>
+        <label class="field" id="blob-seed-row" hidden>
+          Seed
+          <input id="blob-seed" type="number" step="1" />
+        </label>
+        <label class="field" id="poly-row" hidden style="grid-template-columns: 72px 1fr; align-items: start">
+          Points
+          <textarea id="poly-points" placeholder="x,y per line"></textarea>
+        </label>
+        <div class="toolbar">
+          <button class="btn" id="btn-dup" type="button">Dup</button>
+          <button class="btn" id="btn-del" type="button">Delete</button>
+          <button class="btn" id="btn-back" type="button">Back</button>
+          <button class="btn" id="btn-fwd" type="button">Fwd</button>
+        </div>
+      </div>
+
+      <div class="section">
+        <h2>In-context preview</h2>
+        <p class="hint">Greybox floor via StageView. Size from Projection.depthScale(floorY). Outline already baked.</p>
+        <div class="toolbar">
+          <button class="btn" id="btn-near" type="button">Near</button>
+          <button class="btn" id="btn-far" type="button">Far</button>
+        </div>
+        <label class="field">
+          floorY
+          <input id="floor-y" type="range" />
+        </label>
+        <p class="muted" id="floor-readout">—</p>
+      </div>
+
+      <div class="section">
+        <h2>Export</h2>
+        <label class="field">
+          Kind
+          <select id="sug-kind">
+            <option value="post">post</option>
+            <option value="tree">tree</option>
+            <option value="marker">marker</option>
+            <option value="crate">crate</option>
+          </select>
+        </label>
+        <label class="field">
+          Track
+          <select id="sug-track">
+            <option value="beyond">beyond</option>
+            <option value="far">far</option>
+            <option value="midFar">midFar</option>
+            <option value="mid">mid</option>
+            <option value="near">near</option>
+          </select>
+        </label>
+        <label class="field">
+          floorX
+          <input id="sug-floorx" type="number" step="1" />
+        </label>
+        <textarea id="snippet" readonly></textarea>
+        <div class="toolbar">
+          <button class="btn primary" id="btn-export-png" type="button">Export PNG</button>
+          <button class="btn" id="btn-copy" type="button">Copy snippet</button>
+        </div>
+      </div>
+    </aside>
+
+    <div id="status">src/render/outline.ts · tuning.colors · Projection.depthScale</div>
+    <script type="module" src="/src/dev/env-studio/main.ts"></script>
+  </body>
+</html>
