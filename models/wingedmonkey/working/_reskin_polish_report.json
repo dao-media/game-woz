@@ -1,0 +1,395 @@
+{
+  "source": "models/wingedmonkey/working/Monkey_reskin_gargoyle_normalized.blend",
+  "working": "models/wingedmonkey/working/Monkey_reskin_gargoyle_polished.blend",
+  "glb": "models/wingedmonkey/WingedMonkey_reskin_wip_studio.glb",
+  "glb_mb": 37.43,
+  "weight_info": {
+    "wing_locked": 1696,
+    "body_rebound": 5790,
+    "cage_weighted": 1106
+  },
+  "weights_before": {
+    "head": {
+      "wing": 0.556,
+      "head": 0.4,
+      "torso": 0.0,
+      "other": 0.043,
+      "n": 1880
+    },
+    "torso": {
+      "wing": 0.178,
+      "head": 0.033,
+      "torso": 0.02,
+      "other": 0.769,
+      "n": 1945
+    }
+  },
+  "weights_after": {
+    "head": {
+      "wing": 0.0,
+      "head": 0.946,
+      "torso": 0.054,
+      "other": 0.0,
+      "n": 1880
+    },
+    "torso": {
+      "wing": 0.018,
+      "head": 0.0,
+      "torso": 0.974,
+      "other": 0.008,
+      "n": 1945
+    }
+  },
+  "actions": {
+    "rest_yaw": -179.84,
+    "actions": {
+      "Idle": {
+        "pre": {
+          "yaw": 179.08,
+          "min_z": 0.0046,
+          "max_z": 0.7419,
+          "height": 0.7373,
+          "pelvis_z": 0.2859
+        },
+        "post": {
+          "yaw": -179.84,
+          "min_z": -0.0,
+          "max_z": 0.7373,
+          "height": 0.7373,
+          "pelvis_z": 0.2813,
+          "yaw_correction_mean_deg": -1.19,
+          "min_z_mean": 0.0,
+          "min_z_max": 0.0
+        },
+        "frames": [
+          1,
+          111
+        ]
+      },
+      "Walk": {
+        "pre": {
+          "yaw": 178.28,
+          "min_z": -0.0294,
+          "max_z": 0.8211,
+          "height": 0.8504,
+          "pelvis_z": 0.3094
+        },
+        "post": {
+          "yaw": -179.84,
+          "min_z": 0.0,
+          "max_z": 0.8504,
+          "height": 0.8504,
+          "pelvis_z": 0.3388,
+          "yaw_correction_mean_deg": -1.98,
+          "min_z_mean": 0.0,
+          "min_z_max": 0.0
+        },
+        "frames": [
+          1,
+          31
+        ]
+      },
+      "FlyIdleLoop": {
+        "pre": {
+          "yaw": 177.85,
+          "min_z": 1.9146,
+          "max_z": 2.6084,
+          "height": 0.6938,
+          "pelvis_z": 2.1795
+        },
+        "post": {
+          "yaw": -179.84,
+          "min_z": 0.0,
+          "max_z": 0.6938,
+          "height": 0.6938,
+          "pelvis_z": 0.2649,
+          "yaw_correction_mean_deg": -2.59,
+          "min_z_mean": 0.0,
+          "min_z_max": 0.0
+        },
+        "frames": [
+          1,
+          31
+        ]
+      },
+      "FlyForward": {
+        "pre": {
+          "yaw": 176.86,
+          "min_z": 1.9389,
+          "max_z": 2.5924,
+          "height": 0.6535,
+          "pelvis_z": 2.1763
+        },
+        "post": {
+          "yaw": -179.84,
+          "min_z": 0.0,
+          "max_z": 0.6535,
+          "height": 0.6535,
+          "pelvis_z": 0.2374,
+          "yaw_correction_mean_deg": -1.87,
+          "min_z_mean": 0.0,
+          "min_z_max": 0.0
+        },
+        "frames": [
+          1,
+          31
+        ]
+      },
+      "Attack01": {
+        "pre": {
+          "yaw": -68.56,
+          "min_z": -0.1017,
+          "max_z": 0.8026,
+          "height": 0.9043,
+          "pelvis_z": 0.3068
+        },
+        "post": {
+          "yaw": -179.84,
+          "min_z": 0.0,
+          "max_z": 0.9043,
+          "height": 0.9043,
+          "pelvis_z": 0.4085,
+          "yaw_correction_mean_deg": 27.22,
+          "min_z_mean": 0.0,
+          "min_z_max": 0.0
+        },
+        "frames": [
+          1,
+          61
+        ]
+      }
+    }
+  },
+  "verify": {
+    "rest": {
+      "yaw": -179.84,
+      "min_z": 0.0,
+      "height": 1.0008
+    },
+    "FlyIdleLoop": {
+      "samples": [
+        {
+          "frame": 1,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": 0.0,
+          "height": 0.7088,
+          "center": [
+            -0.004,
+            -0.023,
+            0.354
+          ]
+        },
+        {
+          "frame": 16,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": 0.0,
+          "height": 0.6938,
+          "center": [
+            0.016,
+            -0.037,
+            0.347
+          ]
+        },
+        {
+          "frame": 31,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": 0.0,
+          "height": 0.7085,
+          "center": [
+            -0.004,
+            -0.023,
+            0.354
+          ]
+        }
+      ],
+      "facing_ok": true,
+      "grounded_ok": true,
+      "stable_size": true,
+      "max_yaw_err": 0.0,
+      "max_min_z": 0.0
+    },
+    "FlyForward": {
+      "samples": [
+        {
+          "frame": 1,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": -0.0,
+          "height": 0.748,
+          "center": [
+            0.017,
+            -0.058,
+            0.374
+          ]
+        },
+        {
+          "frame": 16,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": 0.0,
+          "height": 0.6535,
+          "center": [
+            -0.009,
+            -0.044,
+            0.327
+          ]
+        },
+        {
+          "frame": 31,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": 0.0,
+          "height": 0.7136,
+          "center": [
+            -0.003,
+            -0.056,
+            0.357
+          ]
+        }
+      ],
+      "facing_ok": true,
+      "grounded_ok": true,
+      "stable_size": true,
+      "max_yaw_err": 0.0,
+      "max_min_z": -0.0
+    },
+    "Attack01": {
+      "samples": [
+        {
+          "frame": 1,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": -0.0,
+          "height": 0.7367,
+          "center": [
+            0.043,
+            -0.031,
+            0.368
+          ]
+        },
+        {
+          "frame": 31,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": 0.0,
+          "height": 0.9043,
+          "center": [
+            -0.018,
+            -0.114,
+            0.452
+          ]
+        },
+        {
+          "frame": 61,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": -0.0,
+          "height": 0.7362,
+          "center": [
+            0.036,
+            -0.031,
+            0.368
+          ]
+        }
+      ],
+      "facing_ok": true,
+      "grounded_ok": true,
+      "stable_size": true,
+      "max_yaw_err": 0.0,
+      "max_min_z": -0.0
+    },
+    "Idle": {
+      "samples": [
+        {
+          "frame": 1,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": 0.0,
+          "height": 0.7455,
+          "center": [
+            0.041,
+            -0.036,
+            0.373
+          ]
+        },
+        {
+          "frame": 56,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": -0.0,
+          "height": 0.7373,
+          "center": [
+            0.033,
+            -0.029,
+            0.369
+          ]
+        },
+        {
+          "frame": 111,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": -0.0,
+          "height": 0.7451,
+          "center": [
+            0.042,
+            -0.037,
+            0.373
+          ]
+        }
+      ],
+      "facing_ok": true,
+      "grounded_ok": true,
+      "stable_size": true,
+      "max_yaw_err": 0.0,
+      "max_min_z": 0.0
+    },
+    "Walk": {
+      "samples": [
+        {
+          "frame": 1,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": 0.0,
+          "height": 0.7844,
+          "center": [
+            0.026,
+            -0.045,
+            0.392
+          ]
+        },
+        {
+          "frame": 16,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": 0.0,
+          "height": 0.8504,
+          "center": [
+            0.028,
+            -0.017,
+            0.425
+          ]
+        },
+        {
+          "frame": 31,
+          "yaw": -179.84,
+          "yaw_err_deg": 0.0,
+          "min_z": -0.0,
+          "height": 0.794,
+          "center": [
+            0.022,
+            -0.037,
+            0.397
+          ]
+        }
+      ],
+      "facing_ok": true,
+      "grounded_ok": true,
+      "stable_size": true,
+      "max_yaw_err": 0.0,
+      "max_min_z": 0.0
+    }
+  }
+}

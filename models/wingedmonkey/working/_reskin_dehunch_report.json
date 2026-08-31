@@ -1,0 +1,178 @@
+{
+  "source": "models/wingedmonkey/working/Monkey_reskin_gargoyle_feet_flyidle.blend",
+  "working": "models/wingedmonkey/working/Monkey_reskin_gargoyle_dehunch.blend",
+  "glb": "models/wingedmonkey/WingedMonkey_reskin_wip_studio.glb",
+  "dehunch_deg": -37.3,
+  "pitches_before": {
+    "Idle": 37.28,
+    "Walk": 48.12,
+    "FlyIdleLoop": 29.28,
+    "FlyForward": 52.08,
+    "Attack01": 38.43
+  },
+  "pitches_after": {
+    "Idle": -0.02,
+    "Walk": 10.82,
+    "FlyIdleLoop": -8.02,
+    "FlyForward": 14.78,
+    "Attack01": 1.13,
+    "IdleToFly": 37.74,
+    "FlyToIdle": 16.28,
+    "FlyAttack02": 1.65,
+    "FlyHit": 5.56,
+    "Hit": -0.97
+  },
+  "gap_flyfwd_minus_flyidle": 22.8,
+  "facing_new": {
+    "IdleToFly": {
+      "yaw": -179.61,
+      "min_z": 0.0,
+      "height": 0.5941,
+      "pitch": 75.04
+    },
+    "FlyToIdle": {
+      "yaw": -179.84,
+      "min_z": 0.0,
+      "height": 0.728,
+      "pitch": 53.58
+    },
+    "FlyAttack02": {
+      "yaw": -179.84,
+      "min_z": 0.0,
+      "height": 0.8726,
+      "pitch": 38.95
+    },
+    "FlyHit": {
+      "yaw": -179.84,
+      "min_z": -0.0,
+      "height": 0.9687,
+      "pitch": 42.86
+    },
+    "Hit": {
+      "yaw": -179.84,
+      "min_z": 0.0,
+      "height": 0.8524,
+      "pitch": 36.33
+    }
+  },
+  "dehunch": {
+    "Idle": {
+      "pre": 37.28,
+      "post": -0.02,
+      "min_z": 0.0,
+      "height": 0.8535
+    },
+    "Walk": {
+      "pre": 48.12,
+      "post": 10.82,
+      "min_z": 0.0,
+      "height": 0.9155
+    },
+    "FlyIdleLoop": {
+      "pre": 29.28,
+      "post": -8.02,
+      "min_z": 0.0,
+      "height": 0.9507
+    },
+    "FlyForward": {
+      "pre": 52.08,
+      "post": 14.78,
+      "min_z": -0.0,
+      "height": 0.838
+    },
+    "Attack01": {
+      "pre": 38.43,
+      "post": 1.13,
+      "min_z": -0.0,
+      "height": 0.8498
+    },
+    "IdleToFly": {
+      "pre": 75.04,
+      "post": 37.74,
+      "min_z": 0.0,
+      "height": 0.8639
+    },
+    "FlyToIdle": {
+      "pre": 53.58,
+      "post": 16.28,
+      "min_z": -0.0,
+      "height": 0.9458
+    },
+    "FlyAttack02": {
+      "pre": 38.95,
+      "post": 1.65,
+      "min_z": 0.0,
+      "height": 0.9837
+    },
+    "FlyHit": {
+      "pre": 42.86,
+      "post": 5.56,
+      "min_z": -0.0,
+      "height": 0.9829
+    },
+    "Hit": {
+      "pre": 36.33,
+      "post": -0.97,
+      "min_z": -0.0,
+      "height": 0.958
+    }
+  },
+  "new_clips": [
+    {
+      "name": "IdleToFly",
+      "donor_start": 1330,
+      "donor_end": 1390,
+      "local_frames": 61
+    },
+    {
+      "name": "FlyToIdle",
+      "donor_start": 1240,
+      "donor_end": 1300,
+      "local_frames": 61
+    },
+    {
+      "name": "FlyAttack02",
+      "donor_start": 1520,
+      "donor_end": 1600,
+      "local_frames": 81
+    },
+    {
+      "name": "FlyHit",
+      "donor_start": 1990,
+      "donor_end": 2065,
+      "local_frames": 76
+    },
+    {
+      "name": "Hit",
+      "donor_start": 800,
+      "donor_end": 885,
+      "local_frames": 86
+    }
+  ],
+  "weights_before": {
+    "n_verts": 7486,
+    "weight_sum": 7485.651,
+    "top_hash": -2289032544835619405,
+    "wing_share": 0.3468,
+    "foot_share": 0.1022,
+    "head_share": 0.191,
+    "torso_share": 0.2279
+  },
+  "weights_after": {
+    "n_verts": 7486,
+    "weight_sum": 7485.651,
+    "top_hash": -2289032544835619405,
+    "wing_share": 0.3468,
+    "foot_share": 0.1022,
+    "head_share": 0.191,
+    "torso_share": 0.2279
+  },
+  "weights_unchanged": true,
+  "rest_height_m": 1.0008,
+  "verify": {
+    "idle_upright": true,
+    "flyidle_level": true,
+    "flyfwd_pitched": true,
+    "hover_dive_gap_ok": true
+  }
+}

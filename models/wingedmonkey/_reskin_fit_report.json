@@ -1,0 +1,1377 @@
+{
+  "step": 0,
+  "status": "fit_report_only_no_bind",
+  "originals_untouched": true,
+  "inputs": {
+    "monkey_mesh": "/Users/daneoleary/Documents/Work/Wizard of Oz Game/models/wingedmonkey/WingedMonkey_new_wings.glb",
+    "gargoyle_fbx": "/Users/daneoleary/Documents/Work/Wizard of Oz Game/Unity/Wizard-of-Oz-Game/Assets/Magic Pig Games (Infinity PBR)/Characters/Gargoyle/Models/GargoyleHumanoid.FBX",
+    "monkey_mesh_object": "WingedMonkeyNEW",
+    "gargoyle_armature": "GargRoot",
+    "gargoyle_bone_count": 112,
+    "monkey_armature": "GargoyleMonkey",
+    "monkey_bone_count": 21
+  },
+  "alignment_applied_for_measure_only": {
+    "uniform_scale": 0.39303,
+    "translate": [
+      -0.01046,
+      -0.05221,
+      0.03237
+    ],
+    "note": "Object-level scale+translate in ephemeral Blender session only; nothing saved over originals."
+  },
+  "monkey_aabb": {
+    "min": [
+      -0.2984,
+      -0.189,
+      -0.0
+    ],
+    "max": [
+      0.2966,
+      0.1966,
+      1.0
+    ],
+    "height_m": 1.0
+  },
+  "monkey_mvp_landmarks": {
+    "monkey_left_wing": {
+      "head_tail": [
+        [
+          0.1001,
+          -0.0303,
+          0.6119
+        ],
+        [
+          0.1267,
+          -0.0002,
+          0.5676
+        ]
+      ],
+      "len": 0.0598
+    },
+    "monkey_right_wing": {
+      "head_tail": [
+        [
+          -0.1469,
+          -0.0307,
+          0.6817
+        ],
+        [
+          -0.1629,
+          -0.0037,
+          0.6308
+        ]
+      ],
+      "len": 0.0598
+    },
+    "monkey_left_hand": {
+      "head_tail": [
+        [
+          0.2501,
+          -0.065,
+          0.4739
+        ],
+        [
+          0.2546,
+          -0.0706,
+          0.326
+        ]
+      ],
+      "len": 0.1481
+    },
+    "monkey_right_hand": {
+      "head_tail": [
+        [
+          -0.2501,
+          -0.0594,
+          0.4558
+        ],
+        [
+          -0.2342,
+          -0.0667,
+          0.3124
+        ]
+      ],
+      "len": 0.1444
+    }
+  },
+  "verdict_counts": {
+    "good": 5,
+    "needs-nudge": 4,
+    "needs-scale": 4
+  },
+  "regions": [
+    {
+      "region": "hips_pelvis",
+      "verdict": "good",
+      "bones_present": [
+        "GargPelvis"
+      ],
+      "bones_missing": [],
+      "mean_dist_to_surface_m": 0.0249,
+      "pct_samples_inside": 1.0,
+      "region_span_xyz_m": [
+        0.0,
+        0.0495,
+        0.0076
+      ],
+      "bones": [
+        {
+          "bone": "GargPelvis",
+          "region": "hips_pelvis",
+          "head": [
+            -0.0105,
+            -0.0596,
+            0.4796
+          ],
+          "tail": [
+            -0.0105,
+            -0.1091,
+            0.472
+          ],
+          "length": 0.0501,
+          "mean_dist_to_surface": 0.0249,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        }
+      ]
+    },
+    {
+      "region": "spine",
+      "verdict": "good",
+      "bones_present": [
+        "GargSpine1",
+        "GargSpine2",
+        "GargSpine3",
+        "GargRibcage"
+      ],
+      "bones_missing": [],
+      "mean_dist_to_surface_m": 0.0472,
+      "pct_samples_inside": 1.0,
+      "region_span_xyz_m": [
+        0.0,
+        0.0837,
+        0.1891
+      ],
+      "bones": [
+        {
+          "bone": "GargSpine1",
+          "region": "spine",
+          "head": [
+            -0.0105,
+            -0.0509,
+            0.5092
+          ],
+          "tail": [
+            -0.0105,
+            -0.1088,
+            0.5004
+          ],
+          "length": 0.0585,
+          "mean_dist_to_surface": 0.0377,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        },
+        {
+          "bone": "GargSpine2",
+          "region": "spine",
+          "head": [
+            -0.0105,
+            -0.0598,
+            0.5671
+          ],
+          "tail": [
+            -0.0105,
+            -0.1187,
+            0.5803
+          ],
+          "length": 0.0603,
+          "mean_dist_to_surface": 0.0402,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        },
+        {
+          "bone": "GargSpine3",
+          "region": "spine",
+          "head": [
+            -0.0105,
+            -0.0466,
+            0.626
+          ],
+          "tail": [
+            -0.0105,
+            -0.1054,
+            0.6375
+          ],
+          "length": 0.0599,
+          "mean_dist_to_surface": 0.0525,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        },
+        {
+          "bone": "GargRibcage",
+          "region": "spine",
+          "head": [
+            -0.0105,
+            -0.035,
+            0.6848
+          ],
+          "tail": [
+            -0.0105,
+            -0.0707,
+            0.6895
+          ],
+          "length": 0.036,
+          "mean_dist_to_surface": 0.0584,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        }
+      ]
+    },
+    {
+      "region": "neck_head",
+      "verdict": "good",
+      "bones_present": [
+        "GargNeck1",
+        "GargNeck2",
+        "GargHead"
+      ],
+      "bones_missing": [],
+      "mean_dist_to_surface_m": 0.0293,
+      "pct_samples_inside": 1.0,
+      "region_span_xyz_m": [
+        0.0,
+        0.0892,
+        0.0918
+      ],
+      "bones": [
+        {
+          "bone": "GargNeck1",
+          "region": "neck_head",
+          "head": [
+            -0.0105,
+            -0.0358,
+            0.7278
+          ],
+          "tail": [
+            -0.0105,
+            -0.0806,
+            0.7151
+          ],
+          "length": 0.0465,
+          "mean_dist_to_surface": 0.0379,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        },
+        {
+          "bone": "GargNeck2",
+          "region": "neck_head",
+          "head": [
+            -0.0105,
+            -0.0485,
+            0.7726
+          ],
+          "tail": [
+            -0.0105,
+            -0.0828,
+            0.7628
+          ],
+          "length": 0.0356,
+          "mean_dist_to_surface": 0.0263,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        },
+        {
+          "bone": "GargHead",
+          "region": "neck_head",
+          "head": [
+            -0.0105,
+            -0.0583,
+            0.8069
+          ],
+          "tail": [
+            -0.0105,
+            -0.125,
+            0.8002
+          ],
+          "length": 0.067,
+          "mean_dist_to_surface": 0.0237,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        }
+      ]
+    },
+    {
+      "region": "left_arm",
+      "verdict": "needs-nudge",
+      "bones_present": [
+        "GargLArmCollarbone",
+        "GargLArmUpperarm1",
+        "GargLArmUpperarm2",
+        "GargLArmUpperarm3",
+        "GargLArmForearm1",
+        "GargLArmForearm2",
+        "GargLArmForearm3"
+      ],
+      "bones_missing": [],
+      "mean_dist_to_surface_m": 0.0234,
+      "pct_samples_inside": 0.67,
+      "region_span_xyz_m": [
+        0.2726,
+        0.1598,
+        0.1635
+      ],
+      "bones": [
+        {
+          "bone": "GargLArmCollarbone",
+          "region": "left_arm",
+          "head": [
+            0.002,
+            -0.0689,
+            0.7152
+          ],
+          "tail": [
+            0.0553,
+            -0.1736,
+            0.7388
+          ],
+          "length": 0.1198,
+          "mean_dist_to_surface": 0.0327,
+          "pct_samples_inside": 0.67,
+          "verdict_hint": "needs-nudge"
+        },
+        {
+          "bone": "GargLArmUpperarm1",
+          "region": "left_arm",
+          "head": [
+            0.1084,
+            -0.0138,
+            0.7195
+          ],
+          "tail": [
+            0.099,
+            -0.0602,
+            0.7111
+          ],
+          "length": 0.0481,
+          "mean_dist_to_surface": 0.0227,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        },
+        {
+          "bone": "GargLArmUpperarm2",
+          "region": "left_arm",
+          "head": [
+            0.1431,
+            -0.0149,
+            0.6863
+          ],
+          "tail": [
+            0.1347,
+            -0.0617,
+            0.6789
+          ],
+          "length": 0.0481,
+          "mean_dist_to_surface": 0.0044,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        },
+        {
+          "bone": "GargLArmUpperarm3",
+          "region": "left_arm",
+          "head": [
+            0.1778,
+            -0.016,
+            0.6531
+          ],
+          "tail": [
+            0.1712,
+            -0.0633,
+            0.6476
+          ],
+          "length": 0.0481,
+          "mean_dist_to_surface": 0.0104,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        },
+        {
+          "bone": "GargLArmForearm1",
+          "region": "left_arm",
+          "head": [
+            0.2126,
+            -0.0171,
+            0.6198
+          ],
+          "tail": [
+            0.1858,
+            -0.0551,
+            0.6332
+          ],
+          "length": 0.0484,
+          "mean_dist_to_surface": 0.0113,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        },
+        {
+          "bone": "GargLArmForearm2",
+          "region": "left_arm",
+          "head": [
+            0.2436,
+            -0.0468,
+            0.5976
+          ],
+          "tail": [
+            0.2149,
+            -0.0843,
+            0.6077
+          ],
+          "length": 0.0484,
+          "mean_dist_to_surface": 0.0328,
+          "pct_samples_inside": 0.0,
+          "verdict_hint": "needs-scale"
+        },
+        {
+          "bone": "GargLArmForearm3",
+          "region": "left_arm",
+          "head": [
+            0.2746,
+            -0.0764,
+            0.5753
+          ],
+          "tail": [
+            0.2418,
+            -0.1119,
+            0.577
+          ],
+          "length": 0.0484,
+          "mean_dist_to_surface": 0.0491,
+          "pct_samples_inside": 0.0,
+          "verdict_hint": "needs-scale"
+        }
+      ]
+    },
+    {
+      "region": "right_arm",
+      "verdict": "needs-scale",
+      "bones_present": [
+        "GargRCollarbone",
+        "GargRUpperarm1",
+        "GargRUpperarm2",
+        "GargRUpperarm3",
+        "GargRForearm1",
+        "GargRForearm2",
+        "GargRForearm3"
+      ],
+      "bones_missing": [],
+      "mean_dist_to_surface_m": 0.032,
+      "pct_samples_inside": 0.33,
+      "region_span_xyz_m": [
+        0.2725,
+        0.1598,
+        0.1635
+      ],
+      "bones": [
+        {
+          "bone": "GargRCollarbone",
+          "region": "right_arm",
+          "head": [
+            -0.023,
+            -0.0689,
+            0.7152
+          ],
+          "tail": [
+            -0.0762,
+            -0.1736,
+            0.7388
+          ],
+          "length": 0.1198,
+          "mean_dist_to_surface": 0.0399,
+          "pct_samples_inside": 0.33,
+          "verdict_hint": "needs-scale"
+        },
+        {
+          "bone": "GargRUpperarm1",
+          "region": "right_arm",
+          "head": [
+            -0.1293,
+            -0.0138,
+            0.7195
+          ],
+          "tail": [
+            -0.1199,
+            -0.0602,
+            0.7111
+          ],
+          "length": 0.0481,
+          "mean_dist_to_surface": 0.005,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        },
+        {
+          "bone": "GargRUpperarm2",
+          "region": "right_arm",
+          "head": [
+            -0.164,
+            -0.0149,
+            0.6863
+          ],
+          "tail": [
+            -0.1556,
+            -0.0617,
+            0.6789
+          ],
+          "length": 0.0481,
+          "mean_dist_to_surface": 0.0156,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        },
+        {
+          "bone": "GargRUpperarm3",
+          "region": "right_arm",
+          "head": [
+            -0.1988,
+            -0.016,
+            0.6531
+          ],
+          "tail": [
+            -0.1921,
+            -0.0633,
+            0.6476
+          ],
+          "length": 0.0481,
+          "mean_dist_to_surface": 0.0257,
+          "pct_samples_inside": 0.0,
+          "verdict_hint": "needs-scale"
+        },
+        {
+          "bone": "GargRForearm1",
+          "region": "right_arm",
+          "head": [
+            -0.2335,
+            -0.0171,
+            0.6198
+          ],
+          "tail": [
+            -0.2067,
+            -0.0551,
+            0.6332
+          ],
+          "length": 0.0484,
+          "mean_dist_to_surface": 0.0277,
+          "pct_samples_inside": 0.0,
+          "verdict_hint": "needs-scale"
+        },
+        {
+          "bone": "GargRForearm2",
+          "region": "right_arm",
+          "head": [
+            -0.2645,
+            -0.0468,
+            0.5976
+          ],
+          "tail": [
+            -0.2358,
+            -0.0843,
+            0.6077
+          ],
+          "length": 0.0484,
+          "mean_dist_to_surface": 0.0473,
+          "pct_samples_inside": 0.0,
+          "verdict_hint": "needs-scale"
+        },
+        {
+          "bone": "GargRForearm3",
+          "region": "right_arm",
+          "head": [
+            -0.2955,
+            -0.0764,
+            0.5753
+          ],
+          "tail": [
+            -0.2627,
+            -0.1119,
+            0.577
+          ],
+          "length": 0.0484,
+          "mean_dist_to_surface": 0.0625,
+          "pct_samples_inside": 0.0,
+          "verdict_hint": "needs-scale"
+        }
+      ]
+    },
+    {
+      "region": "left_hand",
+      "verdict": "needs-scale",
+      "bones_present": [
+        "GargLArmPalm"
+      ],
+      "bones_missing": [
+        "GargLArmFinger11",
+        "GargLArmFinger21",
+        "GargLArmFinger31",
+        "GargLArmFinger41",
+        "GargLArmFinger51"
+      ],
+      "mean_dist_to_surface_m": 0.1039,
+      "pct_samples_inside": 0.0,
+      "region_span_xyz_m": [
+        0.0248,
+        0.0324,
+        0.0595
+      ],
+      "bones": [
+        {
+          "bone": "GargLArmPalm",
+          "region": "left_hand",
+          "head": [
+            0.3056,
+            -0.1061,
+            0.553
+          ],
+          "tail": [
+            0.3304,
+            -0.1385,
+            0.6125
+          ],
+          "length": 0.0721,
+          "mean_dist_to_surface": 0.1039,
+          "pct_samples_inside": 0.0,
+          "verdict_hint": "needs-scale"
+        }
+      ]
+    },
+    {
+      "region": "right_hand",
+      "verdict": "needs-scale",
+      "bones_present": [
+        "GargRPalm"
+      ],
+      "bones_missing": [
+        "GargRFinger11",
+        "GargRFinger21",
+        "GargRFinger31",
+        "GargRFinger41",
+        "GargRFinger51"
+      ],
+      "mean_dist_to_surface_m": 0.1186,
+      "pct_samples_inside": 0.0,
+      "region_span_xyz_m": [
+        0.0248,
+        0.0324,
+        0.0595
+      ],
+      "bones": [
+        {
+          "bone": "GargRPalm",
+          "region": "right_hand",
+          "head": [
+            -0.3265,
+            -0.1061,
+            0.553
+          ],
+          "tail": [
+            -0.3513,
+            -0.1385,
+            0.6125
+          ],
+          "length": 0.0721,
+          "mean_dist_to_surface": 0.1186,
+          "pct_samples_inside": 0.0,
+          "verdict_hint": "needs-scale"
+        }
+      ]
+    },
+    {
+      "region": "left_leg",
+      "verdict": "needs-nudge",
+      "bones_present": [
+        "GargLLegThigh1",
+        "GargLLegThigh2",
+        "GargLLegCalf1",
+        "GargLLegCalf2",
+        "GargLLegAnkle"
+      ],
+      "bones_missing": [],
+      "mean_dist_to_surface_m": 0.0237,
+      "pct_samples_inside": 0.67,
+      "region_span_xyz_m": [
+        0.07,
+        0.2008,
+        0.3757
+      ],
+      "bones": [
+        {
+          "bone": "GargLLegThigh1",
+          "region": "left_leg",
+          "head": [
+            0.0398,
+            -0.0724,
+            0.4804
+          ],
+          "tail": [
+            0.0274,
+            -0.1727,
+            0.4704
+          ],
+          "length": 0.1016,
+          "mean_dist_to_surface": 0.0273,
+          "pct_samples_inside": 0.67,
+          "verdict_hint": "needs-nudge"
+        },
+        {
+          "bone": "GargLLegThigh2",
+          "region": "left_leg",
+          "head": [
+            0.0525,
+            -0.0639,
+            0.38
+          ],
+          "tail": [
+            0.0481,
+            -0.165,
+            0.3709
+          ],
+          "length": 0.1016,
+          "mean_dist_to_surface": 0.0326,
+          "pct_samples_inside": 0.67,
+          "verdict_hint": "needs-nudge"
+        },
+        {
+          "bone": "GargLLegCalf1",
+          "region": "left_leg",
+          "head": [
+            0.0652,
+            -0.0554,
+            0.2796
+          ],
+          "tail": [
+            0.0734,
+            -0.144,
+            0.2387
+          ],
+          "length": 0.0979,
+          "mean_dist_to_surface": 0.0216,
+          "pct_samples_inside": 0.67,
+          "verdict_hint": "needs-nudge"
+        },
+        {
+          "bone": "GargLLegCalf2",
+          "region": "left_leg",
+          "head": [
+            0.079,
+            -0.0137,
+            0.1921
+          ],
+          "tail": [
+            0.0912,
+            -0.1021,
+            0.1519
+          ],
+          "length": 0.0979,
+          "mean_dist_to_surface": 0.0172,
+          "pct_samples_inside": 0.67,
+          "verdict_hint": "needs-nudge"
+        },
+        {
+          "bone": "GargLLegAnkle",
+          "region": "left_leg",
+          "head": [
+            0.0928,
+            0.0281,
+            0.1047
+          ],
+          "tail": [
+            0.0974,
+            -0.0228,
+            0.1734
+          ],
+          "length": 0.0857,
+          "mean_dist_to_surface": 0.0196,
+          "pct_samples_inside": 0.67,
+          "verdict_hint": "needs-nudge"
+        }
+      ]
+    },
+    {
+      "region": "right_leg",
+      "verdict": "needs-nudge",
+      "bones_present": [
+        "GargRThigh1",
+        "GargRThigh2",
+        "GargRCalf1",
+        "GargRCalf2",
+        "GargRAnkle"
+      ],
+      "bones_missing": [],
+      "mean_dist_to_surface_m": 0.0244,
+      "pct_samples_inside": 0.53,
+      "region_span_xyz_m": [
+        0.07,
+        0.2007,
+        0.3758
+      ],
+      "bones": [
+        {
+          "bone": "GargRThigh1",
+          "region": "right_leg",
+          "head": [
+            -0.0607,
+            -0.0724,
+            0.4804
+          ],
+          "tail": [
+            -0.0483,
+            -0.1727,
+            0.4704
+          ],
+          "length": 0.1016,
+          "mean_dist_to_surface": 0.0302,
+          "pct_samples_inside": 0.33,
+          "verdict_hint": "needs-scale"
+        },
+        {
+          "bone": "GargRThigh2",
+          "region": "right_leg",
+          "head": [
+            -0.0734,
+            -0.0639,
+            0.38
+          ],
+          "tail": [
+            -0.0691,
+            -0.165,
+            0.3709
+          ],
+          "length": 0.1016,
+          "mean_dist_to_surface": 0.0261,
+          "pct_samples_inside": 0.67,
+          "verdict_hint": "needs-nudge"
+        },
+        {
+          "bone": "GargRCalf1",
+          "region": "right_leg",
+          "head": [
+            -0.0861,
+            -0.0554,
+            0.2796
+          ],
+          "tail": [
+            -0.0944,
+            -0.144,
+            0.2387
+          ],
+          "length": 0.0979,
+          "mean_dist_to_surface": 0.0142,
+          "pct_samples_inside": 0.67,
+          "verdict_hint": "needs-nudge"
+        },
+        {
+          "bone": "GargRCalf2",
+          "region": "right_leg",
+          "head": [
+            -0.0999,
+            -0.0137,
+            0.1921
+          ],
+          "tail": [
+            -0.1122,
+            -0.1022,
+            0.1519
+          ],
+          "length": 0.0979,
+          "mean_dist_to_surface": 0.0163,
+          "pct_samples_inside": 0.67,
+          "verdict_hint": "needs-nudge"
+        },
+        {
+          "bone": "GargRAnkle",
+          "region": "right_leg",
+          "head": [
+            -0.1137,
+            0.028,
+            0.1046
+          ],
+          "tail": [
+            -0.1183,
+            -0.023,
+            0.1734
+          ],
+          "length": 0.0857,
+          "mean_dist_to_surface": 0.0352,
+          "pct_samples_inside": 0.33,
+          "verdict_hint": "needs-scale"
+        }
+      ]
+    },
+    {
+      "region": "left_foot",
+      "verdict": "needs-nudge",
+      "bones_present": [
+        "GargLLegAnkle"
+      ],
+      "bones_missing": [
+        "GargLLegToe"
+      ],
+      "mean_dist_to_surface_m": 0.0196,
+      "pct_samples_inside": 0.67,
+      "region_span_xyz_m": [
+        0.0046,
+        0.0509,
+        0.0687
+      ],
+      "bones": [
+        {
+          "bone": "GargLLegAnkle",
+          "region": "left_foot",
+          "head": [
+            0.0928,
+            0.0281,
+            0.1047
+          ],
+          "tail": [
+            0.0974,
+            -0.0228,
+            0.1734
+          ],
+          "length": 0.0857,
+          "mean_dist_to_surface": 0.0196,
+          "pct_samples_inside": 0.67,
+          "verdict_hint": "needs-nudge"
+        }
+      ]
+    },
+    {
+      "region": "right_foot",
+      "verdict": "needs-scale",
+      "bones_present": [
+        "GargRAnkle"
+      ],
+      "bones_missing": [
+        "GargRToe"
+      ],
+      "mean_dist_to_surface_m": 0.0352,
+      "pct_samples_inside": 0.33,
+      "region_span_xyz_m": [
+        0.0046,
+        0.051,
+        0.0688
+      ],
+      "bones": [
+        {
+          "bone": "GargRAnkle",
+          "region": "right_foot",
+          "head": [
+            -0.1137,
+            0.028,
+            0.1046
+          ],
+          "tail": [
+            -0.1183,
+            -0.023,
+            0.1734
+          ],
+          "length": 0.0857,
+          "mean_dist_to_surface": 0.0352,
+          "pct_samples_inside": 0.33,
+          "verdict_hint": "needs-scale"
+        }
+      ]
+    },
+    {
+      "region": "left_wing",
+      "verdict": "good",
+      "bones_present": [
+        "GargLWingWCollarbone",
+        "GargLWing1",
+        "GargLWing2"
+      ],
+      "bones_missing": [
+        "GargLWing3",
+        "GargLWing4",
+        "GargLWing5"
+      ],
+      "mean_dist_to_surface_m": 0.0277,
+      "pct_samples_inside": 0.89,
+      "region_span_xyz_m": [
+        0.2053,
+        0.2259,
+        0.2103
+      ],
+      "bones": [
+        {
+          "bone": "GargLWingWCollarbone",
+          "region": "left_wing",
+          "head": [
+            -0.0081,
+            -0.014,
+            0.6819
+          ],
+          "tail": [
+            0.0052,
+            -0.1137,
+            0.7687
+          ],
+          "length": 0.1328,
+          "mean_dist_to_surface": 0.044,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        },
+        {
+          "bone": "GargLWing1",
+          "region": "left_wing",
+          "head": [
+            0.0659,
+            0.0639,
+            0.76
+          ],
+          "tail": [
+            0.1504,
+            0.0395,
+            0.8922
+          ],
+          "length": 0.1588,
+          "mean_dist_to_surface": 0.0193,
+          "pct_samples_inside": 0.67,
+          "verdict_hint": "needs-nudge"
+        },
+        {
+          "bone": "GargLWing2",
+          "region": "left_wing",
+          "head": [
+            0.1972,
+            0.1122,
+            0.6849
+          ],
+          "tail": [
+            0.0474,
+            0.0898,
+            0.7996
+          ],
+          "length": 0.19,
+          "mean_dist_to_surface": 0.0198,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        }
+      ]
+    },
+    {
+      "region": "right_wing",
+      "verdict": "good",
+      "bones_present": [
+        "GargRWingWCollarbone",
+        "GargRWing1",
+        "GargRWing2"
+      ],
+      "bones_missing": [
+        "GargRWing3",
+        "GargRWing4",
+        "GargRWing5"
+      ],
+      "mean_dist_to_surface_m": 0.0247,
+      "pct_samples_inside": 0.89,
+      "region_span_xyz_m": [
+        0.2053,
+        0.2259,
+        0.2103
+      ],
+      "bones": [
+        {
+          "bone": "GargRWingWCollarbone",
+          "region": "right_wing",
+          "head": [
+            -0.0128,
+            -0.014,
+            0.6819
+          ],
+          "tail": [
+            -0.0261,
+            -0.1137,
+            0.7687
+          ],
+          "length": 0.1328,
+          "mean_dist_to_surface": 0.0433,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        },
+        {
+          "bone": "GargRWing1",
+          "region": "right_wing",
+          "head": [
+            -0.0868,
+            0.0639,
+            0.76
+          ],
+          "tail": [
+            -0.1713,
+            0.0395,
+            0.8922
+          ],
+          "length": 0.1588,
+          "mean_dist_to_surface": 0.0201,
+          "pct_samples_inside": 0.67,
+          "verdict_hint": "needs-nudge"
+        },
+        {
+          "bone": "GargRWing2",
+          "region": "right_wing",
+          "head": [
+            -0.2181,
+            0.1122,
+            0.6849
+          ],
+          "tail": [
+            -0.0683,
+            0.0898,
+            0.7996
+          ],
+          "length": 0.19,
+          "mean_dist_to_surface": 0.0108,
+          "pct_samples_inside": 1.0,
+          "verdict_hint": "good"
+        }
+      ]
+    }
+  ],
+  "callouts": {
+    "wings": [
+      {
+        "region": "left_wing",
+        "verdict": "good",
+        "bones_present": [
+          "GargLWingWCollarbone",
+          "GargLWing1",
+          "GargLWing2"
+        ],
+        "bones_missing": [
+          "GargLWing3",
+          "GargLWing4",
+          "GargLWing5"
+        ],
+        "mean_dist_to_surface_m": 0.0277,
+        "pct_samples_inside": 0.89,
+        "region_span_xyz_m": [
+          0.2053,
+          0.2259,
+          0.2103
+        ],
+        "bones": [
+          {
+            "bone": "GargLWingWCollarbone",
+            "region": "left_wing",
+            "head": [
+              -0.0081,
+              -0.014,
+              0.6819
+            ],
+            "tail": [
+              0.0052,
+              -0.1137,
+              0.7687
+            ],
+            "length": 0.1328,
+            "mean_dist_to_surface": 0.044,
+            "pct_samples_inside": 1.0,
+            "verdict_hint": "good"
+          },
+          {
+            "bone": "GargLWing1",
+            "region": "left_wing",
+            "head": [
+              0.0659,
+              0.0639,
+              0.76
+            ],
+            "tail": [
+              0.1504,
+              0.0395,
+              0.8922
+            ],
+            "length": 0.1588,
+            "mean_dist_to_surface": 0.0193,
+            "pct_samples_inside": 0.67,
+            "verdict_hint": "needs-nudge"
+          },
+          {
+            "bone": "GargLWing2",
+            "region": "left_wing",
+            "head": [
+              0.1972,
+              0.1122,
+              0.6849
+            ],
+            "tail": [
+              0.0474,
+              0.0898,
+              0.7996
+            ],
+            "length": 0.19,
+            "mean_dist_to_surface": 0.0198,
+            "pct_samples_inside": 1.0,
+            "verdict_hint": "good"
+          }
+        ]
+      },
+      {
+        "region": "right_wing",
+        "verdict": "good",
+        "bones_present": [
+          "GargRWingWCollarbone",
+          "GargRWing1",
+          "GargRWing2"
+        ],
+        "bones_missing": [
+          "GargRWing3",
+          "GargRWing4",
+          "GargRWing5"
+        ],
+        "mean_dist_to_surface_m": 0.0247,
+        "pct_samples_inside": 0.89,
+        "region_span_xyz_m": [
+          0.2053,
+          0.2259,
+          0.2103
+        ],
+        "bones": [
+          {
+            "bone": "GargRWingWCollarbone",
+            "region": "right_wing",
+            "head": [
+              -0.0128,
+              -0.014,
+              0.6819
+            ],
+            "tail": [
+              -0.0261,
+              -0.1137,
+              0.7687
+            ],
+            "length": 0.1328,
+            "mean_dist_to_surface": 0.0433,
+            "pct_samples_inside": 1.0,
+            "verdict_hint": "good"
+          },
+          {
+            "bone": "GargRWing1",
+            "region": "right_wing",
+            "head": [
+              -0.0868,
+              0.0639,
+              0.76
+            ],
+            "tail": [
+              -0.1713,
+              0.0395,
+              0.8922
+            ],
+            "length": 0.1588,
+            "mean_dist_to_surface": 0.0201,
+            "pct_samples_inside": 0.67,
+            "verdict_hint": "needs-nudge"
+          },
+          {
+            "bone": "GargRWing2",
+            "region": "right_wing",
+            "head": [
+              -0.2181,
+              0.1122,
+              0.6849
+            ],
+            "tail": [
+              -0.0683,
+              0.0898,
+              0.7996
+            ],
+            "length": 0.19,
+            "mean_dist_to_surface": 0.0108,
+            "pct_samples_inside": 1.0,
+            "verdict_hint": "good"
+          }
+        ]
+      }
+    ],
+    "hands": [
+      {
+        "region": "left_hand",
+        "verdict": "needs-scale",
+        "bones_present": [
+          "GargLArmPalm"
+        ],
+        "bones_missing": [
+          "GargLArmFinger11",
+          "GargLArmFinger21",
+          "GargLArmFinger31",
+          "GargLArmFinger41",
+          "GargLArmFinger51"
+        ],
+        "mean_dist_to_surface_m": 0.1039,
+        "pct_samples_inside": 0.0,
+        "region_span_xyz_m": [
+          0.0248,
+          0.0324,
+          0.0595
+        ],
+        "bones": [
+          {
+            "bone": "GargLArmPalm",
+            "region": "left_hand",
+            "head": [
+              0.3056,
+              -0.1061,
+              0.553
+            ],
+            "tail": [
+              0.3304,
+              -0.1385,
+              0.6125
+            ],
+            "length": 0.0721,
+            "mean_dist_to_surface": 0.1039,
+            "pct_samples_inside": 0.0,
+            "verdict_hint": "needs-scale"
+          }
+        ]
+      },
+      {
+        "region": "right_hand",
+        "verdict": "needs-scale",
+        "bones_present": [
+          "GargRPalm"
+        ],
+        "bones_missing": [
+          "GargRFinger11",
+          "GargRFinger21",
+          "GargRFinger31",
+          "GargRFinger41",
+          "GargRFinger51"
+        ],
+        "mean_dist_to_surface_m": 0.1186,
+        "pct_samples_inside": 0.0,
+        "region_span_xyz_m": [
+          0.0248,
+          0.0324,
+          0.0595
+        ],
+        "bones": [
+          {
+            "bone": "GargRPalm",
+            "region": "right_hand",
+            "head": [
+              -0.3265,
+              -0.1061,
+              0.553
+            ],
+            "tail": [
+              -0.3513,
+              -0.1385,
+              0.6125
+            ],
+            "length": 0.0721,
+            "mean_dist_to_surface": 0.1186,
+            "pct_samples_inside": 0.0,
+            "verdict_hint": "needs-scale"
+          }
+        ]
+      }
+    ]
+  }
+}

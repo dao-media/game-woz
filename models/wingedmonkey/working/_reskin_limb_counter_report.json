@@ -1,0 +1,436 @@
+{
+  "counters": {
+    "GargLArmCollarbone": 37.3,
+    "GargRCollarbone": 37.3,
+    "GargLLegThigh1": 55.0,
+    "GargRThigh1": 55.0
+  },
+  "clips": {
+    "Idle": {
+      "pitch": [
+        -0.02,
+        -0.02
+      ],
+      "aim_before": {
+        "GargLLegThigh1": {
+          "from_down": 100.35,
+          "aim": [
+            -0.3684,
+            -0.9122,
+            0.1796
+          ]
+        },
+        "GargRThigh1": {
+          "from_down": 80.38,
+          "aim": [
+            0.074,
+            -0.9831,
+            -0.1672
+          ]
+        },
+        "GargLArmUpperarm1": {
+          "from_down": 53.08,
+          "aim": [
+            -0.2634,
+            -0.7548,
+            -0.6007
+          ]
+        },
+        "GargRUpperarm1": {
+          "from_down": 44.29,
+          "aim": [
+            0.3035,
+            -0.6289,
+            -0.7158
+          ]
+        },
+        "GargLLegCalf1": {
+          "from_down": 56.53,
+          "aim": [
+            0.5703,
+            -0.6088,
+            -0.5515
+          ]
+        },
+        "GargRCalf1": {
+          "from_down": 28.24,
+          "aim": [
+            -0.472,
+            -0.0342,
+            -0.8809
+          ]
+        }
+      },
+      "aim_after": {
+        "GargLLegThigh1": {
+          "from_down": 49.9,
+          "aim": [
+            -0.3684,
+            -0.6703,
+            -0.6442
+          ]
+        },
+        "GargRThigh1": {
+          "from_down": 25.68,
+          "aim": [
+            0.074,
+            -0.427,
+            -0.9012
+          ]
+        },
+        "GargLArmUpperarm1": {
+          "from_down": 20.73,
+          "aim": [
+            -0.2634,
+            -0.2364,
+            -0.9353
+          ]
+        },
+        "GargRUpperarm1": {
+          "from_down": 18.1,
+          "aim": [
+            0.3035,
+            -0.0665,
+            -0.9505
+          ]
+        },
+        "GargLLegCalf1": {
+          "from_down": 35.41,
+          "aim": [
+            0.5703,
+            0.1025,
+            -0.815
+          ]
+        },
+        "GargRCalf1": {
+          "from_down": 57.77,
+          "aim": [
+            -0.472,
+            0.702,
+            -0.5333
+          ]
+        }
+      }
+    },
+    "FlyIdleLoop": {
+      "pitch": [
+        -8.02,
+        -8.02
+      ],
+      "aim_before": {
+        "GargLLegThigh1": {
+          "from_down": 108.66,
+          "aim": [
+            -0.1906,
+            -0.928,
+            0.32
+          ]
+        },
+        "GargRThigh1": {
+          "from_down": 83.13,
+          "aim": [
+            0.0637,
+            -0.9908,
+            -0.1197
+          ]
+        },
+        "GargLArmUpperarm1": {
+          "from_down": 89.85,
+          "aim": [
+            -0.1746,
+            -0.9846,
+            -0.0026
+          ]
+        },
+        "GargRUpperarm1": {
+          "from_down": 103.67,
+          "aim": [
+            0.0984,
+            -0.9667,
+            0.2364
+          ]
+        },
+        "GargLLegCalf1": {
+          "from_down": 58.6,
+          "aim": [
+            0.3946,
+            -0.7569,
+            -0.521
+          ]
+        },
+        "GargRCalf1": {
+          "from_down": 32.25,
+          "aim": [
+            -0.5049,
+            0.1725,
+            -0.8458
+          ]
+        }
+      },
+      "aim_after": {
+        "GargLLegThigh1": {
+          "from_down": 54.78,
+          "aim": [
+            -0.1906,
+            -0.7944,
+            -0.5767
+          ]
+        },
+        "GargRThigh1": {
+          "from_down": 28.33,
+          "aim": [
+            0.0637,
+            -0.4702,
+            -0.8802
+          ]
+        },
+        "GargLArmUpperarm1": {
+          "from_down": 53.22,
+          "aim": [
+            -0.1746,
+            -0.7817,
+            -0.5987
+          ]
+        },
+        "GargRUpperarm1": {
+          "from_down": 66.56,
+          "aim": [
+            0.0984,
+            -0.9122,
+            -0.3977
+          ]
+        },
+        "GargLLegCalf1": {
+          "from_down": 23.24,
+          "aim": [
+            0.3946,
+            -0.0074,
+            -0.9188
+          ]
+        },
+        "GargRCalf1": {
+          "from_down": 69.89,
+          "aim": [
+            -0.5049,
+            0.7917,
+            -0.3438
+          ]
+        }
+      }
+    },
+    "FlyForward": {
+      "pitch": [
+        14.78,
+        14.78
+      ],
+      "aim_before": {
+        "GargLLegThigh1": {
+          "from_down": 69.65,
+          "aim": [
+            -0.0749,
+            -0.9346,
+            -0.3478
+          ]
+        },
+        "GargRThigh1": {
+          "from_down": 54.23,
+          "aim": [
+            0.0499,
+            -0.8098,
+            -0.5845
+          ]
+        },
+        "GargLArmUpperarm1": {
+          "from_down": 87.91,
+          "aim": [
+            -0.2864,
+            -0.9574,
+            -0.0364
+          ]
+        },
+        "GargRUpperarm1": {
+          "from_down": 86.14,
+          "aim": [
+            0.2451,
+            -0.9671,
+            -0.0673
+          ]
+        },
+        "GargLLegCalf1": {
+          "from_down": 31.01,
+          "aim": [
+            0.4764,
+            -0.196,
+            -0.8571
+          ]
+        },
+        "GargRCalf1": {
+          "from_down": 48.93,
+          "aim": [
+            -0.4899,
+            0.573,
+            -0.657
+          ]
+        }
+      },
+      "aim_after": {
+        "GargLLegThigh1": {
+          "from_down": 15.2,
+          "aim": [
+            -0.0749,
+            -0.2512,
+            -0.965
+          ]
+        },
+        "GargRThigh1": {
+          "from_down": 2.98,
+          "aim": [
+            0.0499,
+            0.0143,
+            -0.9987
+          ]
+        },
+        "GargLArmUpperarm1": {
+          "from_down": 52.47,
+          "aim": [
+            -0.2864,
+            -0.7395,
+            -0.6091
+          ]
+        },
+        "GargRUpperarm1": {
+          "from_down": 50.23,
+          "aim": [
+            0.2451,
+            -0.7285,
+            -0.6396
+          ]
+        },
+        "GargLLegCalf1": {
+          "from_down": 49.3,
+          "aim": [
+            0.4764,
+            0.5897,
+            -0.6522
+          ]
+        },
+        "GargRCalf1": {
+          "from_down": 95.31,
+          "aim": [
+            -0.4899,
+            0.8669,
+            0.0925
+          ]
+        }
+      }
+    },
+    "Attack01": {
+      "pitch": [
+        1.13,
+        1.13
+      ],
+      "aim_before": {
+        "GargLLegThigh1": {
+          "from_down": 24.55,
+          "aim": [
+            -0.2109,
+            -0.358,
+            -0.9096
+          ]
+        },
+        "GargRThigh1": {
+          "from_down": 55.87,
+          "aim": [
+            0.7578,
+            -0.333,
+            -0.5611
+          ]
+        },
+        "GargLArmUpperarm1": {
+          "from_down": 45.06,
+          "aim": [
+            -0.5037,
+            -0.4975,
+            -0.7063
+          ]
+        },
+        "GargRUpperarm1": {
+          "from_down": 90.2,
+          "aim": [
+            0.2188,
+            -0.9758,
+            0.0034
+          ]
+        },
+        "GargLLegCalf1": {
+          "from_down": 77.61,
+          "aim": [
+            -0.758,
+            0.616,
+            -0.2145
+          ]
+        },
+        "GargRCalf1": {
+          "from_down": 60.23,
+          "aim": [
+            0.7554,
+            -0.4275,
+            -0.4966
+          ]
+        }
+      },
+      "aim_after": {
+        "GargLLegThigh1": {
+          "from_down": 35.42,
+          "aim": [
+            -0.2109,
+            0.5398,
+            -0.815
+          ]
+        },
+        "GargRThigh1": {
+          "from_down": 53.52,
+          "aim": [
+            0.7578,
+            0.2686,
+            -0.5946
+          ]
+        },
+        "GargLArmUpperarm1": {
+          "from_down": 30.31,
+          "aim": [
+            -0.5037,
+            0.0323,
+            -0.8633
+          ]
+        },
+        "GargRUpperarm1": {
+          "from_down": 53.94,
+          "aim": [
+            0.2188,
+            -0.7783,
+            -0.5886
+          ]
+        },
+        "GargLLegCalf1": {
+          "from_down": 112.43,
+          "aim": [
+            -0.758,
+            0.529,
+            0.3816
+          ]
+        },
+        "GargRCalf1": {
+          "from_down": 50.58,
+          "aim": [
+            0.7554,
+            0.1616,
+            -0.6351
+          ]
+        }
+      }
+    }
+  },
+  "weights_ok": true,
+  "glb_mb": 38.3
+}

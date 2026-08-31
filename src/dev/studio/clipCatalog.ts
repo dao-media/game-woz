@@ -109,6 +109,21 @@ const MONKEY_GARGOYLE_FILES: { file: string; label: string }[] = [
   { file: 'Tpose.glb', label: 'T-Pose' },
 ];
 
+/** Native Garg* clips baked onto ARM_GargoyleNative (reskin WIP). */
+const MONKEY_GARGOYLE_NATIVE_WIP = './models/wingedmonkey/Animations/gargoyle_native_wip';
+const MONKEY_GARGOYLE_NATIVE_WIP_FILES: { file: string; label: string }[] = [
+  { file: 'Idle.glb', label: 'Idle' },
+  { file: 'Walk.glb', label: 'Walk' },
+  { file: 'FlyIdleLoop.glb', label: 'Fly Idle' },
+  { file: 'FlyForward.glb', label: 'Fly Forward' },
+  { file: 'Attack01.glb', label: 'Fly Attack / Attack 01' },
+  { file: 'IdleToFly.glb', label: 'Idle → Fly' },
+  { file: 'FlyToIdle.glb', label: 'Fly → Idle' },
+  { file: 'FlyAttack02.glb', label: 'Fly Attack 02' },
+  { file: 'FlyHit.glb', label: 'Fly Hit' },
+  { file: 'Hit.glb', label: 'Hit' },
+];
+
 export type StudioCharacterId =
   | 'rigged'
   | 'alt'
@@ -116,10 +131,8 @@ export type StudioCharacterId =
   | 'walking'
   | 'running'
   | 'tripo'
-  | 'monkey_rigged'
   | 'monkey_new_wings'
-  | 'monkey_source'
-  | 'monkey_tripo_wings';
+  | 'monkey_reskin_wip';
 
 export type StudioCharacter = {
   id: StudioCharacterId;
@@ -134,7 +147,13 @@ export type StudioCharacter = {
    */
   retargetFromUrl?: string;
   /** Clip library id for this character (defaults by family). */
-  clipSet?: 'dorothy_mixamo' | 'dorothy_tripo' | 'gargoyle' | 'none';
+  clipSet?: 'dorothy_mixamo' | 'dorothy_tripo' | 'gargoyle' | 'gargoyle_native_wip' | 'none';
+  /**
+   * Optional load-time Euler offset in radians [x, y, z] (Three XYZ order),
+   * applied before the shared East-facing yaw. Used only when an entry needs a
+   * rest-orientation fix (e.g. Z-up bind). Omit for default auto-upright tip.
+   */
+  loadOrientationEuler?: readonly [number, number, number];
 };
 
 export type StudioFamily = {
@@ -206,36 +225,20 @@ export const STUDIO_CHARACTERS: StudioCharacter[] = [
     albedoUrl: './models/dorothy/textures/Dorothy_color.jpg',
   },
   {
-    id: 'monkey_rigged',
-    family: 'wingedmonkey',
-    label: 'Winged Monkey (Gargoyle armature)',
-    url: './models/wingedmonkey/WingedMonkey_gargoyle_studio.glb',
-    rig: 'wingedmonkey',
-    clipSet: 'gargoyle',
-  },
-  {
     id: 'monkey_new_wings',
     family: 'wingedmonkey',
-    label: 'Winged Monkey (NEW mesh + Gargoyle armature)',
+    label: 'Winged Monkey',
     url: './models/wingedmonkey/WingedMonkey_new_wings_studio.glb',
     rig: 'wingedmonkey',
     clipSet: 'gargoyle',
   },
   {
-    id: 'monkey_source',
+    id: 'monkey_reskin_wip',
     family: 'wingedmonkey',
-    label: 'Winged Monkey (source Tripo)',
-    url: './models/wingedmonkey/WingedMonkey.glb',
+    label: 'Winged Monkey (reskin WIP)',
+    url: './models/wingedmonkey/WingedMonkey_reskin_wip_studio.glb',
     rig: 'wingedmonkey',
-    clipSet: 'none',
-  },
-  {
-    id: 'monkey_tripo_wings',
-    family: 'wingedmonkey',
-    label: 'Winged Monkey (legacy Tripo+wings)',
-    url: './models/wingedmonkey/WingedMonkey_rigged.glb',
-    rig: 'wingedmonkey',
-    clipSet: 'none',
+    clipSet: 'gargoyle_native_wip',
   },
 ];
 
@@ -272,6 +275,16 @@ export function builtInClips(characterId: StudioCharacterId = 'rigged'): Catalog
 
   if (character.family === 'wingedmonkey') {
     if (character.clipSet === 'none') return [];
+    if (character.clipSet === 'gargoyle_native_wip') {
+      return MONKEY_GARGOYLE_NATIVE_WIP_FILES.map(({ file, label }) => ({
+        id: file,
+        label,
+        url: `${MONKEY_GARGOYLE_NATIVE_WIP}/${file}`,
+        kind: 'glb' as const,
+        family: 'wingedmonkey' as const,
+        rig: 'wingedmonkey' as const,
+      }));
+    }
     return MONKEY_GARGOYLE_FILES.map(({ file, label }) => ({
       id: file,
       label,

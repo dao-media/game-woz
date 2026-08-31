@@ -1,0 +1,173 @@
+{
+  "source": "models/wingedmonkey/working/Monkey_reskin_gargoyle_polished.blend",
+  "working": "models/wingedmonkey/working/Monkey_reskin_gargoyle_wingext.blend",
+  "glb": "models/wingedmonkey/WingedMonkey_reskin_wip_studio.glb",
+  "glb_mb": 37.45,
+  "bones": {
+    "sides": {
+      "L": {
+        "w2_tail": [
+          0.0474,
+          0.0898,
+          0.7996
+        ],
+        "w4_tip": [
+          0.2747,
+          -0.0918,
+          0.3925
+        ],
+        "span_added": 0.5004,
+        "bones": [
+          "GargLWing3",
+          "GargLWing4"
+        ]
+      },
+      "R": {
+        "w2_tail": [
+          -0.0683,
+          0.0898,
+          0.7996
+        ],
+        "w4_tip": [
+          -0.255,
+          -0.0897,
+          0.365
+        ],
+        "span_added": 0.5059,
+        "bones": [
+          "GargRWing3",
+          "GargRWing4"
+        ]
+      }
+    }
+  },
+  "weights": {
+    "before": {
+      "head": {
+        "wing": 0.0,
+        "head": 0.913,
+        "torso": 0.087,
+        "other": 0.0,
+        "n": 2097
+      },
+      "torso": {
+        "wing": 0.0,
+        "head": 0.022,
+        "torso": 0.978,
+        "other": 0.0,
+        "n": 2058
+      },
+      "L_tip": {
+        "wing": 0.0,
+        "head": 0.0,
+        "torso": 0.026,
+        "other": 0.974,
+        "n": 120
+      },
+      "R_tip": {
+        "wing": 0.0,
+        "head": 0.0,
+        "torso": 0.031,
+        "other": 0.969,
+        "n": 120
+      }
+    },
+    "after": {
+      "head": {
+        "wing": 0.0,
+        "head": 0.913,
+        "torso": 0.087,
+        "other": 0.0,
+        "n": 2097
+      },
+      "torso": {
+        "wing": 0.0,
+        "head": 0.022,
+        "torso": 0.978,
+        "other": 0.0,
+        "n": 2058
+      },
+      "L_tip": {
+        "wing": 1.0,
+        "head": 0.0,
+        "torso": 0.0,
+        "other": 0.0,
+        "n": 120
+      },
+      "R_tip": {
+        "wing": 1.0,
+        "head": 0.0,
+        "torso": 0.0,
+        "other": 0.0,
+        "n": 120
+      }
+    },
+    "membrane_reweighted": 2580
+  },
+  "verify": {
+    "body": {
+      "head": {
+        "wing": 0.0,
+        "head": 0.913,
+        "torso": 0.087,
+        "other": 0.0,
+        "n": 2097
+      },
+      "torso": {
+        "wing": 0.0,
+        "head": 0.022,
+        "torso": 0.978,
+        "other": 0.0,
+        "n": 2058
+      }
+    },
+    "clips": {
+      "FlyIdleLoop": {
+        "spread_ratio": 1.0,
+        "spread_min": 0.3006,
+        "spread_max": 0.3006,
+        "w2_tail_travel_max": 0.2604,
+        "w4_tail_travel_max": 0.2268,
+        "w4_tracks_w2": 0.871
+      },
+      "FlyForward": {
+        "spread_ratio": 1.0,
+        "spread_min": 0.3006,
+        "spread_max": 0.3006,
+        "w2_tail_travel_max": 0.3371,
+        "w4_tail_travel_max": 0.2425,
+        "w4_tracks_w2": 0.72
+      },
+      "Attack01": {
+        "spread_ratio": 1.0,
+        "spread_min": 0.3006,
+        "spread_max": 0.3006,
+        "w2_tail_travel_max": 0.2194,
+        "w4_tail_travel_max": 0.2391,
+        "w4_tracks_w2": 1.09
+      }
+    },
+    "wing_tip_weights": {
+      "L": {
+        "wing": 1.0,
+        "head": 0.0,
+        "torso": 0.0,
+        "other": 0.0,
+        "n": 120
+      },
+      "R": {
+        "wing": 1.0,
+        "head": 0.0,
+        "torso": 0.0,
+        "other": 0.0,
+        "n": 120
+      }
+    },
+    "inherit_flap": {
+      "w2_tail_travel": 0.3273,
+      "w4_tail_travel": 0.2268,
+      "w4_tracks_w2": 0.693,
+      "pass": true
+    }
+  }
+}

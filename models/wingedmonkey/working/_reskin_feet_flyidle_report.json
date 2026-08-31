@@ -1,0 +1,177 @@
+{
+  "source": "models/wingedmonkey/working/Monkey_reskin_gargoyle_wingext.blend",
+  "working": "models/wingedmonkey/working/Monkey_reskin_gargoyle_feet_flyidle.blend",
+  "glb": "models/wingedmonkey/WingedMonkey_reskin_wip_studio.glb",
+  "glb_mb": 37.45,
+  "bones": {
+    "sides": {
+      "L": {
+        "tip": [
+          0.086,
+          -0.1662,
+          0.0204
+        ],
+        "before_chain_len": 0.0402,
+        "after_chain_len": 0.1137,
+        "bones": [
+          "GargLLegToe1",
+          "GargLLegToe2",
+          "GargLLegDigit21",
+          "GargLLegDigit22"
+        ]
+      },
+      "R": {
+        "tip": [
+          -0.0873,
+          -0.1657,
+          0.0206
+        ],
+        "before_chain_len": 0.0144,
+        "after_chain_len": 0.1112,
+        "bones": [
+          "GargRToe1",
+          "GargRToe2",
+          "GargRToe011",
+          "GargRToe012"
+        ]
+      }
+    }
+  },
+  "weights": {
+    "before_feet": {
+      "L": {
+        "foot": 0.928,
+        "wing": 0.029,
+        "head": 0.0,
+        "torso": 0.0,
+        "other": 0.043,
+        "n": 344
+      },
+      "R": {
+        "foot": 0.936,
+        "wing": 0.027,
+        "head": 0.0,
+        "torso": 0.0,
+        "other": 0.037,
+        "n": 335
+      }
+    },
+    "after_feet": {
+      "L": {
+        "foot": 1.0,
+        "wing": 0.0,
+        "head": 0.0,
+        "torso": 0.0,
+        "other": 0.0,
+        "n": 344
+      },
+      "R": {
+        "foot": 1.0,
+        "wing": 0.0,
+        "head": 0.0,
+        "torso": 0.0,
+        "other": 0.0,
+        "n": 335
+      }
+    },
+    "before_body": {
+      "head": {
+        "foot": 0.0,
+        "wing": 0.0,
+        "head": 0.913,
+        "torso": 0.087,
+        "other": 0.0,
+        "n": 2097
+      },
+      "torso": {
+        "foot": 0.0,
+        "wing": 0.0,
+        "head": 0.022,
+        "torso": 0.978,
+        "other": 0.0,
+        "n": 2058
+      }
+    },
+    "after_body": {
+      "head": {
+        "foot": 0.0,
+        "wing": 0.0,
+        "head": 0.913,
+        "torso": 0.087,
+        "other": 0.0,
+        "n": 2097
+      },
+      "torso": {
+        "foot": 0.0,
+        "wing": 0.0,
+        "head": 0.022,
+        "torso": 0.978,
+        "other": 0.0,
+        "n": 2058
+      }
+    },
+    "foot_reweighted": 679
+  },
+  "pitch": {
+    "target_pitch": 29.28,
+    "idle_ref_pitch": 37.28,
+    "flyidle_pre": 43.41,
+    "flyidle_post": 29.28,
+    "flyforward": 52.08,
+    "flyforward_unchanged": 52.08,
+    "delta_mean": -12.75,
+    "frames": [
+      1,
+      31
+    ]
+  },
+  "verify": {
+    "body": {
+      "head": {
+        "foot": 0.0,
+        "wing": 0.0,
+        "head": 0.913,
+        "torso": 0.087,
+        "other": 0.0,
+        "n": 2097
+      },
+      "torso": {
+        "foot": 0.0,
+        "wing": 0.0,
+        "head": 0.022,
+        "torso": 0.978,
+        "other": 0.0,
+        "n": 2058
+      }
+    },
+    "feet": {
+      "L": {
+        "foot": 1.0,
+        "wing": 0.0,
+        "head": 0.0,
+        "torso": 0.0,
+        "other": 0.0,
+        "n": 80
+      },
+      "R": {
+        "foot": 1.0,
+        "wing": 0.0,
+        "head": 0.0,
+        "torso": 0.0,
+        "other": 0.0,
+        "n": 80
+      }
+    },
+    "pitch": {
+      "Idle": 37.28,
+      "FlyIdleLoop": 29.28,
+      "FlyForward": 52.08
+    },
+    "foot_spread": {
+      "Idle": 1.034,
+      "FlyIdleLoop": 1.164,
+      "FlyForward": 1.164
+    },
+    "hover_distinct": true
+  }
+}

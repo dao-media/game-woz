@@ -1,0 +1,228 @@
+{
+  "source": "models/wingedmonkey/working/Monkey_reskin_gargoyle_baked.blend",
+  "out_blend": "models/wingedmonkey/working/Monkey_reskin_gargoyle_decimated.blend",
+  "out_glb": "models/wingedmonkey/WingedMonkey_reskin_wip_studio.glb",
+  "glb_mb": 1.15,
+  "stats_before": {
+    "verts": 321302,
+    "edges": 817426,
+    "faces": 499960
+  },
+  "clean": {
+    "before": {
+      "verts": 321302,
+      "edges": 817426,
+      "faces": 499960
+    },
+    "after_clean": {
+      "verts": 249965,
+      "edges": 749937,
+      "faces": 499958
+    }
+  },
+  "decimate": {
+    "before": {
+      "verts": 249965,
+      "edges": 749937,
+      "faces": 499958
+    },
+    "after": {
+      "verts": 7486,
+      "edges": 22500,
+      "faces": 15000
+    },
+    "method": "collapse",
+    "ratio": 0.030002520211697782,
+    "topo_before": {
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    "topo_after": {
+      "boundary_edges": 0,
+      "nonmanifold_edges": 0
+    },
+    "reason": "Clean merge closed the shell; collapse to ~12\u201318k faces."
+  },
+  "silhouette": {
+    "mesh_size": [
+      0.0061,
+      0.0041,
+      0.01
+    ],
+    "wing_bone_span_x": 0.0012,
+    "mesh_width_x": 0.0061,
+    "height_z": 0.01,
+    "wing_risk": "ok"
+  },
+  "remesh_note": "collapse",
+  "bind": {
+    "method": "HEAT_CAGE_DATA_TRANSFER",
+    "groups": 112,
+    "weighted_verts": 7486,
+    "total_verts": 7486,
+    "pct": 100.0,
+    "cage": {
+      "cage_weighted": 482,
+      "transfer_weighted": 7486
+    },
+    "note": "Direct ARMATURE_AUTO on Tripo mesh assigns 0 verts; weights projected from a successful heat cage via Data Transfer."
+  },
+  "verify": {
+    "Idle": {
+      "mesh_animates": true,
+      "center_travel_m": 0.0827,
+      "vol_ratio": 1.0223,
+      "regions": {
+        "torso": {
+          "verdict": "minor",
+          "max_delta_m": 0.0003
+        },
+        "head": {
+          "verdict": "minor",
+          "max_delta_m": 0.0003
+        },
+        "arms": {
+          "verdict": "minor",
+          "max_delta_m": 0.0003
+        },
+        "hands": {
+          "verdict": "minor",
+          "max_delta_m": 0.0003
+        },
+        "legs": {
+          "verdict": "minor",
+          "max_delta_m": 0.0003
+        },
+        "wings": {
+          "verdict": "minor",
+          "max_delta_m": 0.0003
+        }
+      }
+    },
+    "Walk": {
+      "mesh_animates": true,
+      "center_travel_m": 0.3942,
+      "vol_ratio": 1.2623,
+      "regions": {
+        "torso": {
+          "verdict": "minor",
+          "max_delta_m": 0.0021
+        },
+        "head": {
+          "verdict": "minor",
+          "max_delta_m": 0.0035
+        },
+        "arms": {
+          "verdict": "minor",
+          "max_delta_m": 0.0029
+        },
+        "hands": {
+          "verdict": "minor",
+          "max_delta_m": 0.0023
+        },
+        "legs": {
+          "verdict": "minor",
+          "max_delta_m": 0.0021
+        },
+        "wings": {
+          "verdict": "minor",
+          "max_delta_m": 0.0019
+        }
+      }
+    },
+    "FlyIdleLoop": {
+      "mesh_animates": true,
+      "center_travel_m": 0.4342,
+      "vol_ratio": 1.3425,
+      "regions": {
+        "torso": {
+          "verdict": "clean",
+          "max_delta_m": 0.0169
+        },
+        "head": {
+          "verdict": "clean",
+          "max_delta_m": 0.016
+        },
+        "arms": {
+          "verdict": "clean",
+          "max_delta_m": 0.0166
+        },
+        "hands": {
+          "verdict": "clean",
+          "max_delta_m": 0.0171
+        },
+        "legs": {
+          "verdict": "clean",
+          "max_delta_m": 0.0171
+        },
+        "wings": {
+          "verdict": "clean",
+          "max_delta_m": 0.0175
+        }
+      }
+    },
+    "FlyForward": {
+      "mesh_animates": true,
+      "center_travel_m": 0.4328,
+      "vol_ratio": 1.0494,
+      "regions": {
+        "torso": {
+          "verdict": "clean",
+          "max_delta_m": 0.0167
+        },
+        "head": {
+          "verdict": "clean",
+          "max_delta_m": 0.0158
+        },
+        "arms": {
+          "verdict": "clean",
+          "max_delta_m": 0.0163
+        },
+        "hands": {
+          "verdict": "clean",
+          "max_delta_m": 0.0169
+        },
+        "legs": {
+          "verdict": "clean",
+          "max_delta_m": 0.0169
+        },
+        "wings": {
+          "verdict": "clean",
+          "max_delta_m": 0.0166
+        }
+      }
+    },
+    "Attack01": {
+      "mesh_animates": true,
+      "center_travel_m": 1.8706,
+      "vol_ratio": 3.1591,
+      "regions": {
+        "torso": {
+          "verdict": "minor",
+          "max_delta_m": 0.011
+        },
+        "head": {
+          "verdict": "minor",
+          "max_delta_m": 0.0111
+        },
+        "arms": {
+          "verdict": "minor",
+          "max_delta_m": 0.0113
+        },
+        "hands": {
+          "verdict": "minor",
+          "max_delta_m": 0.0102
+        },
+        "legs": {
+          "verdict": "minor",
+          "max_delta_m": 0.0107
+        },
+        "wings": {
+          "verdict": "minor",
+          "max_delta_m": 0.0114
+        }
+      }
+    }
+  },
+  "glb_optimize": "resize1024+webp90+draco"
+}

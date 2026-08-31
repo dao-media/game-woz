@@ -26,8 +26,14 @@ import {
 import { applyAlphaOutline, exportPngSequence } from './exporter';
 
 const TARGET_HEIGHT_M = 1.7;
-/** Clockwise 90° from above (align body facing to Mixamo forward). */
+/** Clockwise 90° from above (align body facing to game East = world −X). */
 const MODEL_YAW_CLOCKWISE_RAD = -Math.PI / 2;
+/**
+ * Gargoyle monkey clips are a quarter-turn off the bind chest/facing used for
+ * the environment compass. When any clip is on the stack, yaw the whole root
+ * by this amount so Walk/Idle face the same cardinal as the slider.
+ */
+const MONKEY_CLIP_FACING_OFFSET_RAD = -Math.PI / 2;
 /** Orbit pitch locked: degrees down from horizontal. Pan / azimuth / zoom stay free. */
 const CAMERA_DOWN_DEG = 28;
 /** Yearbook / selector stills: nearly eye-level, square-on to the character. */
@@ -155,9 +161,16 @@ function skeletonWorldBox(root: THREE.Object3D): THREE.Box3 {
   return box;
 }
 
-function normalizeCharacterPose(root: THREE.Object3D): number {
-  // Mixamo / monkey +Z bind: MODEL_YAW → Facing E = world −X (game East).
-  root.rotation.set(0, MODEL_YAW_CLOCKWISE_RAD, 0);
+function normalizeCharacterPose(
+  root: THREE.Object3D,
+  loadOrientationEuler?: readonly [number, number, number],
+): number {
+  // Mixamo / monkey: MODEL_YAW → Facing E = world −X (game East). Same
+  // environment compass for every family; the slider then yaws the root.
+  const ox = loadOrientationEuler?.[0] ?? 0;
+  const oy = loadOrientationEuler?.[1] ?? 0;
+  const oz = loadOrientationEuler?.[2] ?? 0;
+  root.rotation.set(ox, MODEL_YAW_CLOCKWISE_RAD + oy, oz);
   root.position.set(0, 0, 0);
   root.scale.setScalar(1);
   root.updateMatrixWorld(true);
@@ -181,8 +194,8 @@ function normalizeCharacterPose(root: THREE.Object3D): number {
 
   // Tip ONLY from bone head→foot. Never use AABB size as an "up" vector —
   // winged Tripo meshes are wider than tall in X and that tipped them horizontal
-  // (mid-air float).
-  if (head && foot) {
+  // (mid-air float). Skip when the entry supplies an explicit load orientation.
+  if (!loadOrientationEuler && head && foot) {
     const up = head
       .getWorldPosition(new THREE.Vector3())
       .sub(foot.getWorldPosition(new THREE.Vector3()));
@@ -344,7 +357,7 @@ function setCaptureCameraAzimuth(
 
 /**
  * Yaw character so they face the compass label. Camera stays world-fixed.
- * index 0 = East (base bind facing after MODEL_YAW).
+ * index 0 = East (bind facing after MODEL_YAW = game East / world −X).
  * Clockwise via subtracting step (Three.js Y is CCW+).
  */
 function setCharacterFacingYaw(root: THREE.Object3D, baseYaw: number, index: number): void {
@@ -855,7 +868,7 @@ async function main(): Promise<void> {
   });
   await applyCharacterAlbedo(dorothy, character.albedoUrl);
 
-  const scale = normalizeCharacterPose(dorothy);
+  const scale = normalizeCharacterPose(dorothy, character.loadOrientationEuler);
   // Capture locals AFTER normalize (root scale) but BEFORE any skeleton.pose().
   const boneRest = captureBoneLocals(dorothy);
   /** Root transform after first normalize — restore on Stop (never re-infer tip). */
@@ -864,21 +877,23 @@ async function main(): Promise<void> {
     quaternion: dorothy.quaternion.clone(),
     scale: dorothy.scale.clone(),
   };
-  // Dorothy: default Facing E (game East = world −X).
-  // Monkey: same compass math, but default Facing N so rest faces world +Z North
-  // (Facing E would look West on screen — that's the Dorothy East label, not North).
+  // Environment compass: index 0 = East after MODEL_YAW (same for Dorothy + monkey).
   const baseFacingYaw = dorothy.rotation.y;
-  let facingDirIndex = character.family === 'wingedmonkey' ? 6 : 0;
+  let facingDirIndex = 0;
+  const stack = new ClipStack(dorothy);
+  // Legacy gargoyle MVP clips need an extra −90° vs bind chest. Native WIP
+  // actions are baked facing-matched to rest — do not re-apply that offset.
+  const monkeyClipFacingBias = () =>
+    character.family === 'wingedmonkey' &&
+    character.clipSet !== 'gargoyle_native_wip' &&
+    stack.layers.some((l) => l.enabled)
+      ? MONKEY_CLIP_FACING_OFFSET_RAD
+      : 0;
   const applyFacing = (index: number) => {
-    setCharacterFacingYaw(dorothy, baseFacingYaw, index);
+    // Slider = environment cardinal. Monkey clip bias keeps anim facing on that
+    // cardinal (gargoyle clip torso is ~90° off the bind chest used for rest).
+    setCharacterFacingYaw(dorothy, baseFacingYaw + monkeyClipFacingBias(), index);
   };
-  if (facingDirIndex !== 0) {
-    applyFacing(facingDirIndex);
-    const sceneYawEl = $('scene-yaw') as HTMLInputElement;
-    const sceneYawValEl = $('scene-yaw-val');
-    sceneYawEl.value = String(facingDirIndex);
-    sceneYawValEl.textContent = SCENE_YAW_DIRS[facingDirIndex]!;
-  }
 
   const restoreStudioRest = () => {
     stack.stopAll();
@@ -897,7 +912,6 @@ async function main(): Promise<void> {
   );
   setCameraCraneHeight(camera, controls, defaultLookY);
 
-  const stack = new ClipStack(dorothy);
   let skeletonHelper: THREE.SkeletonHelper | null = null;
   let playing = false;
   /** Wall-clock scrub of the export package (Speed slider). Mixer stays 1×. */
@@ -1053,6 +1067,7 @@ async function main(): Promise<void> {
   const refreshStack = () => {
     renderStack(stack, () => {
       refreshStack();
+      applyFacing(facingDirIndex);
       if (playing) stack.playAll();
     }, (label) => {
       const i = stackSources.findIndex((s) => s.label === label);
@@ -1066,6 +1081,8 @@ async function main(): Promise<void> {
       playing = false;
       smoothedPose.clear();
       restoreStudioRest();
+    } else {
+      applyFacing(facingDirIndex);
     }
   };
   refreshStack();
@@ -1103,6 +1120,7 @@ async function main(): Promise<void> {
     }
     refreshStack();
     if (stack.layers.length === 0) return;
+    applyFacing(facingDirIndex);
     const motion = rootMotionMode === 'inplace' ? 'in place' : 'travel';
     const mirror = mirrorEnabled ? ' · mirrored' : '';
     if (autoPlay) {
@@ -1331,7 +1349,7 @@ async function main(): Promise<void> {
 
   const captureTheta = () =>
     cameraMode === 'portrait'
-      ? portraitAzimuth(baseFacingYaw, facingDirIndex)
+      ? portraitAzimuth(baseFacingYaw + monkeyClipFacingBias(), facingDirIndex)
       : CAPTURE_CAMERA_THETA;
 
   const snapCapture = () => {

@@ -1,0 +1,175 @@
+{
+  "source": "models/wingedmonkey/working/Monkey_reskin_gargoyle_decimated.blend",
+  "out_blend": "models/wingedmonkey/working/Monkey_reskin_gargoyle_normalized.blend",
+  "out_glb": "models/wingedmonkey/WingedMonkey_reskin_wip_studio.glb",
+  "glb_mb": 37.43,
+  "normalize": {
+    "before": {
+      "mesh_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "mesh_local_scale": [
+        99.999977,
+        99.999977,
+        100.0
+      ],
+      "mesh_parent": "ARM_GargoyleNative",
+      "arm_scale": [
+        0.01,
+        0.01,
+        0.01
+      ],
+      "arm_location": [
+        0.0,
+        1.5,
+        0.0
+      ],
+      "mesh_world_size": [
+        0.58018,
+        0.35922,
+        1.00078
+      ],
+      "mesh_world_height": 1.00078,
+      "bone_world_size": [
+        0.01566,
+        0.00603,
+        0.0104
+      ],
+      "bone_world_height": 0.0104,
+      "weighted": 7486,
+      "verts": 7486,
+      "faces": 15000
+    },
+    "after": {
+      "mesh_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "mesh_local_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "mesh_parent": "ARM_GargoyleNative",
+      "arm_scale": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "arm_location": [
+        0.0,
+        0.0,
+        -4.7e-05
+      ],
+      "mesh_world_size": [
+        0.58018,
+        0.35922,
+        1.00078
+      ],
+      "mesh_world_height": 1.00078,
+      "bone_world_size": [
+        1.56566,
+        0.60271,
+        1.04049
+      ],
+      "bone_world_height": 1.04049,
+      "weighted": 7486,
+      "verts": 7486,
+      "faces": 15000
+    }
+  },
+  "action_note": "Baked actions remain bone-local (same rest armature data). Armature object scale 0.01\u21921 carries animation into true-meter world uniformly with the mesh; no location-key rewrite required.",
+  "verify": [
+    {
+      "clip": "FlyIdleLoop",
+      "rest_height": 1.0008,
+      "sample_heights": [
+        0.8335,
+        0.7966,
+        0.833
+      ],
+      "height_ratios": [
+        0.8329,
+        0.796,
+        0.8323
+      ],
+      "max_height_ratio": 0.8329,
+      "center_travel_max": 0.3994,
+      "stable_size": true,
+      "rest_center": [
+        -0.0002,
+        -0.0001,
+        0.5004
+      ]
+    },
+    {
+      "clip": "FlyForward",
+      "rest_height": 1.0008,
+      "sample_heights": [
+        0.8612,
+        0.6718,
+        0.8606
+      ],
+      "height_ratios": [
+        0.8606,
+        0.6713,
+        0.8599
+      ],
+      "max_height_ratio": 0.8606,
+      "center_travel_max": 0.48,
+      "stable_size": true,
+      "rest_center": [
+        -0.0002,
+        -0.0001,
+        0.5004
+      ]
+    },
+    {
+      "clip": "Idle",
+      "rest_height": 1.0008,
+      "sample_heights": [
+        0.7569,
+        0.7395,
+        0.7565
+      ],
+      "height_ratios": [
+        0.7563,
+        0.7389,
+        0.7559
+      ],
+      "max_height_ratio": 0.7563,
+      "center_travel_max": 0.0409,
+      "stable_size": true,
+      "rest_center": [
+        -0.0002,
+        -0.0001,
+        0.5004
+      ]
+    },
+    {
+      "clip": "Walk",
+      "rest_height": 1.0008,
+      "sample_heights": [
+        0.8145,
+        0.8555,
+        0.8168
+      ],
+      "height_ratios": [
+        0.8139,
+        0.8549,
+        0.8161
+      ],
+      "max_height_ratio": 0.8549,
+      "center_travel_max": 0.0677,
+      "stable_size": true,
+      "rest_center": [
+        -0.0002,
+        -0.0001,
+        0.5004
+      ]
+    }
+  ]
+}
