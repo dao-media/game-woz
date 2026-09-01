@@ -86,9 +86,11 @@ export const tuning = {
   floorGridStepX: 80,
   floorGridStepY: 40,
 
-  moveSpeedX: 180,
-  moveSpeedY: 140,
-  runSpeedMul: 1.65,
+  // Walk: midpoint of pre-cut (180/140) and 20%-cut (144/112) → 90% of original.
+  moveSpeedX: 162, // (180 + 144) / 2
+  moveSpeedY: 126, // (140 + 112) / 2
+  // Keep run absolute speed at the post-cut level (144×1.65 / 162).
+  runSpeedMul: 1.4666666667, // 1.65 × (0.8 / 0.9)
 
   // Peak height ∝ v²/(2g). 170 ≈ 220 × √0.6 → 40% lower apex (anims untouched).
   jumpVelocityZ: 170,
@@ -116,7 +118,13 @@ export const tuning = {
   playerBodyWidth: 36,
   playerBodyHeight: 56,
   /** On-screen Dorothy sprite height (px) — shared across walk/run/idle packs. */
-  playerSpriteHeight: 95, // 83 × 1.15
+  playerSpriteHeight: 114, // 95 × 1.2
+  /**
+   * Extra screen-Y (toward camera / down the screen) for the Dorothy sprite so
+   * soles plant on the shadow instead of reading behind it. Scaled by entity
+   * depth scale; shadow stays on the floor contact point.
+   */
+  playerSpriteTowardCameraPx: 6,
   /**
    * How strongly character sprites shrink/grow with floor depth (0 = flat, 1 = full
    * perspectiveFarScale). Sole permitted scale modifier besides baseScale.
@@ -166,9 +174,28 @@ export const tuning = {
   kick3ActiveEndMs: 180,
   kick3Knockback: 95,
 
+  /** Legacy combo timeout — unused by rhythm combo; kept for reference. */
   comboWindowMs: 420,
-  /** Buffer next light input this many ms before kick ends. */
-  comboBufferLeadMs: 90,
+
+  /** Rhythm combo: ms after kick 1 ends before marker-2 window opens / closes. */
+  comboWindow2OpenMs: 120,
+  comboWindow2CloseMs: 380,
+  /** Rhythm combo: ms after kick 2 ends before marker-3 window opens / closes. */
+  comboWindow3OpenMs: 100,
+  comboWindow3CloseMs: 360,
+
+  /** Combo marker meter — screen offset from player feet (negative = up). */
+  comboMeterOffsetY: -52,
+  comboMeterMarkerSize: 10,
+  comboMeterMarkerGap: 6,
+
+  /** Screen px from head anchor to overhead bars (negative = above head). */
+  overheadBarOffsetY: -36,
+  overheadBarWidth: 44,
+  overheadBarHeight: 5,
+  overheadBarGap: 3,
+  /** 0 = fixed screen px; 1 = full entityDepthScale multiplier on bar sizes. */
+  overheadBarDepthScaleStrength: 0,
 
   /** Dorothy heavy — heel-click red energy bolt. */
   heavyDamage: 18,
@@ -192,6 +219,15 @@ export const tuning = {
   ultimateCooldownMs: 8000,
   ultimatePulseDurationMs: 380,
   ultimateKnockback: 55,
+
+  /** Passive ultimate fill — full meter over this many seconds (always on). */
+  ultimateBaseChargeSeconds: 30,
+  /** Landed kick charge (sum ≈ 0.333 → three full combos fill the meter). */
+  ultimateChargeKick1: 0.08,
+  ultimateChargeKick2: 0.1,
+  ultimateChargeKick3: 0.153,
+  /** Landed shoe-laser hit (~1/35 of the meter). */
+  ultimateChargePerLaserHit: 1 / 35,
 
   // —— Difficulty (behavioral dials; HP/damage mults stay minor) ——
   difficultyPresets: {

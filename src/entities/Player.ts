@@ -206,6 +206,22 @@ export class Player implements Damageable {
     return this.combat?.ultimateTargetsAcquired ?? 0;
   }
 
+  get comboMarkersLit(): number {
+    return this.combat?.comboMarkersLit ?? 0;
+  }
+
+  get comboWindowActive(): boolean {
+    return this.combat?.comboWindowActive ?? false;
+  }
+
+  get comboWindowTarget(): 2 | 3 | null {
+    return this.combat?.comboWindowTarget ?? null;
+  }
+
+  get lastUltimateChargeAdded(): number {
+    return this.combat?.lastUltimateChargeAdded ?? 0;
+  }
+
   /** Brief window after an attack ends — AI punish cue. */
   get isInAttackRecovery(): boolean {
     return this.attackRecoveryMs > 0;
@@ -471,7 +487,9 @@ export class Player implements Damageable {
           : 1;
       // Exactly one scale assignment for the character sprite.
       this.visual.setScale(flip * visualScale, visualScale);
-      this.visual.setPosition(screenX, screenY);
+      // Nudge toward camera so soles sit on the shadow (walk/run read behind it otherwise).
+      const towardCam = tuning.playerSpriteTowardCameraPx * entityScale;
+      this.visual.setPosition(screenX, screenY + towardCam);
       applyDorothyFeetOrigin(this.visual);
       applyDepth(this.visual, this.floorY, 1);
       this.visual.setVisible(this.shadow.visible);

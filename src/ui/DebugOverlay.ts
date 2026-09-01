@@ -121,9 +121,11 @@ export class DebugOverlay {
     }
 
     lines.push(
-      `fsm  ${player.state}  combo  ${player.comboIndex}  recovery  ${player.isInAttackRecovery ? 'Y' : 'n'}`,
+      `fsm  ${player.state}  comboKick  ${player.comboIndex + 1}  markers  ${player.comboMarkersLit}/3`,
+      `comboWin  ${player.comboWindowActive ? `open→${player.comboWindowTarget}` : 'closed'}`,
       `hp  ${player.health.currentHP.toFixed(1)} / ${player.health.maxHP}  lastHit  ${player.lastHitDamage}`,
       `heavyCd  ${(player.heavyCooldownRemainMs / 1000).toFixed(2)}s  ultCd  ${(player.ultimateCooldownRemainMs / 1000).toFixed(2)}s`,
+      `ultCharge  ${(player.ultimateCharge * 100).toFixed(1)}%  lastCharge+  ${(player.lastUltimateChargeAdded * 100).toFixed(2)}%`,
       `character  ${selectedCharacter ?? player.characterId}`,
       `path  ${branch?.id ?? '(none)'} — ${branch?.label ?? ''}`,
     );

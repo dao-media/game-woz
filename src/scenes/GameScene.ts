@@ -21,6 +21,8 @@ import { ybrRoadLength } from '../data/ybr';
 import { createStageLayers, redrawStage, type StageLayers } from '../render/StageView';
 import { DebugOverlay } from '../ui/DebugOverlay';
 import { CombatHUD } from '../ui/CombatHUD';
+import { ComboMeter } from '../ui/ComboMeter';
+import { OverheadPlayerBars } from '../ui/OverheadPlayerBars';
 import { EncounterManager } from '../combat/EncounterManager';
 import { resolveDifficultyParams } from '../ai/DifficultyParams';
 
@@ -35,6 +37,8 @@ export class GameScene extends Phaser.Scene {
   private stage!: StageLayers;
   private debug!: DebugOverlay;
   private hud!: CombatHUD;
+  private overheadBars!: OverheadPlayerBars;
+  private comboMeter!: ComboMeter;
   private encounters!: EncounterManager;
   private finished = false;
   private defeated = false;
@@ -91,6 +95,8 @@ export class GameScene extends Phaser.Scene {
     );
 
     this.hud = new CombatHUD(this);
+    this.overheadBars = new OverheadPlayerBars(this);
+    this.comboMeter = new ComboMeter(this);
     this.debug = new DebugOverlay(this);
     this.add
       .text(
@@ -137,6 +143,8 @@ export class GameScene extends Phaser.Scene {
     }
 
     this.hud.update(this.player);
+    this.overheadBars.update(this.player);
+    this.comboMeter.update(this.player, dt);
     this.syncCameraAndStage();
 
     const path = getSelectedPath(this);

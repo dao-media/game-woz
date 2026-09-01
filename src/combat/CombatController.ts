@@ -13,7 +13,7 @@ import type Phaser from 'phaser';
 
 /**
  * Per-character combat controller seam.
- * Dorothy: slippers + light combo + heavy bolt + ultimate pulse.
+ * Dorothy: slippers + rhythm light combo + heavy bolt + ultimate pulse.
  * Others: placeholder kick only.
  */
 export interface CombatController {
@@ -23,17 +23,22 @@ export interface CombatController {
   readonly heavyCooldownRemainMs: number;
   /** Remaining ultimate cooldown (ms). */
   readonly ultimateCooldownRemainMs: number;
-  /**
-   * Earned ultimate charge 0–1.
-   * Seam for later: fill from dealing/taking damage.
-   * For now, snaps to 1 when ultimate cooldown ends.
-   */
+  /** Earned ultimate charge 0–1 (passive + landed hits). */
   readonly ultimateCharge: number;
   /** Last ultimate acquire count (for debug). */
   readonly ultimateTargetsAcquired: number;
+
+  /** Rhythm combo: how many markers are lit (0–3). */
+  readonly comboMarkersLit: number;
+  /** True while marker 2 or 3 timing window is open. */
+  readonly comboWindowActive: boolean;
+  /** Which marker (2 or 3) has an open window, else null. */
+  readonly comboWindowTarget: 2 | 3 | null;
+  /** Charge added by the most recent landed kick or laser (debug). */
+  readonly lastUltimateChargeAdded: number;
+
   update(player: Player, input: Input, dtMs: number, targets: readonly Damageable[]): void;
   tickPassive?(player: Player, dtMs: number): void;
-  /** Optional: later wire damage events into charge. */
   addUltimateCharge?(amount: number): void;
 }
 
@@ -45,17 +50,32 @@ export function createCombatController(
   return new PlaceholderCombat(scene);
 }
 
+const KICK_CHARGE_BY_INDEX = [
+  tuning.ultimateChargeKick1,
+  tuning.ultimateChargeKick2,
+  tuning.ultimateChargeKick3,
+] as const;
+
 class DorothyCombat implements CombatController {
   comboIndex = 0;
   lastHitDamage = 0;
   heavyCooldownRemainMs = 0;
   ultimateCooldownRemainMs = 0;
-  ultimateCharge = 1;
+  ultimateCharge = 0;
   ultimateTargetsAcquired = 0;
 
-  private comboTimerMs = 0;
-  private slippersWired = false;
-  private bufferedLight = false;
+  comboMarkersLit = 0;
+  comboWindowActive = false;
+  comboWindowTarget: 2 | 3 | null = null;
+  lastUltimateChargeAdded = 0;
+
+  private waitingForComboInput = false;
+  private timeSinceKickEndMs = 0;
+  private windowOpenMs = 0;
+  private windowCloseMs = 0;
+  private currentKickIndex = 0;
+  private pendingComboPress = false;
+  private kickChargeApplied = false;
   private attackRemainMs = 0;
   private ultimateWindupRemainMs = 0;
   private readonly bolts: RedEnergyBolt[] = [];
@@ -67,6 +87,7 @@ class DorothyCombat implements CombatController {
   }
 
   addUltimateCharge(amount: number): void {
+    if (amount <= 0) return;
     this.ultimateCharge = Math.min(1, Math.max(0, this.ultimateCharge + amount));
   }
 
@@ -74,17 +95,15 @@ class DorothyCombat implements CombatController {
     this.ensureSlippers(player);
     if (player.health.isDead) return;
     player.health.heal(tuning.slipperRegenPerSec * (dtMs / 1000));
+    const passiveRate = 1 / tuning.ultimateBaseChargeSeconds;
+    this.addUltimateCharge(passiveRate * (dtMs / 1000));
   }
 
   update(player: Player, input: Input, dtMs: number, targets: readonly Damageable[]): void {
     this.ensureSlippers(player);
     this.tickCooldowns(dtMs);
     this.tickProjectiles(dtMs, targets);
-
-    if (this.comboTimerMs > 0) {
-      this.comboTimerMs -= dtMs;
-      if (this.comboTimerMs <= 0) this.comboIndex = 0;
-    }
+    this.tickComboWindow(dtMs);
 
     // —— Ultimate windup / detonate ——
     if (player.state === 'ultimate') {
@@ -104,8 +123,8 @@ class DorothyCombat implements CombatController {
 
     // —— Light combo ——
     if (player.state === 'lightAttack') {
-      if (input.justDown('lightAttack') && this.attackRemainMs <= tuning.comboBufferLeadMs) {
-        this.bufferedLight = true;
+      if (input.justDown('lightAttack')) {
+        this.pendingComboPress = true;
       }
       this.attackRemainMs = Math.max(0, this.attackRemainMs - dtMs);
 
@@ -113,19 +132,38 @@ class DorothyCombat implements CombatController {
         this.lastHitDamage = dmg;
         spawnDamageNumber(this.scene, tx, ty, dmg);
         hitStop(this.scene);
-        this.addUltimateCharge(0.04);
+        if (dmg > 0 && !this.kickChargeApplied) {
+          this.kickChargeApplied = true;
+          const charge = KICK_CHARGE_BY_INDEX[this.currentKickIndex] ?? 0;
+          this.lastUltimateChargeAdded = charge;
+          this.addUltimateCharge(charge);
+        }
       });
 
-      if (player.state !== 'lightAttack' && this.bufferedLight) {
-        this.bufferedLight = false;
-        this.beginKick(player);
+      if (player.state !== 'lightAttack') {
+        this.onKickAnimComplete(player);
       }
       return;
     }
 
-    if ((input.justDown('lightAttack') || this.bufferedLight) && player.canStartAttack()) {
-      this.bufferedLight = false;
-      this.beginKick(player);
+    if (this.pendingComboPress) {
+      this.pendingComboPress = false;
+      if (this.waitingForComboInput) {
+        this.handleComboPress(player);
+      } else if (player.canStartAttack()) {
+        this.beginKick(player, 0);
+      }
+      return;
+    }
+
+    if (input.justDown('lightAttack')) {
+      if (this.waitingForComboInput) {
+        this.handleComboPress(player);
+        return;
+      }
+      if (player.canStartAttack()) {
+        this.beginKick(player, 0);
+      }
       return;
     }
 
@@ -153,10 +191,23 @@ class DorothyCombat implements CombatController {
     }
     if (this.ultimateCooldownRemainMs > 0) {
       this.ultimateCooldownRemainMs = Math.max(0, this.ultimateCooldownRemainMs - dtMs);
-      if (this.ultimateCooldownRemainMs <= 0 && this.ultimateCharge < 1) {
-        // Cooldown gate refill — later replaced by damage-earned charge.
-        this.ultimateCharge = 1;
-      }
+    }
+  }
+
+  private tickComboWindow(dtMs: number): void {
+    if (!this.waitingForComboInput) {
+      this.comboWindowActive = false;
+      this.comboWindowTarget = null;
+      return;
+    }
+
+    this.timeSinceKickEndMs += dtMs;
+    const open = this.timeSinceKickEndMs >= this.windowOpenMs;
+    const closed = this.timeSinceKickEndMs > this.windowCloseMs;
+    this.comboWindowActive = open && !closed;
+
+    if (closed) {
+      this.resetComboChain();
     }
   }
 
@@ -167,7 +218,8 @@ class DorothyCombat implements CombatController {
       const hitDmg = bolt.consumeHitDamage();
       if (hitDmg > 0) {
         this.lastHitDamage = hitDmg;
-        this.addUltimateCharge(0.06);
+        this.lastUltimateChargeAdded = tuning.ultimateChargePerLaserHit;
+        this.addUltimateCharge(tuning.ultimateChargePerLaserHit);
       }
       if (!bolt.alive) this.bolts.splice(i, 1);
     }
@@ -178,13 +230,81 @@ class DorothyCombat implements CombatController {
     }
   }
 
-  private beginKick(player: Player): void {
-    const kick = dorothyKickCombo[this.comboIndex] ?? dorothyKickCombo[0]!;
+  private handleComboPress(player: Player): void {
+    if (!this.waitingForComboInput) return;
+
+    const t = this.timeSinceKickEndMs;
+    if (t < this.windowOpenMs) {
+      // Mash / early — restart at kick 1.
+      this.resetComboChain();
+      this.beginKick(player, 0);
+      return;
+    }
+
+    if (t <= this.windowCloseMs) {
+      const nextKick = this.comboWindowTarget === 2 ? 1 : 2;
+      this.waitingForComboInput = false;
+      this.comboWindowActive = false;
+      this.comboWindowTarget = null;
+      this.beginKick(player, nextKick);
+    }
+  }
+
+  private beginKick(player: Player, kickIndex: number): void {
+    const kick = dorothyKickCombo[kickIndex] ?? dorothyKickCombo[0]!;
+    this.currentKickIndex = kickIndex;
+    this.comboIndex = kickIndex;
+    this.waitingForComboInput = false;
+    this.timeSinceKickEndMs = 0;
+    this.comboWindowActive = false;
+    this.comboWindowTarget = null;
+    this.comboMarkersLit = kickIndex + 1;
+    this.kickChargeApplied = false;
     this.attackRemainMs = kick.durationMs;
-    player.startLightAttack(kick, this.comboIndex, () => {
-      this.comboIndex = (this.comboIndex + 1) % dorothyKickCombo.length;
-      this.comboTimerMs = tuning.comboWindowMs;
+
+    player.startLightAttack(kick, kickIndex, () => {
+      /* completion handled in onKickAnimComplete */
     });
+  }
+
+  private onKickAnimComplete(player: Player): void {
+    const kickIndex = this.currentKickIndex;
+    this.comboMarkersLit = kickIndex + 1;
+    if (!this.kickChargeApplied) {
+      this.lastUltimateChargeAdded = 0;
+    }
+    if (kickIndex >= dorothyKickCombo.length - 1) {
+      this.resetComboChain();
+      return;
+    }
+
+    this.waitingForComboInput = true;
+    this.timeSinceKickEndMs = 0;
+    if (kickIndex === 0) {
+      this.windowOpenMs = tuning.comboWindow2OpenMs;
+      this.windowCloseMs = tuning.comboWindow2CloseMs;
+      this.comboWindowTarget = 2;
+    } else {
+      this.windowOpenMs = tuning.comboWindow3OpenMs;
+      this.windowCloseMs = tuning.comboWindow3CloseMs;
+      this.comboWindowTarget = 3;
+    }
+    this.comboWindowActive = this.timeSinceKickEndMs >= this.windowOpenMs;
+
+    if (this.pendingComboPress) {
+      this.pendingComboPress = false;
+      this.handleComboPress(player);
+    }
+  }
+
+  private resetComboChain(): void {
+    this.waitingForComboInput = false;
+    this.timeSinceKickEndMs = 0;
+    this.comboWindowActive = false;
+    this.comboWindowTarget = null;
+    this.comboMarkersLit = 0;
+    this.comboIndex = 0;
+    this.currentKickIndex = 0;
   }
 
   private beginHeavy(player: Player): void {
@@ -201,9 +321,11 @@ class DorothyCombat implements CombatController {
 
   private beginUltimate(player: Player): void {
     this.ultimateCharge = 0;
+    this.lastUltimateChargeAdded = 0;
     this.ultimateCooldownRemainMs = tuning.ultimateCooldownMs;
     this.ultimateWindupRemainMs = tuning.ultimateWindupMs;
     this.ultimateTargetsAcquired = 0;
+    this.resetComboChain();
     player.startCombatLock('ultimate', tuning.ultimateWindupMs + 10_000);
   }
 
@@ -234,7 +356,6 @@ class DorothyCombat implements CombatController {
         spawnDamageNumber(this.scene, t.floorX, t.floorY, dealt);
       }
 
-      // AoE around each acquired target — splash nearby living enemies in pulse radius.
       for (const other of targets) {
         if (other === t || other.health.isDead) continue;
         const d = Math.hypot(other.floorX - t.floorX, other.floorY - t.floorY);
@@ -260,6 +381,8 @@ class DorothyCombat implements CombatController {
     this.slippersWired = true;
     player.health.addModifier((amount) => amount * (1 - tuning.slipperDamageReduction));
   }
+
+  private slippersWired = false;
 }
 
 class PlaceholderCombat implements CombatController {
@@ -269,6 +392,10 @@ class PlaceholderCombat implements CombatController {
   ultimateCooldownRemainMs = 0;
   ultimateCharge = 0;
   ultimateTargetsAcquired = 0;
+  comboMarkersLit = 0;
+  comboWindowActive = false;
+  comboWindowTarget: 2 | 3 | null = null;
+  lastUltimateChargeAdded = 0;
   private readonly scene: Phaser.Scene;
 
   constructor(scene: Phaser.Scene) {
