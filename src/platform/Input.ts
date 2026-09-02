@@ -17,7 +17,8 @@ export type InputAction =
   | 'menuUp'
   | 'menuDown'
   | 'debug'
-  | 'spawnEnemy';
+  | 'spawnEnemy'
+  | 'debugForceUltimate';
 
 /** Ground-plane move vector (world x/y), normalized. */
 export type MoveVector = { x: number; y: number };

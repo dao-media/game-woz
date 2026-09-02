@@ -14,7 +14,21 @@ masters/
     Sprites/         # original sprite exports (NEW/, direction packs, …)
     meshes/          # master rigs / GLBs
     Animations/      # original FBX + baked mixamo_character GLBs
+  wingedmonkey/
+    meshes/          # master meshes (Tripo, Hunyuan remesh, Mixamo-prep)
 ```
+
+Winged Monkey mesh masters (do not edit):
+
+- `masters/wingedmonkey/meshes/WingedMonkey.glb` — original Tripo export
+- `masters/wingedmonkey/meshes/WingedMonkey_NEW.glb` — updated body mesh
+- `masters/wingedmonkey/meshes/monkey_lowpoly.glb` — Hunyuan remesh (low-poly, T-pose)
+- `masters/wingedmonkey/meshes/monkey_mixamo.glb` — Mixamo-upload prep derived from `monkey_lowpoly` (rebuilt via `scripts/export_monkey_mixamo.py`)
+
+Mixamo upload pack (derived, under `models/`):
+
+- `models/wingedmonkey/mixamo/monkey_mixamo.fbx` — upload this to Mixamo
+- See `models/wingedmonkey/mixamo/README.md`
 
 Dorothy sprite masters (do not edit):
 

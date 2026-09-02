@@ -19,7 +19,10 @@ import {
   DOROTHY_IDLE_FRAME,
   applyDorothyAnimTimeScale,
   applyDorothyFeetOrigin,
+  dorothyAimRadFromDir,
   dorothyAnimExists,
+  dorothyBaseScale,
+  dorothyBaseScaleForSprite,
   dorothyIdleAnimKey,
   dorothyIdleAtlasKey,
   dorothyIdleFacing,
@@ -28,13 +31,14 @@ import {
   dorothyIdleSideFromDir,
   dorothyJumpAnimKey,
   dorothyJumpShouldMirror,
+  dorothyLight1AnimKey,
   dorothyRunAnimKey,
   dorothySpritesReady,
   dorothyWalkAnimKey,
   dorothyWalkDirFromMove,
-  dorothyBaseScale,
   playDorothyAnim,
   playDorothyJumpAnim,
+  playDorothyLight1Anim,
   type DorothyWalkDir,
 } from './dorothySprites';
 export type PlayerState =
@@ -83,6 +87,8 @@ export class Player implements Damageable {
   private attackHitSet = new Set<Damageable>();
   private attackOnComplete: (() => void) | null = null;
   private comboIndexDuringAttack = 0;
+  /** Facing locked when a light attack starts (8-way Light1 clip). */
+  private attackDir: DorothyWalkDir = DOROTHY_DEFAULT_WALK_DIR;
   private lockElapsedMs = 0;
   private lockDurationMs = 0;
   private attackRecoveryMs = 0;
@@ -169,6 +175,11 @@ export class Player implements Damageable {
     this.syncLocomotionAnim();
   }
 
+  /** Current 8-way facing used for locomotion / idle packs. */
+  get locomotionDir(): DorothyWalkDir {
+    return this.walkDir;
+  }
+
   get facing(): 1 | -1 {
     return this.facingDir;
   }
@@ -222,6 +233,11 @@ export class Player implements Damageable {
     return this.combat?.lastUltimateChargeAdded ?? 0;
   }
 
+  /** P — force ult charge full and replay charge-full VFX (debug). */
+  debugForceChargeFull(): void {
+    this.combat?.forceDebugChargeFull();
+  }
+
   /** Brief window after an attack ends — AI punish cue. */
   get isInAttackRecovery(): boolean {
     return this.attackRecoveryMs > 0;
@@ -269,7 +285,9 @@ export class Player implements Damageable {
     this.attackHitSet.clear();
     this.attackOnComplete = onComplete;
     this.comboIndexDuringAttack = comboIndex;
+    this.attackDir = this.walkDir;
     this.fsm.set('lightAttack');
+    this.playLight1AttackAnim();
   }
 
   /** Brief FSM lock for heavy / ultimate (movement & other attacks blocked). */
@@ -312,7 +330,12 @@ export class Player implements Damageable {
     ) {
       const hits = resolveAttack(
         def,
-        { floorX: this.floorX, floorY: this.floorY, facing: this.facingDir },
+        {
+          floorX: this.floorX,
+          floorY: this.floorY,
+          facing: this.facingDir,
+          aimRad: dorothyAimRadFromDir(this.attackDir),
+        },
         targets,
         this.attackHitSet,
         { kind: 'player-light', id: def.id },
@@ -466,7 +489,7 @@ export class Player implements Damageable {
       this.floorY,
       tuning.playerDepthScaleStrength,
     );
-    const visualScale = dorothyBaseScale() * entityScale;
+    const visualScale = dorothyBaseScaleForSprite(this.visual) * entityScale;
 
     // 2) Position — z enters only as vertical offset from ground contact.
     const groundY = Projection.groundScreenY(this.floorY);
@@ -492,7 +515,6 @@ export class Player implements Damageable {
       this.visual.setPosition(screenX, screenY + towardCam);
       applyDorothyFeetOrigin(this.visual);
       applyDepth(this.visual, this.floorY, 1);
-      this.visual.setVisible(this.shadow.visible);
     }
 
     this.shadow.setPosition(groundX, groundY);
@@ -519,15 +541,18 @@ export class Player implements Damageable {
     }
   }
 
-  /** Idle / walk(8) / run / jump when packs exist. */
+  /** Idle / walk(8) / run / jump / light1 when packs exist. */
   private syncLocomotionAnim(): void {
     const sprite = this.visual;
     if (!sprite) return;
 
+    if (this.state === 'lightAttack') {
+      this.playLight1AttackAnim();
+      return;
+    }
+
     const attacking =
-      this.state === 'lightAttack' ||
-      this.state === 'heavyAttack' ||
-      this.state === 'ultimate';
+      this.state === 'heavyAttack' || this.state === 'ultimate';
     if (attacking) return;
 
     const airborne = this.state === 'jump' || this.state === 'fall' || this.z > 0;
@@ -586,6 +611,21 @@ export class Player implements Damageable {
     if (dorothyAnimExists(this.scene, fallback) && sprite.anims.currentAnim?.key !== fallback) {
       playDorothyAnim(sprite, fallback, true);
     }
+  }
+
+  /** Play / keep Light1 clip for the locked attack direction (all 8 ways @ 42 fps). */
+  private playLight1AttackAnim(): void {
+    const sprite = this.visual;
+    if (!sprite) return;
+    const key = dorothyLight1AnimKey(this.attackDir);
+    const fallback = dorothyLight1AnimKey(DOROTHY_DEFAULT_WALK_DIR);
+    const playKey = dorothyAnimExists(this.scene, key)
+      ? key
+      : dorothyAnimExists(this.scene, fallback)
+        ? fallback
+        : null;
+    if (!playKey) return;
+    playDorothyLight1Anim(sprite, playKey);
   }
 
   destroy(): void {

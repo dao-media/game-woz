@@ -40,6 +40,8 @@ export interface CombatController {
   update(player: Player, input: Input, dtMs: number, targets: readonly Damageable[]): void;
   tickPassive?(player: Player, dtMs: number): void;
   addUltimateCharge?(amount: number): void;
+  /** Debug: set charge to full and clear ult cooldown (F3 + P). */
+  forceDebugChargeFull(): void;
 }
 
 export function createCombatController(
@@ -89,6 +91,12 @@ class DorothyCombat implements CombatController {
   addUltimateCharge(amount: number): void {
     if (amount <= 0) return;
     this.ultimateCharge = Math.min(1, Math.max(0, this.ultimateCharge + amount));
+  }
+
+  forceDebugChargeFull(): void {
+    if (!tuning.debugForceUltimate) return;
+    this.ultimateCooldownRemainMs = 0;
+    this.ultimateCharge = 1;
   }
 
   tickPassive(player: Player, dtMs: number): void {
@@ -400,6 +408,12 @@ class PlaceholderCombat implements CombatController {
 
   constructor(scene: Phaser.Scene) {
     this.scene = scene;
+  }
+
+  forceDebugChargeFull(): void {
+    if (!tuning.debugForceUltimate) return;
+    this.ultimateCooldownRemainMs = 0;
+    this.ultimateCharge = 1;
   }
 
   update(player: Player, input: Input, dtMs: number, targets: readonly Damageable[]): void {

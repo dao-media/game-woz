@@ -916,7 +916,11 @@ export function remapClipToDorothy(
     inPlace?: boolean;
     /** Skinned mesh whose bind matches the clip (e.g. Dorothy_new for Tripo bakes). */
     retargetSource?: THREE.SkinnedMesh;
-    /** Skip hip/thigh facing align (use for MASTER-baked Mixamo GLBs). */
+    /**
+     * Skip hip/thigh facing align. Use for Dorothy CC retargets that twist under
+     * align (Skip / Ultimate / Wave / attacks). Do NOT skip Walk/Run/Idle/Jump —
+     * those MASTER Mixamo bakes face ~90° off rest without align.
+     */
     skipFacingAlign?: boolean;
   },
 ): THREE.AnimationClip {

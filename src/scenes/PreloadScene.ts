@@ -6,6 +6,10 @@ import {
 import { preloadPropSprites } from '../entities/propSprites';
 import { preloadFenceTiles } from '../entities/Fence';
 import { preloadPlants } from '../entities/PlantField';
+import { preloadGroundBurst } from '../fx/groundBurstAssets';
+import { preloadEnemySpawn } from '../fx/enemySpawnAssets';
+import { preloadOptionalFx } from '../fx/optionalFxAssets';
+import { warmFx } from '../fx/fxWarm';
 import { preloadYbr } from '../entities/YellowBrickRoad';
 
 export class PreloadScene extends Phaser.Scene {
@@ -42,10 +46,14 @@ export class PreloadScene extends Phaser.Scene {
     preloadFenceTiles(this);
     preloadPlants(this);
     preloadYbr(this);
+    preloadGroundBurst(this);
+    preloadEnemySpawn(this);
+    preloadOptionalFx(this);
   }
 
   create(): void {
     ensureDorothyAnims(this);
+    warmFx(this);
     this.scene.start('Menu');
   }
 }

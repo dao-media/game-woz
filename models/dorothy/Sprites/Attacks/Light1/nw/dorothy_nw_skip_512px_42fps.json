@@ -1,0 +1,1469 @@
+{
+	"textures": [
+		{
+			"image": "dorothy_nw_skip_512px_42fps.png",
+			"format": "RGBA8888",
+			"size": {
+				"w": 3977,
+				"h": 1053
+			},
+			"scale": 1,
+			"frames": [
+				{
+					"filename": "dorothy_nw_attack_light_1_0000.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 164,
+						"y": 106,
+						"w": 149,
+						"h": 375
+					},
+					"frame": {
+						"x": 1663,
+						"y": 379,
+						"w": 149,
+						"h": 375
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0001.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 164,
+						"y": 106,
+						"w": 149,
+						"h": 375
+					},
+					"frame": {
+						"x": 1663,
+						"y": 379,
+						"w": 149,
+						"h": 375
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0002.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 163,
+						"y": 106,
+						"w": 150,
+						"h": 376
+					},
+					"frame": {
+						"x": 1505,
+						"y": 1,
+						"w": 150,
+						"h": 376
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0003.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 159,
+						"y": 105,
+						"w": 154,
+						"h": 377
+					},
+					"frame": {
+						"x": 1333,
+						"y": 380,
+						"w": 154,
+						"h": 377
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0004.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 154,
+						"y": 105,
+						"w": 160,
+						"h": 377
+					},
+					"frame": {
+						"x": 1192,
+						"y": 1,
+						"w": 160,
+						"h": 377
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0005.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 148,
+						"y": 104,
+						"w": 166,
+						"h": 379
+					},
+					"frame": {
+						"x": 1011,
+						"y": 382,
+						"w": 166,
+						"h": 379
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0006.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 142,
+						"y": 104,
+						"w": 172,
+						"h": 379
+					},
+					"frame": {
+						"x": 837,
+						"y": 382,
+						"w": 172,
+						"h": 379
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0007.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 138,
+						"y": 103,
+						"w": 175,
+						"h": 379
+					},
+					"frame": {
+						"x": 684,
+						"y": 1,
+						"w": 175,
+						"h": 379
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0008.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 138,
+						"y": 103,
+						"w": 172,
+						"h": 376
+					},
+					"frame": {
+						"x": 1489,
+						"y": 380,
+						"w": 172,
+						"h": 376
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0009.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 140,
+						"y": 103,
+						"w": 165,
+						"h": 371
+					},
+					"frame": {
+						"x": 1963,
+						"y": 375,
+						"w": 165,
+						"h": 371
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0010.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 145,
+						"y": 103,
+						"w": 160,
+						"h": 363
+					},
+					"frame": {
+						"x": 2126,
+						"y": 1,
+						"w": 160,
+						"h": 363
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0011.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 153,
+						"y": 103,
+						"w": 154,
+						"h": 354
+					},
+					"frame": {
+						"x": 2288,
+						"y": 1,
+						"w": 154,
+						"h": 354
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0012.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 164,
+						"y": 102,
+						"w": 145,
+						"h": 345
+					},
+					"frame": {
+						"x": 2444,
+						"y": 1,
+						"w": 145,
+						"h": 345
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0013.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 164,
+						"y": 103,
+						"w": 147,
+						"h": 337
+					},
+					"frame": {
+						"x": 2453,
+						"y": 348,
+						"w": 147,
+						"h": 337
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0014.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 163,
+						"y": 104,
+						"w": 151,
+						"h": 330
+					},
+					"frame": {
+						"x": 2591,
+						"y": 1,
+						"w": 151,
+						"h": 330
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0015.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 159,
+						"y": 107,
+						"w": 157,
+						"h": 326
+					},
+					"frame": {
+						"x": 2602,
+						"y": 333,
+						"w": 157,
+						"h": 326
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0016.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 156,
+						"y": 114,
+						"w": 161,
+						"h": 320
+					},
+					"frame": {
+						"x": 2744,
+						"y": 1,
+						"w": 161,
+						"h": 320
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0017.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 153,
+						"y": 124,
+						"w": 164,
+						"h": 313
+					},
+					"frame": {
+						"x": 3018,
+						"y": 319,
+						"w": 164,
+						"h": 313
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0018.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 151,
+						"y": 138,
+						"w": 168,
+						"h": 302
+					},
+					"frame": {
+						"x": 3599,
+						"y": 616,
+						"w": 168,
+						"h": 302
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0019.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 147,
+						"y": 146,
+						"w": 174,
+						"h": 297
+					},
+					"frame": {
+						"x": 1899,
+						"y": 755,
+						"w": 174,
+						"h": 297
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0020.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 142,
+						"y": 151,
+						"w": 181,
+						"h": 295
+					},
+					"frame": {
+						"x": 1716,
+						"y": 756,
+						"w": 181,
+						"h": 295
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0021.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 140,
+						"y": 150,
+						"w": 185,
+						"h": 299
+					},
+					"frame": {
+						"x": 3767,
+						"y": 305,
+						"w": 185,
+						"h": 299
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0022.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 137,
+						"y": 148,
+						"w": 191,
+						"h": 302
+					},
+					"frame": {
+						"x": 3785,
+						"y": 1,
+						"w": 191,
+						"h": 302
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0023.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 134,
+						"y": 146,
+						"w": 198,
+						"h": 304
+					},
+					"frame": {
+						"x": 3399,
+						"y": 624,
+						"w": 198,
+						"h": 304
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0024.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 130,
+						"y": 146,
+						"w": 210,
+						"h": 304
+					},
+					"frame": {
+						"x": 2075,
+						"y": 748,
+						"w": 210,
+						"h": 304
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0025.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 120,
+						"y": 148,
+						"w": 229,
+						"h": 302
+					},
+					"frame": {
+						"x": 3554,
+						"y": 1,
+						"w": 229,
+						"h": 302
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0026.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 110,
+						"y": 138,
+						"w": 246,
+						"h": 311
+					},
+					"frame": {
+						"x": 3161,
+						"y": 1,
+						"w": 246,
+						"h": 311
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0027.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 104,
+						"y": 131,
+						"w": 255,
+						"h": 318
+					},
+					"frame": {
+						"x": 2761,
+						"y": 323,
+						"w": 255,
+						"h": 318
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0028.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 101,
+						"y": 130,
+						"w": 258,
+						"h": 319
+					},
+					"frame": {
+						"x": 2748,
+						"y": 661,
+						"w": 258,
+						"h": 319
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0029.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 102,
+						"y": 133,
+						"w": 252,
+						"h": 316
+					},
+					"frame": {
+						"x": 2907,
+						"y": 1,
+						"w": 252,
+						"h": 316
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0030.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 106,
+						"y": 139,
+						"w": 241,
+						"h": 311
+					},
+					"frame": {
+						"x": 3156,
+						"y": 634,
+						"w": 241,
+						"h": 311
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0031.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 114,
+						"y": 143,
+						"w": 227,
+						"h": 308
+					},
+					"frame": {
+						"x": 3184,
+						"y": 314,
+						"w": 227,
+						"h": 308
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0032.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 125,
+						"y": 150,
+						"w": 210,
+						"h": 303
+					},
+					"frame": {
+						"x": 3413,
+						"y": 311,
+						"w": 210,
+						"h": 303
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0033.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 137,
+						"y": 163,
+						"w": 193,
+						"h": 292
+					},
+					"frame": {
+						"x": 1340,
+						"y": 759,
+						"w": 193,
+						"h": 292
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0034.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 136,
+						"y": 181,
+						"w": 191,
+						"h": 276
+					},
+					"frame": {
+						"x": 526,
+						"y": 773,
+						"w": 191,
+						"h": 276
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0035.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 137,
+						"y": 185,
+						"w": 188,
+						"h": 273
+					},
+					"frame": {
+						"x": 1,
+						"y": 777,
+						"w": 188,
+						"h": 273
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0036.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 139,
+						"y": 190,
+						"w": 185,
+						"h": 269
+					},
+					"frame": {
+						"x": 3769,
+						"y": 606,
+						"w": 185,
+						"h": 269
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0037.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 143,
+						"y": 187,
+						"w": 179,
+						"h": 271
+					},
+					"frame": {
+						"x": 1535,
+						"y": 758,
+						"w": 179,
+						"h": 271
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0038.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 148,
+						"y": 184,
+						"w": 171,
+						"h": 273
+					},
+					"frame": {
+						"x": 191,
+						"y": 777,
+						"w": 171,
+						"h": 273
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0039.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 154,
+						"y": 179,
+						"w": 163,
+						"h": 276
+					},
+					"frame": {
+						"x": 1175,
+						"y": 763,
+						"w": 163,
+						"h": 276
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0040.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 154,
+						"y": 175,
+						"w": 160,
+						"h": 279
+					},
+					"frame": {
+						"x": 364,
+						"y": 773,
+						"w": 160,
+						"h": 279
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0041.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 156,
+						"y": 170,
+						"w": 155,
+						"h": 282
+					},
+					"frame": {
+						"x": 719,
+						"y": 768,
+						"w": 155,
+						"h": 282
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0042.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 159,
+						"y": 164,
+						"w": 150,
+						"h": 286
+					},
+					"frame": {
+						"x": 1023,
+						"y": 763,
+						"w": 150,
+						"h": 286
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0043.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 163,
+						"y": 158,
+						"w": 145,
+						"h": 289
+					},
+					"frame": {
+						"x": 876,
+						"y": 763,
+						"w": 145,
+						"h": 289
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0044.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 166,
+						"y": 145,
+						"w": 140,
+						"h": 300
+					},
+					"frame": {
+						"x": 3625,
+						"y": 305,
+						"w": 140,
+						"h": 300
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0045.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 162,
+						"y": 136,
+						"w": 143,
+						"h": 308
+					},
+					"frame": {
+						"x": 3409,
+						"y": 1,
+						"w": 143,
+						"h": 308
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0046.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 157,
+						"y": 129,
+						"w": 146,
+						"h": 315
+					},
+					"frame": {
+						"x": 3008,
+						"y": 643,
+						"w": 146,
+						"h": 315
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0047.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 152,
+						"y": 125,
+						"w": 150,
+						"h": 321
+					},
+					"frame": {
+						"x": 2287,
+						"y": 728,
+						"w": 150,
+						"h": 321
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0048.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 148,
+						"y": 122,
+						"w": 152,
+						"h": 328
+					},
+					"frame": {
+						"x": 2594,
+						"y": 687,
+						"w": 152,
+						"h": 328
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0049.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 145,
+						"y": 120,
+						"w": 153,
+						"h": 337
+					},
+					"frame": {
+						"x": 2439,
+						"y": 708,
+						"w": 153,
+						"h": 337
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0050.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 144,
+						"y": 118,
+						"w": 156,
+						"h": 349
+					},
+					"frame": {
+						"x": 2295,
+						"y": 357,
+						"w": 156,
+						"h": 349
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0051.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 143,
+						"y": 117,
+						"w": 163,
+						"h": 360
+					},
+					"frame": {
+						"x": 2130,
+						"y": 366,
+						"w": 163,
+						"h": 360
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0052.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 144,
+						"y": 115,
+						"w": 168,
+						"h": 372
+					},
+					"frame": {
+						"x": 1956,
+						"y": 1,
+						"w": 168,
+						"h": 372
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0053.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 145,
+						"y": 114,
+						"w": 172,
+						"h": 379
+					},
+					"frame": {
+						"x": 861,
+						"y": 1,
+						"w": 172,
+						"h": 379
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0054.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 147,
+						"y": 112,
+						"w": 173,
+						"h": 384
+					},
+					"frame": {
+						"x": 347,
+						"y": 1,
+						"w": 173,
+						"h": 384
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0055.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 147,
+						"y": 111,
+						"w": 174,
+						"h": 386
+					},
+					"frame": {
+						"x": 1,
+						"y": 1,
+						"w": 174,
+						"h": 386
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0056.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 149,
+						"y": 111,
+						"w": 172,
+						"h": 386
+					},
+					"frame": {
+						"x": 1,
+						"y": 389,
+						"w": 172,
+						"h": 386
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0057.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 150,
+						"y": 110,
+						"w": 171,
+						"h": 386
+					},
+					"frame": {
+						"x": 175,
+						"y": 389,
+						"w": 171,
+						"h": 386
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0058.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 152,
+						"y": 109,
+						"w": 168,
+						"h": 386
+					},
+					"frame": {
+						"x": 177,
+						"y": 1,
+						"w": 168,
+						"h": 386
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0059.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 154,
+						"y": 109,
+						"w": 165,
+						"h": 384
+					},
+					"frame": {
+						"x": 348,
+						"y": 387,
+						"w": 165,
+						"h": 384
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0060.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 156,
+						"y": 108,
+						"w": 162,
+						"h": 384
+					},
+					"frame": {
+						"x": 515,
+						"y": 387,
+						"w": 162,
+						"h": 384
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0061.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 158,
+						"y": 108,
+						"w": 160,
+						"h": 382
+					},
+					"frame": {
+						"x": 522,
+						"y": 1,
+						"w": 160,
+						"h": 382
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0062.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 160,
+						"y": 108,
+						"w": 156,
+						"h": 381
+					},
+					"frame": {
+						"x": 679,
+						"y": 385,
+						"w": 156,
+						"h": 381
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0063.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 161,
+						"y": 108,
+						"w": 155,
+						"h": 379
+					},
+					"frame": {
+						"x": 1035,
+						"y": 1,
+						"w": 155,
+						"h": 379
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0064.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 163,
+						"y": 108,
+						"w": 152,
+						"h": 378
+					},
+					"frame": {
+						"x": 1179,
+						"y": 382,
+						"w": 152,
+						"h": 378
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0065.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 165,
+						"y": 107,
+						"w": 149,
+						"h": 377
+					},
+					"frame": {
+						"x": 1354,
+						"y": 1,
+						"w": 149,
+						"h": 377
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0066.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 166,
+						"y": 107,
+						"w": 147,
+						"h": 376
+					},
+					"frame": {
+						"x": 1657,
+						"y": 1,
+						"w": 147,
+						"h": 376
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0067.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 166,
+						"y": 107,
+						"w": 147,
+						"h": 375
+					},
+					"frame": {
+						"x": 1814,
+						"y": 378,
+						"w": 147,
+						"h": 375
+					}
+				},
+				{
+					"filename": "dorothy_nw_attack_light_1_0068.png",
+					"rotated": false,
+					"trimmed": true,
+					"sourceSize": {
+						"w": 512,
+						"h": 512
+					},
+					"spriteSourceSize": {
+						"x": 165,
+						"y": 107,
+						"w": 148,
+						"h": 375
+					},
+					"frame": {
+						"x": 1806,
+						"y": 1,
+						"w": 148,
+						"h": 375
+					}
+				}
+			]
+		}
+	],
+	"meta": {
+		"app": "https://www.codeandweb.com/texturepacker",
+		"version": "3.0",
+		"smartupdate": "$TexturePacker:SmartUpdate:1a509023302eafdedc7ee3cd014ee454:c84697e3e8900303ee83b994f4824667:cad21cd7c93e2a0d983b392a4d45ea59$"
+	}
+}

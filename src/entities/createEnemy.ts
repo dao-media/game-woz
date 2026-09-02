@@ -21,5 +21,7 @@ export function createEnemy(
   const brain: UtilityBrain =
     def.id === 'winged-monkey' ? monkeyBrain : wheelerBrain;
 
-  return new Enemy(scene, def, spawn, brain, difficulty);
+  const enemy = new Enemy(scene, def, spawn, brain, difficulty);
+  enemy.beginSpawn();
+  return enemy;
 }

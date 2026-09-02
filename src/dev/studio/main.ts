@@ -34,6 +34,14 @@ const MODEL_YAW_CLOCKWISE_RAD = -Math.PI / 2;
  * by this amount so Walk/Idle face the same cardinal as the slider.
  */
 const MONKEY_CLIP_FACING_OFFSET_RAD = -Math.PI / 2;
+/**
+ * Dorothy Mixamo Run/Idle/Jump face ~90° off Walk/rest — `alignClipFacingToRest`
+ * fixes that. Skip only on CC→Dorothy retargets where the same pass twists
+ * wrists/feet (Skip, Ultimate, Wave, attacks). Never used for monkey (pass-through).
+ */
+function dorothySkipFacingAlign(label: string): boolean {
+  return /skip|ultimate|wave|attack|kick|spell|light\b|heavy\b|punch/i.test(label);
+}
 /** Orbit pitch locked: degrees down from horizontal. Pan / azimuth / zoom stay free. */
 const CAMERA_DOWN_DEG = 28;
 /** Yearbook / selector stills: nearly eye-level, square-on to the character. */
@@ -517,9 +525,10 @@ async function loadClipFromUrl(
       name: label,
       targetSkinned,
       kind: rigKind,
-      // MASTER-baked Mixamo GLBs already share Dorothy bind; facing align can
-      // twist wrists/feet on CC→Dorothy retargets (Skip, Ultimate, etc.).
-      skipFacingAlign: preferredRig === 'mixamo_char',
+      // Restore Walk/Run/Idle/Jump facing align; skip only twist-prone retargets.
+      // Monkey never hits this path (pass-through above).
+      skipFacingAlign:
+        preferredRig === 'mixamo_char' && dorothySkipFacingAlign(label),
       ...retarget,
     });
   }
@@ -1199,7 +1208,8 @@ async function main(): Promise<void> {
           name: cat.label,
           targetSkinned: skinned,
           kind: detectRigKind(skinned),
-          skipFacingAlign: character.rig === 'mixamo_char',
+          skipFacingAlign:
+            character.rig === 'mixamo_char' && dorothySkipFacingAlign(cat.label),
           ...(retargetSource ? { retargetSource } : {}),
         });
         loadClip(

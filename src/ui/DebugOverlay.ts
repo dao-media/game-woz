@@ -4,6 +4,7 @@ import type { Player } from '../entities/Player';
 import type { Enemy } from '../entities/Enemy';
 import type { EncounterManager } from '../combat/EncounterManager';
 import { Projection } from '../core/Projection';
+import { tuning } from '../config/tuning';
 import type { DifficultyId } from '../ai/DifficultyParams';
 
 export type DebugCombatContext = {
@@ -28,6 +29,16 @@ export type DebugUpdateExtras = {
   combat?: DebugCombatContext;
   fence?: DebugFenceContext;
   ybr?: DebugYbrContext;
+  /** Slipper glow feet anchor(s) (F3 debug). */
+  slipperFeet?: { x: number; y: number } | null;
+  slipperFeetFront?: { x: number; y: number } | null;
+  slipperFeetBack?: { x: number; y: number } | null;
+  /** Player measured feet (F3 debug). */
+  playerFeet?: { x: number; y: number } | null;
+  playerFeetFront?: { x: number; y: number } | null;
+  playerFeetBack?: { x: number; y: number } | null;
+  sparkleFx?: Record<string, unknown> | null;
+  groundBurstFx?: Record<string, unknown> | null;
 };
 
 type IdleGroundTruth = {
@@ -75,6 +86,10 @@ export class DebugOverlay {
     }
     // Immediate feedback so an empty first frame doesn't look like a dead toggle.
     if (!this.text.text) this.text.setText('debug…');
+  }
+
+  isVisible(): boolean {
+    return this.visible;
   }
 
   update(
@@ -161,6 +176,50 @@ export class DebugOverlay {
       );
     }
 
+    if (extras?.sparkleFx) {
+      const s = extras.sparkleFx;
+      lines.push(
+        `glow  mode=${String(s.mode ?? '?')}  ready=${s.pipelineReady ? 'ok' : 'OFF'}  active=${s.active}  fade=${Number(s.fadeT).toFixed(2)}  vis=${s.frontVisible}  ${Number(s.frontW).toFixed(0)}×${Number(s.frontH).toFixed(0)}`,
+      );
+      const pipe = s.pipeline as
+        | { mode?: string; colorRgb?: number[]; programLinked?: boolean }
+        | null
+        | undefined;
+      if (pipe) {
+        const rgb = pipe.colorRgb;
+        const rgbStr = Array.isArray(rgb)
+          ? rgb.map((v) => Number(v).toFixed(2)).join(',')
+          : '?';
+        lines.push(
+          `sparkle  mode=${pipe.mode ?? '?'}  rgb=${rgbStr}  linked=${pipe.programLinked ? 'y' : 'n'}`,
+        );
+      }
+      if (s.pipeline) {
+        const p = s.pipeline as { programLinked: boolean; hasSpriteTexture: boolean };
+        lines.push(
+          `  glsl linked=${p.programLinked}  spriteTex=${p.hasSpriteTexture}`,
+        );
+      }
+    } else {
+      lines.push('sparkle  (slipperAura null — check [Game] disabled log)');
+    }
+
+    if (extras?.groundBurstFx) {
+      const g = extras.groundBurstFx;
+      lines.push(
+        `burst  anim=${g.animReady ? 'ok' : 'OFF'}  sprite=${g.hasSprite}  playing=${g.playing}  vis=${g.visible}  αbot=${Number(g.alphaBottomRatio ?? 0).toFixed(3)}`,
+      );
+      lines.push(
+        `burstF  vis=${g.frontVisible}  mask=${g.frontMasked ? 'on' : 'off'}  α=${Number(g.frontOpacity ?? 0).toFixed(2)}`,
+      );
+    } else {
+      lines.push('burst  (groundBurst null — check [Game] disabled log)');
+    }
+
+    if (tuning.debugForceUltimate) {
+      lines.push('debug  P = force ult charge + replay VFX (no F3 needed)');
+    }
+
     this.text.setText(lines.join('\n'));
 
     this.feetLine.clear();
@@ -170,5 +229,45 @@ export class DebugOverlay {
     const x1 = cam.worldView.right;
     this.feetLine.lineStyle(1, 0xa0ffa0, 0.55);
     this.feetLine.lineBetween(x0, refY, x1, refY);
+
+    if (extras?.playerFeet) {
+      const { x, y } = extras.playerFeet;
+      this.feetLine.lineStyle(2, 0x40ff60, 0.9);
+      this.feetLine.strokeCircle(x, y, 5);
+      this.feetLine.fillStyle(0x40ff60, 0.35);
+      this.feetLine.fillCircle(x, y, 5);
+    }
+
+    if (extras?.playerFeetFront) {
+      const { x, y } = extras.playerFeetFront;
+      this.feetLine.lineStyle(2, 0x80ff90, 0.85);
+      this.feetLine.strokeCircle(x, y, 4);
+    }
+
+    if (extras?.playerFeetBack) {
+      const { x, y } = extras.playerFeetBack;
+      this.feetLine.lineStyle(2, 0x30cc50, 0.7);
+      this.feetLine.strokeCircle(x, y, 3);
+    }
+
+    if (extras?.slipperFeet) {
+      const { x, y } = extras.slipperFeet;
+      this.feetLine.lineStyle(2, 0xff4040, 0.9);
+      this.feetLine.strokeCircle(x, y, 4);
+      this.feetLine.fillStyle(0xff4040, 0.35);
+      this.feetLine.fillCircle(x, y, 4);
+    }
+
+    if (extras?.slipperFeetFront) {
+      const { x, y } = extras.slipperFeetFront;
+      this.feetLine.lineStyle(2, 0xff8080, 0.85);
+      this.feetLine.strokeCircle(x, y, 3);
+    }
+
+    if (extras?.slipperFeetBack) {
+      const { x, y } = extras.slipperFeetBack;
+      this.feetLine.lineStyle(2, 0xcc3030, 0.7);
+      this.feetLine.strokeCircle(x, y, 3);
+    }
   }
 }

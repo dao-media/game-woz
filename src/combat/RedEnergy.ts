@@ -58,6 +58,7 @@ export class RedEnergyBolt {
     for (const t of targets) {
       if (!this.alive || this.hit.size >= tuning.heavyMaxTargets) break;
       if (this.hit.has(t) || t.health.isDead) continue;
+      if (t.hittable === false) continue;
       if (Math.abs(t.floorY - this.floorY) > tuning.heavyFloorYTolerance) continue;
       const dx = t.floorX - this.floorX;
       const dy = t.floorY - this.floorY;
@@ -154,7 +155,7 @@ export function acquireNearestTargets(
   max: number,
 ): Damageable[] {
   return targets
-    .filter((t) => !t.health.isDead)
+    .filter((t) => !t.health.isDead && t.hittable !== false)
     .map((t) => ({
       t,
       d: Math.hypot(t.floorX - origin.floorX, t.floorY - origin.floorY),

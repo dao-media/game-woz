@@ -25,14 +25,21 @@ export type AttackDef = {
 export type FloorPose = {
   floorX: number;
   floorY: number;
-  /** +1 = facing east (right), −1 = west (left). */
+  /** +1 = facing east (right), −1 = west (left). Used when aimRad is omitted. */
   facing: 1 | -1;
+  /**
+   * Optional floor-space aim (radians, atan2(dy, dx) convention).
+   * When set, arc attacks use full 8-way aim instead of east/west only.
+   */
+  aimRad?: number;
 };
 
 export type Damageable = {
   floorX: number;
   floorY: number;
   health: Health;
+  /** False while spawning / i-frames — skip hit resolution. */
+  hittable?: boolean;
   /** Apply knockback impulse in floor space. */
   applyKnockback?: (dx: number, dy: number) => void;
   /** Invoked for hit-feel (flash, etc.). */
@@ -59,6 +66,7 @@ export function resolveAttack(
 
   for (const target of targets) {
     if (alreadyHit.has(target) || target.health.isDead) continue;
+    if (target.hittable === false) continue;
     if (!isInAttackArea(attack, origin, target.floorX, target.floorY)) continue;
 
     const dealt = target.health.applyDamage(attack.damage, source);
@@ -97,18 +105,27 @@ export function isInAttackArea(
 
   // Must be roughly in facing hemisphere and within range.
   if (dist > attack.floorRange || dist < 0.001) return false;
-  const facingDot = dx * origin.facing;
-  if (facingDot < 0) return false;
 
   if (attack.shape === 'rect') {
+    const facingDot = dx * origin.facing;
+    if (facingDot < 0) return false;
     const halfY = attack.floorYHalfWidth ?? attack.floorRange * 0.45;
     return Math.abs(dy) <= halfY && Math.abs(dx) <= attack.floorRange;
   }
 
-  // arc — angle from facing axis (+X when facing east).
-  const angle = Math.atan2(dy, dx * origin.facing);
+  // arc — angle from aim axis (8-way when aimRad set; else ±X from facing).
+  const aim =
+    origin.aimRad != null
+      ? origin.aimRad
+      : origin.facing >= 0
+        ? 0
+        : Math.PI;
+  const targetAngle = Math.atan2(dy, dx);
+  let delta = targetAngle - aim;
+  while (delta > Math.PI) delta -= Math.PI * 2;
+  while (delta < -Math.PI) delta += Math.PI * 2;
   const half = ((attack.halfAngleDeg ?? 50) * Math.PI) / 180;
-  return Math.abs(angle) <= half;
+  return Math.abs(delta) <= half;
 }
 
 export function clampFloorY(y: number): number {

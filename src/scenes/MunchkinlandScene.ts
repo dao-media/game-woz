@@ -21,6 +21,7 @@ import { ybrRoadLength } from '../data/ybr';
 import { buildApproachFraming } from '../render/FacadeGate';
 import { MunchkinGate } from '../render/MunchkinGate';
 import { createStageLayers, redrawStage, type StageLayers } from '../render/StageView';
+import { LayeredAtmospherics } from '../fx/LayeredAtmospherics';
 import { DebugOverlay } from '../ui/DebugOverlay';
 import { IntroCameraMove } from './IntroCameraMove';
 
@@ -39,6 +40,7 @@ export class MunchkinlandScene extends Phaser.Scene {
   private gate!: MunchkinGate;
   private tracks: readonly DepthTrack[] = [];
   private stage!: StageLayers;
+  private atmospherics!: LayeredAtmospherics;
   private approach!: Phaser.GameObjects.Container;
   private intro!: IntroCameraMove;
   private debug!: DebugOverlay;
@@ -71,6 +73,7 @@ export class MunchkinlandScene extends Phaser.Scene {
     this.stage = createStageLayers(this);
     this.stage.backdrop.setAlpha(0);
     this.stage.floor.setAlpha(0);
+    this.atmospherics = new LayeredAtmospherics(this, this.worldWidth);
 
     this.gate = new MunchkinGate(this);
     this.gate.setAlpha(0);
@@ -106,6 +109,7 @@ export class MunchkinlandScene extends Phaser.Scene {
     const sideScrollTargets: Phaser.GameObjects.GameObject[] = [
       this.stage.backdrop,
       this.stage.floor,
+      ...this.atmospherics.displayObjects,
       ...this.gate.displayObjects,
       ...this.props.flatMap((p) => p.displayObjects),
       ...this.ybr.displayObjects,
@@ -136,7 +140,7 @@ export class MunchkinlandScene extends Phaser.Scene {
     if (input.justDown('debug')) this.debug.toggle();
 
     if (this.beat === 'intro') {
-      this.syncCameraAndStage();
+      this.syncCameraAndStage(dt);
       this.debug.update(this.player, this.committed, runState.selectedCharacter, {
         fence: {
           tileCount: this.fence.tileCount,
@@ -157,7 +161,7 @@ export class MunchkinlandScene extends Phaser.Scene {
     }
 
     this.player.update(input, dt);
-    this.syncCameraAndStage();
+    this.syncCameraAndStage(dt);
 
     this.debug.update(this.player, this.committed, runState.selectedCharacter, {
       fence: {
@@ -181,7 +185,7 @@ export class MunchkinlandScene extends Phaser.Scene {
     }
   }
 
-  private syncCameraAndStage(): void {
+  private syncCameraAndStage(dtMs = 16): void {
     const cam = this.cameras.main;
     cam.scrollX = this.player.floorX - tuning.gameWidth / 2;
     cam.scrollY = Projection.horizonY() - tuning.backdropHeight * 0.35;
@@ -201,6 +205,7 @@ export class MunchkinlandScene extends Phaser.Scene {
     this.ybr.syncVisual();
     this.plants.syncVisual();
     this.player.syncVisual();
+    this.atmospherics.update(dtMs, cam.scrollX);
   }
 
   private beginWalkThrough(): void {
@@ -222,13 +227,28 @@ export class MunchkinlandScene extends Phaser.Scene {
   }
 
   private async commitFork(): Promise<void> {
-    const branch = branchForFloorY(this.player.floorY);
-    this.committed = branch;
-    const { storage, runState } = getServices(this);
-    await runState.setPath(branch.id, storage);
-    this.hint.setText(`Path chosen: ${branch.label} →`);
-    this.time.delayedCall(500, () => {
-      this.scene.start('Game');
-    });
+    if (this.committed) return;
+    try {
+      const branch = branchForFloorY(this.player.floorY);
+      this.committed = branch;
+      const { storage, runState, input } = getServices(this);
+      input.setEnabled(false);
+      this.player.setScriptedMove(null);
+      this.registry.set('gameHandoff', {
+        floorY: this.player.floorY,
+        branchId: branch.id,
+      });
+      await runState.setPath(branch.id, storage);
+      this.hint.setText(`Path chosen: ${branch.label} →`);
+      this.time.delayedCall(120, () => {
+        if (!this.scene.isActive()) return;
+        this.scene.start('Game');
+      });
+    } catch (err) {
+      console.error('[Munchkinland] commitFork failed', err);
+      this.committed = null;
+      getServices(this).input.setEnabled(true);
+      this.hint.setText('Path save failed — try again');
+    }
   }
 }

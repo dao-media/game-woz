@@ -1,0 +1,64 @@
+{
+  "version": 1,
+  "source": "public/fx/ground-burst/ground_burst_sheet.png",
+  "frameWidth": 256,
+  "frameHeight": 144,
+  "frameCount": 10,
+  "animStartFrame": 1,
+  "alphaThreshold": 24,
+  "note": "Derived offline \u2014 burstAlphaBottomRatio is measured, not guessed.",
+  "burstAlphaBottomY": 115,
+  "burstAlphaBottomRatio": 0.80208,
+  "frames": [
+    {
+      "frame": 0,
+      "alphaBottomY": null,
+      "alphaBottomRatio": null
+    },
+    {
+      "frame": 1,
+      "alphaBottomY": 115,
+      "alphaBottomRatio": 0.8020833333333334
+    },
+    {
+      "frame": 2,
+      "alphaBottomY": 115,
+      "alphaBottomRatio": 0.8020833333333334
+    },
+    {
+      "frame": 3,
+      "alphaBottomY": 115,
+      "alphaBottomRatio": 0.8020833333333334
+    },
+    {
+      "frame": 4,
+      "alphaBottomY": 115,
+      "alphaBottomRatio": 0.8020833333333334
+    },
+    {
+      "frame": 5,
+      "alphaBottomY": 115,
+      "alphaBottomRatio": 0.8020833333333334
+    },
+    {
+      "frame": 6,
+      "alphaBottomY": 115,
+      "alphaBottomRatio": 0.8020833333333334
+    },
+    {
+      "frame": 7,
+      "alphaBottomY": 115,
+      "alphaBottomRatio": 0.8020833333333334
+    },
+    {
+      "frame": 8,
+      "alphaBottomY": 115,
+      "alphaBottomRatio": 0.8020833333333334
+    },
+    {
+      "frame": 9,
+      "alphaBottomY": 115,
+      "alphaBottomRatio": 0.8020833333333334
+    }
+  ]
+}

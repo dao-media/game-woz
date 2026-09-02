@@ -12,6 +12,7 @@ import { buildPerception } from '../ai/Perception';
 import { decideUtility, type ActionId, type ScoredAction, type UtilityBrain } from '../ai/UtilityAI';
 import { Executor } from '../ai/Executor';
 import type { Player } from './Player';
+import { EnemySpawnFx } from '../fx/EnemySpawnFx';
 
 /**
  * Data-driven enemy with utility decide + executor motor layers.
@@ -29,6 +30,12 @@ export class Enemy implements Damageable {
   floorY: number;
   z = 0;
   alive = true;
+  /** True while rising from underground — AI and hits disabled. */
+  spawning = false;
+
+  get hittable(): boolean {
+    return this.alive && !this.spawning;
+  }
 
   /** Debug: last utility decision. */
   lastChosen: ActionId = 'circle';
@@ -45,6 +52,9 @@ export class Enemy implements Damageable {
   private readonly difficulty: DifficultyParams;
   private readonly damage: number;
   private readonly baseFill: number;
+  private readonly restZ: number;
+  private spawnElapsedMs = 0;
+  private spawnFx: EnemySpawnFx | null = null;
 
   constructor(
     scene: Phaser.Scene,
@@ -60,7 +70,8 @@ export class Enemy implements Damageable {
     this.difficulty = difficulty;
     this.floorX = spawn.floorX;
     this.floorY = clampFloorY(spawn.floorY);
-    this.z = def.hoverZ;
+    this.restZ = def.hoverZ;
+    this.z = this.restZ;
     this.baseFill = def.color;
     this.damage = def.contactDamage * clampDifficultyMult(difficulty.damageMult);
 
@@ -83,6 +94,15 @@ export class Enemy implements Damageable {
     this.syncVisual();
   }
 
+  /** Rise from below floor; plays spawn FX at ground anchor. Called from createEnemy. */
+  beginSpawn(): void {
+    this.spawning = true;
+    this.spawnElapsedMs = 0;
+    this.z = -tuning.spawnRiseDepth;
+    this.syncVisual();
+    this.spawnFx = EnemySpawnFx.playAt(this.scene, this);
+  }
+
   applyKnockback(dx: number, dy: number): void {
     this.knockVelX += dx;
     this.knockVelY += dy;
@@ -94,6 +114,11 @@ export class Enemy implements Damageable {
 
   update(dtMs: number, player: Player, allies: readonly Enemy[]): void {
     if (!this.alive) return;
+
+    if (this.spawning) {
+      this.tickSpawnRise(dtMs);
+      return;
+    }
 
     const dt = dtMs / 1000;
     if (this.contactCooldownMs > 0) this.contactCooldownMs -= dtMs;
@@ -171,6 +196,20 @@ export class Enemy implements Damageable {
     this.syncVisual();
   }
 
+  private tickSpawnRise(dtMs: number): void {
+    this.spawnElapsedMs += dtMs;
+    const t = Phaser.Math.Clamp(this.spawnElapsedMs / tuning.spawnRiseMs, 0, 1);
+    const eased = Phaser.Math.Easing.Cubic.Out(t);
+    this.z = Phaser.Math.Linear(-tuning.spawnRiseDepth, this.restZ, eased);
+    this.spawnFx?.sync(this);
+    this.syncVisual();
+
+    if (t >= 1) {
+      this.spawning = false;
+      this.z = this.restZ;
+    }
+  }
+
   syncVisual(): void {
     if (!this.alive) return;
     const screen = Projection.toScreen(this.floorX, this.floorY, this.z);
@@ -195,6 +234,7 @@ export class Enemy implements Damageable {
   }
 
   destroy(): void {
+    this.spawnFx?.destroy();
     this.body.destroy();
     this.shadow.destroy();
   }
